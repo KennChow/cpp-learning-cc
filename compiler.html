@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在线 C++ 编译器 — C++ 学院</title>
+  <meta name="description" content="在线 C++ 编译器，支持 C++11/14/17/20，内嵌 Monaco Editor，通过 Wandbox API 运行代码。">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Monaco Editor Loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+  <!-- 自定义样式 -->
+  <link rel="stylesheet" href="css/main.css">
+
+  <style>
+    /* 编译器页专属覆盖样式 */
+    body { overflow: hidden; }
+
+    .compiler-page {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .compiler-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .editor-panel {
+      flex: 6;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      border-right: 1px solid #334155;
+    }
+
+    .output-panel {
+      flex: 4;
+      display: flex;
+      flex-direction: column;
+      background: var(--stdout-bg);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    #editor-container {
+      flex: 1;
+      min-height: 0;
+      height: auto !important;
+    }
+
+    .output-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    .output-body::-webkit-scrollbar { width: 4px; }
+    .output-body::-webkit-scrollbar-track { background: transparent; }
+    .output-body::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 2px; }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #0a1628;
+      border-bottom: 1px solid #1e3a5f;
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: #475569;
+      flex-shrink: 0;
+    }
+
+    .output-tab {
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all .15s;
+      border: 1px solid transparent;
+    }
+    .output-tab.active {
+      background: rgba(59,130,246,.15);
+      border-color: rgba(59,130,246,.3);
+      color: #93c5fd;
+    }
+    .output-tab:not(.active):hover {
+      background: rgba(255,255,255,.05);
+      color: #94a3b8;
+    }
+
+    .output-section {
+      display: none;
+    }
+    .output-section.active {
+      display: block;
+    }
+
+    .stdin-area {
+      flex-shrink: 0;
+      border-top: 1px solid #334155;
+    }
+
+    .action-bar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #0f172a;
+      border-top: 1px solid #1e3a5f;
+    }
+
+    /* 编辑器底部状态栏 */
+    .editor-statusbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 4px 16px;
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      font-size: 0.72rem;
+      color: #64748b;
+      font-family: var(--font-sans);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: .7rem;
+    }
+    .status-pill.ok     { background: rgba(34,197,94,.15);  color: #4ade80; }
+    .status-pill.err    { background: rgba(239,68,68,.15);  color: #f87171; }
+    .status-pill.warn   { background: rgba(245,158,11,.15); color: #fbbf24; }
+    .status-pill.idle   { background: rgba(100,116,139,.15);color: #94a3b8; }
+
+    /* 全屏 */
+    .compiler-page.fullscreen .output-panel { display: none; }
+    .compiler-page.fullscreen .editor-panel { flex: 1; }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .compiler-body { flex-direction: column; overflow-y: auto; }
+      .editor-panel  { flex: none; min-height: 320px; border-right: none; border-bottom: 1px solid #334155; }
+      .output-panel  { flex: none; min-height: 300px; }
+      body { overflow: auto; }
+      .compiler-page { height: auto; overflow: auto; }
+    }
+
+    /* loading 动画覆盖层 */
+    .editor-loading {
+      position: absolute;
+      inset: 0;
+      background: #1e1e1e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 10;
+      color: #4d5566;
+      font-family: var(--font-mono);
+      font-size: .85rem;
+    }
+  </style>
+</head>
+<body>
+<div class="compiler-page" id="compilerPage">
+
+<!-- ════════════════════════════════════════
+     顶部导航（与首页一致）
+     ════════════════════════════════════════ -->
+<header class="top-nav" style="flex-shrink:0">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-badge">C++</div>
+      <span>C++ 学院</span>
+    </a>
+
+    <nav aria-label="主导航">
+      <ul class="nav-menu" id="navMenu">
+        <li class="nav-menu-item" id="menu-beginner">
+          <button class="nav-menu-btn" onclick="toggleMenu('menu-beginner')">🌱 初级 <span class="chevron">▾</span></button>
+          <div class="nav-dropdown">
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">01</span>Hello World</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">02</span>变量与类型</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">03</span>运算符</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">04</span>控制流</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">05</span>函数</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">06</span>数组字符串</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">07</span>指针引用</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">08</span>结构体</a>
+          </div>
+        </li>
+        <li class="nav-menu-item" id="menu-intermediate">
+          <button class="nav-menu-btn" onclick="toggleMenu('menu-intermediate')">🔥 中级 <span class="chevron">▾</span></button>
+          <div class="nav-dropdown">
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">09</span>OOP 基础</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">10</span>构造析构</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">11</span>继承</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">12</span>多态虚函数</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">13</span>模板</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">14</span>STL 容器</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">15</span>STL 算法</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">16</span>文件IO异常</a>
+          </div>
+        </li>
+        <li class="nav-menu-item" id="menu-advanced">
+          <button class="nav-menu-btn" onclick="toggleMenu('menu-advanced')">⚡ 进阶 <span class="chevron">▾</span></button>
+          <div class="nav-dropdown">
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">17</span>移动语义</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">18</span>智能指针</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">19</span>Lambda</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">20</span>并发编程</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">21</span>模板元编程</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">22</span>设计模式</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">23</span>内存管理</a>
+            <a class="nav-dropdown-item" href="index.html#courses"><span class="item-num">24</span>C++17/20</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-3 ml-auto">
+      <span class="text-sm text-slate-500 hidden sm:block">在线 C++ 编译器</span>
+      <a href="index.html" class="btn btn-dark btn-sm">← 返回首页</a>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     工具栏
+     ════════════════════════════════════════ -->
+<div class="toolbar" style="flex-shrink:0">
+  <!-- 语言标准 -->
+  <label style="color:#64748b;font-size:.78rem;font-family:var(--font-sans)">标准：</label>
+  <select class="toolbar-select" id="cppStd" onchange="onStdChange()">
+    <option value="c++20">C++20 (GCC)</option>
+    <option value="c++17" selected>C++17 (GCC)</option>
+    <option value="c++14">C++14 (GCC)</option>
+    <option value="c++11">C++11 (GCC)</option>
+  </select>
+
+  <div class="toolbar-divider"></div>
+
+  <!-- 示例下拉 -->
+  <label style="color:#64748b;font-size:.78rem;font-family:var(--font-sans)">示例：</label>
+  <select class="toolbar-select" id="exampleSelect" onchange="loadExample()">
+    <option value="">— 选择示例 —</option>
+    <option value="hello">Hello World</option>
+    <option value="fibonacci">Fibonacci 递归</option>
+    <option value="sort">冒泡排序</option>
+    <option value="class">Class 示例</option>
+    <option value="pointer">指针操作</option>
+    <option value="vector">vector 使用</option>
+    <option value="thread">多线程（C++11）</option>
+    <option value="smartptr">智能指针</option>
+  </select>
+
+  <div class="toolbar-divider"></div>
+
+  <!-- 编译器选项 -->
+  <button class="toolbar-btn" onclick="toggleOptimize()" id="optBtn" title="优化等级">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    <span id="optLabel">O0</span>
+  </button>
+
+  <button class="toolbar-btn" onclick="toggleWarnings()" id="warnBtn" title="显示警告">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span id="warnLabel">-Wall</span>
+  </button>
+
+  <div class="toolbar-divider"></div>
+
+  <!-- 分享 -->
+  <button class="toolbar-btn" onclick="shareCode()" title="复制分享链接">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    分享
+  </button>
+
+  <!-- 全屏 -->
+  <button class="toolbar-btn" onclick="toggleFullscreen()" id="fullscreenBtn" title="全屏编辑">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="fullscreenIcon"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+    全屏
+  </button>
+
+  <!-- 清空 -->
+  <button class="toolbar-btn" onclick="clearEditor()" style="margin-left:auto;color:#ef4444;border-color:#7f1d1d" title="清空编辑器">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/></svg>
+    清空
+  </button>
+</div>
+
+<!-- ════════════════════════════════════════
+     主体：编辑器 + 输出
+     ════════════════════════════════════════ -->
+<div class="compiler-body">
+
+  <!-- ── 左侧：编辑器 ── -->
+  <div class="editor-panel">
+    <div id="editor-container" style="position:relative">
+      <div class="editor-loading" id="editorLoading">
+        <div class="spinner" style="width:24px;height:24px;border-width:3px"></div>
+        <span>正在加载 Monaco Editor…</span>
+      </div>
+    </div>
+
+    <!-- 编辑器状态栏 -->
+    <div class="editor-statusbar">
+      <span id="cursorPos">行 1, 列 1</span>
+      <span>|</span>
+      <span id="charCount">0 字符</span>
+      <span>|</span>
+      <span>UTF-8</span>
+      <span>|</span>
+      <span style="color:#4ade80">C++</span>
+      <span class="ml-auto flex items-center gap-2">
+        <kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Enter</kbd>
+        <span>运行</span>
+      </span>
+    </div>
+
+    <!-- 标准输入区（可折叠） -->
+    <div class="stdin-area" id="stdinArea">
+      <div class="stdin-header" onclick="toggleStdin()" style="background:#1e293b;border-color:#334155;color:#64748b">
+        <span>📥 标准输入 (stdin)</span>
+        <span id="stdinToggleIcon">▲</span>
+      </div>
+      <div id="stdinCollapse" style="overflow:hidden;transition:max-height .3s ease,opacity .3s ease;max-height:120px;opacity:1">
+        <textarea id="stdin-textarea"
+          placeholder="在此输入程序运行时的标准输入（可选）…"
+          style="background:#0d1117;color:#e6edf3;border:none;width:100%;height:100px;resize:none;padding:10px 16px;font-family:var(--font-mono);font-size:.84rem;outline:none"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 右侧：输出区 ── -->
+  <div class="output-panel">
+    <!-- 输出标签栏 -->
+    <div class="output-header">
+      <span class="output-tab active" onclick="switchTab('stdout', this)">标准输出</span>
+      <span class="output-tab" onclick="switchTab('compiler', this)">编译信息</span>
+      <span class="output-tab" onclick="switchTab('info', this)">执行状态</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <div class="status-dot idle" id="statusDot"></div>
+        <span id="statusText" style="font-size:.72rem">就绪</span>
+      </div>
+    </div>
+
+    <!-- 输出内容区 -->
+    <div class="output-body" id="outputBody">
+      <!-- 标准输出 -->
+      <div class="output-section active" id="sec-stdout">
+        <div id="stdoutContent" style="color:#4ade80;font-family:var(--font-mono);white-space:pre-wrap;line-height:1.7">
+          <span style="color:#1e3a5f"><!-- 运行后输出将显示在此 --></span>
+          <div style="color:#334155;margin-top:8px;font-size:.8rem">
+            点击 ▶ 编译并运行 或按 Ctrl+Enter 开始
+          </div>
+        </div>
+      </div>
+      <!-- 编译信息 -->
+      <div class="output-section" id="sec-compiler">
+        <div id="compilerContent" style="font-family:var(--font-mono);white-space:pre-wrap;line-height:1.7;color:#64748b">
+          尚未编译
+        </div>
+      </div>
+      <!-- 执行状态 -->
+      <div class="output-section" id="sec-info">
+        <div id="infoContent" style="font-family:var(--font-sans);font-size:.85rem;line-height:2">
+          <div style="color:#334155">—— 尚未执行 ——</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="action-bar">
+      <button class="btn btn-run" id="runBtn" onclick="runCode()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        编译并运行
+        <span style="font-size:.72rem;opacity:.7;margin-left:4px">Ctrl+Enter</span>
+      </button>
+
+      <button class="toolbar-btn" onclick="clearOutput()" style="background:transparent;border-color:#1e3a5f">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        清空输出
+      </button>
+
+      <div style="margin-left:auto;font-size:.75rem;color:#334155">
+        API: Wandbox
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.compiler-page -->
+
+<!-- ════════════════════════════════════════
+     内联 JS
+     ════════════════════════════════════════ -->
+<script>
+/* ────────────────────────────────────────────
+   8 个预置代码示例
+   ──────────────────────────────────────────── */
+const examples = {
+  hello: `#include <iostream>
+using namespace std;
+
+int main() {
+    // 第一个 C++ 程序
+    cout << "Hello, C++ 学院！" << endl;
+    cout << "当前 C++ 标准：" << __cplusplus << endl;
+    return 0;
+}`,
+
+  fibonacci: `#include <iostream>
+using namespace std;
+
+// 递归实现 Fibonacci 数列
+long long fib(int n) {
+    if (n <= 1) return n;
+    return fib(n - 1) + fib(n - 2);
+}
+
+// 动态规划（对比）
+long long fibDP(int n) {
+    if (n <= 1) return n;
+    long long a = 0, b = 1;
+    for (int i = 2; i <= n; ++i) {
+        long long c = a + b;
+        a = b; b = c;
+    }
+    return b;
+}
+
+int main() {
+    cout << "Fibonacci 数列（前 15 项）：" << endl;
+    for (int i = 0; i < 15; ++i) {
+        cout << "F(" << i << ") = " << fibDP(i) << endl;
+    }
+    return 0;
+}`,
+
+  sort: `#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+// 冒泡排序
+void bubbleSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = 0; j < n - i - 1; ++j) {
+            if (arr[j] > arr[j + 1])
+                swap(arr[j], arr[j + 1]);
+        }
+    }
+}
+
+void print(const vector<int>& arr, const string& label) {
+    cout << label << ": ";
+    for (int x : arr) cout << x << " ";
+    cout << endl;
+}
+
+int main() {
+    vector<int> data = {64, 34, 25, 12, 22, 11, 90};
+    print(data, "排序前");
+    bubbleSort(data);
+    print(data, "冒泡后");
+
+    vector<int> data2 = {64, 34, 25, 12, 22, 11, 90};
+    sort(data2.begin(), data2.end());
+    print(data2, "std::sort");
+    return 0;
+}`,
+
+  class: `#include <iostream>
+#include <string>
+using namespace std;
+
+class Animal {
+protected:
+    string name;
+    int age;
+public:
+    Animal(string n, int a) : name(n), age(a) {
+        cout << "[构造] " << name << endl;
+    }
+    virtual ~Animal() {
+        cout << "[析构] " << name << endl;
+    }
+    virtual void speak() const = 0;  // 纯虚函数
+    string getName() const { return name; }
+};
+
+class Dog : public Animal {
+public:
+    Dog(string n, int a) : Animal(n, a) {}
+    void speak() const override {
+        cout << name << " 说：汪汪！（" << age << "岁）" << endl;
+    }
+};
+
+class Cat : public Animal {
+public:
+    Cat(string n, int a) : Animal(n, a) {}
+    void speak() const override {
+        cout << name << " 说：喵喵～（" << age << "岁）" << endl;
+    }
+};
+
+int main() {
+    // 多态演示
+    Animal* pets[] = {
+        new Dog("小黄", 3),
+        new Cat("咪咪", 2),
+        new Dog("旺财", 5)
+    };
+
+    cout << "\\n所有宠物发声：" << endl;
+    for (auto* p : pets) {
+        p->speak();
+    }
+
+    cout << "\\n清理资源：" << endl;
+    for (auto* p : pets) delete p;
+    return 0;
+}`,
+
+  pointer: `#include <iostream>
+using namespace std;
+
+void swap_by_ptr(int* a, int* b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void swap_by_ref(int& a, int& b) {
+    int tmp = a;
+    a = b;
+    b = tmp;
+}
+
+int main() {
+    // 指针基础
+    int x = 42;
+    int* p = &x;
+    cout << "变量 x    = " << x  << endl;
+    cout << "指针 p    = " << p  << " (地址)" << endl;
+    cout << "解引用 *p = " << *p << endl;
+
+    // 通过指针修改值
+    *p = 100;
+    cout << "修改后 x  = " << x  << endl;
+
+    // 指针 vs 引用交换
+    int a = 10, b = 20;
+    swap_by_ptr(&a, &b);
+    cout << "\\n指针交换: a=" << a << ", b=" << b << endl;
+    swap_by_ref(a, b);
+    cout << "引用交换: a=" << a << ", b=" << b << endl;
+
+    // 动态内存
+    int* arr = new int[5]{1, 2, 3, 4, 5};
+    cout << "\\n动态数组: ";
+    for (int i = 0; i < 5; ++i) cout << arr[i] << " ";
+    cout << endl;
+    delete[] arr;  // 别忘了释放！
+    return 0;
+}`,
+
+  vector: `#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <numeric>
+using namespace std;
+
+int main() {
+    // 创建与初始化
+    vector<int> v = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3};
+    cout << "初始: ";
+    for (int x : v) cout << x << " ";
+    cout << endl;
+
+    // 排序
+    sort(v.begin(), v.end());
+    cout << "排序: ";
+    for (int x : v) cout << x << " ";
+    cout << endl;
+
+    // 去重
+    auto last = unique(v.begin(), v.end());
+    v.erase(last, v.end());
+    cout << "去重: ";
+    for (int x : v) cout << x << " ";
+    cout << endl;
+
+    // 统计
+    cout << "\\n元素数量: " << v.size() << endl;
+    cout << "最小值:   " << *min_element(v.begin(), v.end()) << endl;
+    cout << "最大值:   " << *max_element(v.begin(), v.end()) << endl;
+    cout << "总和:     " << accumulate(v.begin(), v.end(), 0) << endl;
+
+    // transform：每个元素乘2
+    vector<int> doubled(v.size());
+    transform(v.begin(), v.end(), doubled.begin(), [](int x){ return x * 2; });
+    cout << "乘2: ";
+    for (int x : doubled) cout << x << " ";
+    cout << endl;
+    return 0;
+}`,
+
+  thread: `#include <iostream>
+#include <thread>
+#include <mutex>
+#include <vector>
+using namespace std;
+
+mutex mtx;  // 互斥锁
+
+void worker(int id, int count) {
+    for (int i = 0; i < count; ++i) {
+        lock_guard<mutex> lock(mtx);  // RAII 加锁
+        cout << "线程 " << id << " — 任务 " << (i + 1) << "/" << count << endl;
+    }
+}
+
+int main() {
+    cout << "硬件并发数: " << thread::hardware_concurrency() << " 核" << endl;
+    cout << "启动 3 个线程\\n" << endl;
+
+    vector<thread> threads;
+    threads.emplace_back(worker, 1, 3);
+    threads.emplace_back(worker, 2, 3);
+    threads.emplace_back(worker, 3, 3);
+
+    // 等待所有线程完成
+    for (auto& t : threads) t.join();
+
+    cout << "\\n所有线程执行完毕" << endl;
+    return 0;
+}`,
+
+  smartptr: `#include <iostream>
+#include <memory>
+#include <vector>
+using namespace std;
+
+class Resource {
+    string name;
+public:
+    Resource(string n) : name(n) {
+        cout << "  [构造] " << name << endl;
+    }
+    ~Resource() {
+        cout << "  [析构] " << name << endl;
+    }
+    void use() const { cout << "  使用资源: " << name << endl; }
+};
+
+int main() {
+    cout << "=== unique_ptr（独占所有权）===" << endl;
+    {
+        auto up = make_unique<Resource>("独占资源");
+        up->use();
+        // auto up2 = up;  // ❌ 编译错误：不可复制
+        auto up2 = move(up); // ✅ 转移所有权
+        up2->use();
+    } // 离开作用域自动析构
+
+    cout << "\\n=== shared_ptr（共享所有权）===" << endl;
+    {
+        auto sp1 = make_shared<Resource>("共享资源");
+        cout << "  引用计数: " << sp1.use_count() << endl;
+        {
+            auto sp2 = sp1;  // 共享
+            cout << "  引用计数: " << sp1.use_count() << endl;
+            sp1->use();
+        } // sp2 销毁，计数-1
+        cout << "  引用计数: " << sp1.use_count() << endl;
+    } // sp1 销毁，资源释放
+
+    cout << "\\n=== weak_ptr（打破循环引用）===" << endl;
+    auto sp = make_shared<Resource>("弱引用目标");
+    weak_ptr<Resource> wp = sp;
+    cout << "  sp 引用计数: " << sp.use_count() << endl;  // 1（wp不计数）
+    if (auto locked = wp.lock()) {
+        locked->use();
+    }
+
+    return 0;
+}`,
+};
+
+/* ── 编译选项状态 ── */
+let optimizeLevel = 0;
+let showWarnings  = true;
+let stdinCollapsed = false;
+let isFullscreen   = false;
+let monacoEditor   = null;
+
+/* ────────────────────────────────────────────
+   Wandbox API 调用（内联实现）
+   ──────────────────────────────────────────── */
+async function compileWithWandbox(code, stdin, cppStd) {
+  // 编译器映射（统一使用 gcc-head，标准通过选项控制）
+  const compilerMap = {
+    'c++20': 'gcc-head',
+    'c++17': 'gcc-head',
+    'c++14': 'gcc-head',
+    'c++11': 'gcc-head',
+  };
+  const stdOptMap = {
+    'c++20': '-std=c++20',
+    'c++17': '-std=c++17',
+    'c++14': '-std=c++14',
+    'c++11': '-std=c++11',
+  };
+
+  const compiler = compilerMap[cppStd] || 'gcc-head';
+  const stdOpt   = stdOptMap[cppStd]   || '-std=c++17';
+  const optOpt   = optimizeLevel > 0 ? `-O${optimizeLevel}` : '';
+  const warnOpt  = showWarnings ? '-Wall -Wextra' : '';
+  const options  = [stdOpt, optOpt, warnOpt].filter(Boolean).join(' ');
+
+  const payload = {
+    compiler: compiler,
+    code: code,
+    stdin: stdin || '',
+    options: options,
+    'compiler-option-raw': options,
+    save: false,
+  };
+
+  const resp = await fetch('https://wandbox.org/api/compile.json', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Wandbox API 错误: ${resp.status} ${resp.statusText}`);
+  }
+  return resp.json();
+}
+
+/* ────────────────────────────────────────────
+   运行代码
+   ──────────────────────────────────────────── */
+async function runCode() {
+  const runBtn = document.getElementById('runBtn');
+  const startTime = performance.now();
+
+  // 获取代码
+  const code  = monacoEditor ? monacoEditor.getValue() : '';
+  const stdin = document.getElementById('stdin-textarea')?.value || '';
+  const std   = document.getElementById('cppStd').value;
+
+  if (!code.trim()) {
+    setStatus('err', '代码为空');
+    showStdout('<span style="color:#f87171">错误：请先输入代码</span>');
+    return;
+  }
+
+  // 更新 UI 状态
+  runBtn.disabled = true;
+  runBtn.innerHTML = `<div class="spinner"></div> 编译中…`;
+  setStatus('running', '编译并运行中…');
+
+  // 清空旧输出
+  showStdout('<span style="color:#334155">编译中，请稍候…</span>');
+  document.getElementById('compilerContent').textContent = '编译中…';
+
+  try {
+    const result = await compileWithWandbox(code, stdin, std);
+    const elapsed = Math.round(performance.now() - startTime);
+
+    renderResult(result, elapsed, std);
+  } catch (err) {
+    const elapsed = Math.round(performance.now() - startTime);
+    setStatus('err', '网络错误');
+    showStdout(`<span class="stderr-line">网络错误：${escHtml(err.message)}\n\n请检查网络连接，或稍后再试。\nWandbox API 可能暂时不可用。</span>`);
+    document.getElementById('compilerContent').textContent = err.message;
+    renderInfo({ status: 'IE', elapsed });
+  } finally {
+    runBtn.disabled = false;
+    runBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> 编译并运行 <span style="font-size:.72rem;opacity:.7;margin-left:4px">Ctrl+Enter</span>`;
+  }
+}
+
+/* ── 渲染结果 ── */
+function renderResult(result, elapsed, std) {
+  // stdout
+  const stdout = result.program_output || result.output || '';
+  const stderr = result.program_error  || '';
+  const compilerMsg = (result.compiler_error || '') + (result.compiler_warning || '');
+  const status  = result.status;     // "0" = 成功
+  const exitCode = result.status;
+
+  // 标准输出面板
+  let stdoutHtml = '';
+  if (stdout) {
+    stdoutHtml += `<span class="stdout-line">${escHtml(stdout)}</span>`;
+  }
+  if (stderr) {
+    stdoutHtml += `<span class="stderr-line">${escHtml(stderr)}</span>`;
+  }
+  if (!stdout && !stderr) {
+    stdoutHtml = `<span style="color:#334155;font-style:italic">（无输出）</span>`;
+  }
+  showStdout(stdoutHtml);
+
+  // 编译信息面板
+  let compilerHtml = '';
+  if (compilerMsg) {
+    // 着色：error / warning
+    compilerHtml = compilerMsg.split('\n').map(line => {
+      if (/error:/.test(line))   return `<span class="stderr-line">${escHtml(line)}</span>`;
+      if (/warning:/.test(line)) return `<span class="warning-line">${escHtml(line)}</span>`;
+      return `<span style="color:#64748b">${escHtml(line)}</span>`;
+    }).join('\n');
+  } else {
+    compilerHtml = `<span style="color:#4ade80">编译成功，无警告</span>`;
+  }
+  document.getElementById('compilerContent').innerHTML = compilerHtml;
+
+  // 执行信息面板
+  renderInfo({ status: exitCode, elapsed, std, hasWarnings: !!compilerMsg });
+
+  // 状态指示
+  const isErr = compilerMsg && /error:/.test(compilerMsg);
+  if (isErr) {
+    setStatus('err', '编译错误');
+    switchTab('compiler', document.querySelectorAll('.output-tab')[1]);
+  } else {
+    setStatus('ok', `成功 · ${elapsed}ms`);
+  }
+}
+
+function renderInfo({ status, elapsed, std, hasWarnings }) {
+  const exitOk = status === '0' || status === 0;
+  const info = document.getElementById('infoContent');
+  info.innerHTML = `
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:center">
+      <span style="color:#475569">退出码</span>
+      <span class="status-pill ${exitOk ? 'ok' : 'err'}">${status ?? 'N/A'}</span>
+      <span style="color:#475569">耗时</span>
+      <span style="color:#e2e8f0">${elapsed} ms</span>
+      <span style="color:#475569">标准</span>
+      <span style="color:#93c5fd">${std || 'C++17'}</span>
+      <span style="color:#475569">编译器</span>
+      <span style="color:#e2e8f0">GCC (Wandbox)</span>
+      <span style="color:#475569">警告</span>
+      <span class="${hasWarnings ? 'status-pill warn' : 'status-pill ok'}">${hasWarnings ? '有警告' : '无警告'}</span>
+    </div>`;
+}
+
+/* ── 状态栏 ── */
+function setStatus(type, text) {
+  const dot  = document.getElementById('statusDot');
+  const span = document.getElementById('statusText');
+  dot.className = `status-dot ${type}`;
+  span.textContent = text;
+}
+
+/* ── stdout 显示 ── */
+function showStdout(html) {
+  document.getElementById('stdoutContent').innerHTML = html;
+}
+
+/* ── Tab 切换 ── */
+function switchTab(name, el) {
+  document.querySelectorAll('.output-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.output-section').forEach(s => s.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const sec = document.getElementById(`sec-${name}`);
+  if (sec) sec.classList.add('active');
+}
+
+/* ── 工具函数 ── */
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ────────────────────────────────────────────
+   编辑器工具栏功能
+   ──────────────────────────────────────────── */
+function loadExample() {
+  const sel = document.getElementById('exampleSelect');
+  const key = sel.value;
+  if (!key || !examples[key]) return;
+  if (monacoEditor) {
+    monacoEditor.setValue(examples[key]);
+    monacoEditor.setScrollPosition({ scrollTop: 0 });
+  }
+  sel.value = '';  // 重置下拉
+}
+
+function onStdChange() {
+  // 可在此更新编辑器语言版本提示
+}
+
+function toggleOptimize() {
+  const levels = [0, 1, 2, 3];
+  const idx = levels.indexOf(optimizeLevel);
+  optimizeLevel = levels[(idx + 1) % levels.length];
+  const btn = document.getElementById('optBtn');
+  const label = document.getElementById('optLabel');
+  label.textContent = optimizeLevel === 0 ? 'O0' : `O${optimizeLevel}`;
+  btn.style.color = optimizeLevel > 0 ? '#fbbf24' : '';
+  btn.style.borderColor = optimizeLevel > 0 ? '#92400e' : '';
+}
+
+function toggleWarnings() {
+  showWarnings = !showWarnings;
+  const label = document.getElementById('warnLabel');
+  const btn   = document.getElementById('warnBtn');
+  label.textContent = showWarnings ? '-Wall' : '无警告';
+  btn.style.color = showWarnings ? '#fbbf24' : '';
+}
+
+function clearEditor() {
+  if (monacoEditor && confirm('确定要清空编辑器内容吗？')) {
+    monacoEditor.setValue('');
+    monacoEditor.focus();
+  }
+}
+
+function clearOutput() {
+  showStdout('<span style="color:#334155;font-size:.8rem">输出已清空</span>');
+  document.getElementById('compilerContent').textContent = '尚未编译';
+  document.getElementById('infoContent').innerHTML = '<div style="color:#334155">—— 尚未执行 ——</div>';
+  setStatus('idle', '就绪');
+}
+
+function toggleStdin() {
+  stdinCollapsed = !stdinCollapsed;
+  const el   = document.getElementById('stdinCollapse');
+  const icon = document.getElementById('stdinToggleIcon');
+  el.style.maxHeight = stdinCollapsed ? '0' : '120px';
+  el.style.opacity   = stdinCollapsed ? '0' : '1';
+  icon.textContent   = stdinCollapsed ? '▼' : '▲';
+}
+
+function toggleFullscreen() {
+  isFullscreen = !isFullscreen;
+  const page = document.getElementById('compilerPage');
+  const icon = document.getElementById('fullscreenIcon');
+  if (isFullscreen) {
+    page.classList.add('fullscreen');
+    icon.innerHTML = '<path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>';
+  } else {
+    page.classList.remove('fullscreen');
+    icon.innerHTML = '<path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>';
+  }
+  // 通知 Monaco 重新布局
+  setTimeout(() => monacoEditor?.layout(), 100);
+}
+
+function shareCode() {
+  const code = monacoEditor ? monacoEditor.getValue() : '';
+  const std  = document.getElementById('cppStd').value;
+  const url  = `${location.href.split('?')[0]}?std=${encodeURIComponent(std)}&code=${encodeURIComponent(btoa(unescape(encodeURIComponent(code))))}`;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = event.target.closest('button');
+    const old = btn.innerHTML;
+    btn.innerHTML = btn.innerHTML.replace('分享', '已复制 ✓');
+    btn.style.color = '#4ade80';
+    setTimeout(() => { btn.innerHTML = old; btn.style.color = ''; }, 2000);
+  }).catch(() => {
+    prompt('复制以下链接分享代码：', url);
+  });
+}
+
+/* ── 导航下拉 ── */
+function toggleMenu(id) {
+  const item = document.getElementById(id);
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.nav-menu-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-menu-item')) {
+    document.querySelectorAll('.nav-menu-item.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+/* ── 从 URL 参数恢复代码 ── */
+function loadFromUrl() {
+  const params = new URLSearchParams(location.search);
+  if (params.has('code')) {
+    try {
+      const code = decodeURIComponent(escape(atob(params.get('code'))));
+      monacoEditor?.setValue(code);
+    } catch {}
+  }
+  if (params.has('std')) {
+    const sel = document.getElementById('cppStd');
+    if (sel) sel.value = params.get('std');
+  }
+}
+
+/* ────────────────────────────────────────────
+   初始化 Monaco Editor
+   ──────────────────────────────────────────── */
+require.config({
+  paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' }
+});
+
+require(['vs/editor/editor.main'], function() {
+  // 自定义 C++ 主题（仿 GitHub Dark）
+  monaco.editor.defineTheme('cpp-dark', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: 'keyword',        foreground: 'ff7b72', fontStyle: 'bold' },
+      { token: 'string',         foreground: 'a5d6ff' },
+      { token: 'comment',        foreground: '8b949e', fontStyle: 'italic' },
+      { token: 'number',         foreground: '79c0ff' },
+      { token: 'delimiter',      foreground: 'e6edf3' },
+      { token: 'identifier',     foreground: 'e6edf3' },
+      { token: 'type.identifier',foreground: 'ffa657' },
+      { token: 'string.escape',  foreground: 'ffdfb6' },
+    ],
+    colors: {
+      'editor.background':           '#0d1117',
+      'editor.foreground':           '#e6edf3',
+      'editorLineNumber.foreground': '#3d4451',
+      'editorLineNumber.activeForeground': '#8b949e',
+      'editor.lineHighlightBackground': '#161b22',
+      'editorCursor.foreground':     '#58a6ff',
+      'editor.selectionBackground':  '#264f78',
+      'editorIndentGuide.background':'#21262d',
+      'editorIndentGuide.activeBackground': '#30363d',
+      'editorBracketMatch.background': '#1f3a5f',
+      'scrollbarSlider.background':  '#1e3a5f',
+      'scrollbarSlider.hoverBackground': '#2d5a8e',
+    }
+  });
+
+  monacoEditor = monaco.editor.create(document.getElementById('editor-container'), {
+    value: examples.hello,
+    language: 'cpp',
+    theme: 'cpp-dark',
+    fontSize: 14,
+    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+    fontLigatures: true,
+    lineHeight: 22,
+    letterSpacing: 0.3,
+    minimap: { enabled: true, maxColumn: 80 },
+    scrollBeyondLastLine: false,
+    wordWrap: 'off',
+    automaticLayout: true,
+    tabSize: 4,
+    insertSpaces: true,
+    formatOnPaste: true,
+    formatOnType: false,
+    suggestOnTriggerCharacters: true,
+    quickSuggestions: true,
+    parameterHints: { enabled: true },
+    bracketPairColorization: { enabled: true },
+    guides: { bracketPairs: true, indentation: true },
+    renderWhitespace: 'selection',
+    cursorBlinking: 'smooth',
+    cursorSmoothCaretAnimation: 'on',
+    smoothScrolling: true,
+    renderLineHighlight: 'line',
+    overviewRulerLanes: 0,
+    padding: { top: 16, bottom: 16 },
+  });
+
+  // 隐藏加载遮罩
+  document.getElementById('editorLoading').style.display = 'none';
+
+  // Ctrl+Enter 快捷键绑定
+  monacoEditor.addCommand(
+    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+    () => runCode()
+  );
+
+  // 光标位置 & 字符数统计
+  monacoEditor.onDidChangeCursorPosition(e => {
+    document.getElementById('cursorPos').textContent =
+      `行 ${e.position.lineNumber}, 列 ${e.position.column}`;
+  });
+  monacoEditor.onDidChangeModelContent(() => {
+    const len = monacoEditor.getValue().length;
+    document.getElementById('charCount').textContent = `${len} 字符`;
+  });
+  // 初始化字符数
+  document.getElementById('charCount').textContent = `${examples.hello.length} 字符`;
+
+  // 从 URL 参数恢复
+  loadFromUrl();
+});
+</script>
+</body>
+</html>

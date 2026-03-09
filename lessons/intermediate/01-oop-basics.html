@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01. 面向对象基础 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <style>
+    .lesson-layout { display: flex; min-height: calc(100vh - 112px); }
+    .sidebar {
+      position: sticky; top: 112px; height: calc(100vh - 112px);
+      width: 260px; min-width: 260px; overflow-y: auto;
+      background: #1e293b; padding: 1rem 0; flex-shrink: 0;
+    }
+    .sidebar-title {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: #64748b; padding: 0.5rem 1.25rem 0.75rem;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1.25rem; color: #94a3b8; font-size: 0.85rem;
+      border-left: 3px solid transparent; transition: all 0.15s;
+      text-decoration: none; white-space: nowrap; overflow: hidden;
+    }
+    .sidebar-item:hover { color: #e2e8f0; background: rgba(255,255,255,.05); border-left-color: #475569; }
+    .sidebar-item.active { color: #93c5fd; background: rgba(59,130,246,.12); border-left-color: #3b82f6; font-weight: 600; }
+    .sidebar-item.completed { color: #6ee7b7; }
+    .lesson-num {
+      width: 20px; height: 20px; border-radius: 4px;
+      background: #334155; color: #94a3b8; font-size: 0.65rem;
+      font-weight: 700; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sidebar-item.active .lesson-num { background: #1e40af; color: #93c5fd; }
+    .sidebar-item.completed .lesson-num { background: #064e3b; color: #6ee7b7; }
+    .lesson-content { flex: 1; padding: 2rem 2.5rem; max-width: 900px; min-width: 0; }
+    .lesson-header { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; }
+    .objectives-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+    .content-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .content-section h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .content-section p { color: #475569; line-height: 1.75; margin-bottom: 0.75rem; font-size: 0.95rem; }
+    .content-section ul { color: #475569; font-size: 0.95rem; line-height: 1.75; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .content-section li { margin-bottom: 0.25rem; }
+    .code-block { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; margin: 1rem 0; font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.875rem; }
+    .code-block-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: #161b22; border-bottom: 1px solid #30363d; }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .code-block pre { margin: 0; padding: 1.25rem 1.5rem; overflow-x: auto; }
+    .code-block code { font-size: 0.875rem; }
+    .info-box { display: flex; gap: 0.75rem; padding: 0.875rem 1.25rem; border-radius: 8px; margin: 0.75rem 0; }
+    .info-box.tip { background: #f0f9ff; border: 1px solid #bae6fd; }
+    .info-box.warning { background: #fffbeb; border: 1px solid #fde68a; }
+    .info-box.danger { background: #fff1f2; border: 1px solid #fecdd3; }
+    .info-box.info { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .info-box-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .info-box-content { font-size: 0.875rem; color: #475569; line-height: 1.65; }
+    .info-box-content p { margin-bottom: 0.25rem; }
+    .info-box-content p:last-child { margin-bottom: 0; }
+    .diagram-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.5rem; text-align: center; margin: 1rem 0; overflow-x: auto; }
+    .diagram-caption { font-size: 0.78rem; color: #64748b; margin-top: 0.75rem; }
+    .quiz-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .quiz-question { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; }
+    .quiz-question p { font-size: 0.92rem; font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; }
+    .quiz-options label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: #475569; cursor: pointer; padding: 0.3rem 0; }
+    .quiz-options input[type="radio"] { margin-top: 0.2rem; flex-shrink: 0; }
+    .quiz-feedback { margin-top: 0.6rem; padding: 0.6rem 0.875rem; border-radius: 6px; font-size: 0.85rem; display: none; }
+    .quiz-feedback.correct { display: block; background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .quiz-feedback.wrong { display: block; background: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; }
+    .assignment-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .assignment-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.25rem; }
+    .assignment-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 0.4rem; }
+    .badge-understand { background: #dbeafe; color: #1d4ed8; }
+    .badge-code { background: #dcfce7; color: #15803d; }
+    .badge-challenge { background: #fef9c3; color: #92400e; }
+    .resources-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .resource-card { display: flex; align-items: center; gap: 0.875rem; padding: 0.875rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.15s; text-decoration: none; }
+    .resource-card:hover { border-color: #93c5fd; background: #eff6ff; transform: translateX(4px); }
+    .resource-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .icon-docs { background: #dbeafe; }
+    .icon-tutorial { background: #f0fdf4; }
+    .icon-video { background: #fef3c7; }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+    .nav-btn { padding: 0.625rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; text-decoration: none; border: 1.5px solid #e2e8f0; color: #475569; transition: all 0.15s; }
+    .nav-btn:hover { border-color: #94a3b8; color: #1e293b; background: #f8fafc; }
+    .nav-btn-primary { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+    .nav-btn-primary:hover { background: #2563eb; border-color: #2563eb; color: #fff; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- 顶部导航 -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span>
+        <span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="01-oop-basics.html" class="px-3 py-1.5 text-sm text-green-700 bg-green-50 rounded-md font-medium">中级</a>
+        <a href="../advanced/01-move-semantics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span>
+        <span class="text-green-600">中级</span>
+        <span>›</span>
+        <span class="text-gray-800 font-medium">01. 面向对象基础</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-title">中级课程</div>
+      <a href="01-oop-basics.html" class="sidebar-item active">
+        <span class="lesson-num">→</span>面向对象基础
+      </a>
+      <a href="02-constructors-destructors.html" class="sidebar-item">
+        <span class="lesson-num">2</span>构造与析构
+      </a>
+      <a href="03-inheritance.html" class="sidebar-item">
+        <span class="lesson-num">3</span>继承
+      </a>
+      <a href="04-polymorphism.html" class="sidebar-item">
+        <span class="lesson-num">4</span>多态与虚函数
+      </a>
+      <a href="05-templates.html" class="sidebar-item">
+        <span class="lesson-num">5</span>模板基础
+      </a>
+      <a href="06-stl-containers.html" class="sidebar-item">
+        <span class="lesson-num">6</span>STL 容器
+      </a>
+      <a href="07-stl-algorithms.html" class="sidebar-item">
+        <span class="lesson-num">7</span>STL 算法
+      </a>
+      <a href="08-file-io-exceptions.html" class="sidebar-item">
+        <span class="lesson-num">8</span>文件 I/O 与异常
+      </a>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="lesson-content">
+
+      <!-- 课程头部 -->
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-green-600">中级 · 第 1 课</span>
+          <span class="text-xs text-gray-400">· 60分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">面向对象基础</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">class</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">封装</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">访问控制</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">this 指针</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">OOP</span>
+        </div>
+      </div>
+
+      <!-- 学习目标 -->
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🎯</span> 学习目标
+        </h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解面向对象编程的四大特性：封装、继承、多态、抽象
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握 <code>class</code> 的定义语法和成员函数的使用
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解 <code>public</code> / <code>protected</code> / <code>private</code> 访问控制的差异与作用
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握 <code>this</code> 指针的含义及链式调用的实现方式
+          </li>
+        </ul>
+      </div>
+
+      <!-- 第一节：OOP 核心思想 -->
+      <div class="content-section">
+        <h2><span>💡</span> OOP 的核心思想</h2>
+
+        <p>面向对象编程（Object-Oriented Programming，OOP）是一种将<strong>数据</strong>（属性）与<strong>操作数据的函数</strong>（方法）封装在一起的编程范式。现实世界中，一辆汽车有颜色、速度（数据），也有加速、刹车（操作），OOP 就是把这两者绑定成一个"对象"。</p>
+
+        <p>与结构体（struct）相比，<code>class</code> 默认成员是 <code>private</code>（结构体默认 <code>public</code>），这让数据封装更加安全自然。C++ 支持四大 OOP 特性：</p>
+
+        <div class="grid grid-cols-2 gap-3 mt-3 mb-3" style="grid-template-columns: 1fr 1fr;">
+          <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:1rem;">
+            <div style="font-size:1.4rem; margin-bottom:0.4rem;">🔒</div>
+            <div style="font-weight:700; color:#1e40af; margin-bottom:0.25rem; font-size:0.95rem;">封装 Encapsulation</div>
+            <div style="font-size:0.82rem; color:#475569;">将数据和方法绑定，隐藏内部实现细节，只暴露必要的接口</div>
+          </div>
+          <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:1rem;">
+            <div style="font-size:1.4rem; margin-bottom:0.4rem;">🧬</div>
+            <div style="font-weight:700; color:#15803d; margin-bottom:0.25rem; font-size:0.95rem;">继承 Inheritance</div>
+            <div style="font-size:0.82rem; color:#475569;">子类复用父类的代码，体现"is-a"关系（第3课详讲）</div>
+          </div>
+          <div style="background:#fef9c3; border:1px solid #fde68a; border-radius:8px; padding:1rem;">
+            <div style="font-size:1.4rem; margin-bottom:0.4rem;">🔀</div>
+            <div style="font-weight:700; color:#92400e; margin-bottom:0.25rem; font-size:0.95rem;">多态 Polymorphism</div>
+            <div style="font-size:0.82rem; color:#475569;">同一接口，不同实现；运行时动态决定调用哪个版本（第4课详讲）</div>
+          </div>
+          <div style="background:#fdf4ff; border:1px solid #e9d5ff; border-radius:8px; padding:1rem;">
+            <div style="font-size:1.4rem; margin-bottom:0.4rem;">📐</div>
+            <div style="font-weight:700; color:#7e22ce; margin-bottom:0.25rem; font-size:0.95rem;">抽象 Abstraction</div>
+            <div style="font-size:0.82rem; color:#475569;">用抽象类定义接口，隐藏不必要的细节，只展示关键行为</div>
+          </div>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>struct vs class</strong>：C++ 中 struct 和 class 几乎相同，唯一区别是默认访问权限。struct 默认 <code>public</code>，class 默认 <code>private</code>。惯例上，简单的数据聚合用 struct，有封装行为的对象用 class。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第二节：class 的定义 -->
+      <div class="content-section">
+        <h2><span>🏗️</span> class 的定义与使用</h2>
+
+        <p>下面是一个银行账户类的完整示例，展示了 class 的核心组成部分：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>BankAccount 类定义</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class BankAccount {
+private:
+    string owner;       // 私有数据成员：外部无法直接访问
+    double balance;
+
+public:
+    // 构造函数（对象创建时自动调用）
+    BankAccount(string name, double initialBalance)
+        : owner(name), balance(initialBalance) {}  // 初始化列表
+
+    // 存款
+    void deposit(double amount) {
+        if (amount > 0) balance += amount;
+    }
+
+    // 取款（返回是否成功）
+    bool withdraw(double amount) {
+        if (amount > balance) return false;
+        balance -= amount;
+        return true;
+    }
+
+    // const 成员函数：承诺不修改对象状态
+    double getBalance() const { return balance; }
+    string getOwner()  const { return owner; }
+
+    void printInfo() const {
+        cout &lt;&lt; owner &lt;&lt; " 的账户余额：" &lt;&lt; balance &lt;&lt; " 元" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    // 在栈上创建对象
+    BankAccount acc("张三", 1000.0);
+    acc.deposit(500.0);
+    acc.withdraw(200.0);
+    acc.printInfo();      // 张三 的账户余额：1300 元
+
+    // 在堆上创建对象
+    BankAccount* pAcc = new BankAccount("李四", 2000.0);
+    pAcc->deposit(300.0);
+    pAcc->printInfo();    // 李四 的账户余额：2300 元
+    delete pAcc;          // 必须手动释放
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <p>类结构图（UML 风格）如下所示：</p>
+
+        <!-- BankAccount UML 图 -->
+        <div class="diagram-container">
+          <svg width="300" height="220" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- 类名区域 -->
+            <rect x="50" y="10" width="200" height="40" rx="6" fill="#1e40af" stroke="#3b82f6" stroke-width="1.5"/>
+            <text x="150" y="35" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">BankAccount</text>
+            <!-- 私有成员区域 -->
+            <rect x="50" y="50" width="200" height="70" rx="0" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+            <text x="60" y="70" font-size="10" fill="#f59e0b" font-weight="700">— private</text>
+            <text x="60" y="88" font-size="11" fill="#e2e8f0" font-family="monospace">🔒 owner : string</text>
+            <text x="60" y="108" font-size="11" fill="#e2e8f0" font-family="monospace">🔒 balance : double</text>
+            <!-- 公开方法区域 -->
+            <rect x="50" y="120" width="200" height="90" rx="0" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+            <text x="60" y="138" font-size="10" fill="#22c55e" font-weight="700">+ public</text>
+            <text x="60" y="154" font-size="11" fill="#93c5fd" font-family="monospace">deposit(amount)</text>
+            <text x="60" y="170" font-size="11" fill="#93c5fd" font-family="monospace">withdraw(amount)</text>
+            <text x="60" y="186" font-size="11" fill="#93c5fd" font-family="monospace">getBalance() const</text>
+            <text x="60" y="202" font-size="11" fill="#93c5fd" font-family="monospace">printInfo() const</text>
+            <!-- 外框 -->
+            <rect x="50" y="10" width="200" height="200" rx="6" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+          </svg>
+          <p class="diagram-caption">BankAccount 类的 UML 结构图</p>
+        </div>
+      </div>
+
+      <!-- 第三节：访问控制详解 -->
+      <div class="content-section">
+        <h2><span>🔐</span> 访问控制详解</h2>
+
+        <p>访问控制是封装的核心机制，C++ 提供三种访问说明符：</p>
+
+        <div class="overflow-x-auto mt-3 mb-3">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-gray-800 text-white">
+                <th class="p-2.5 font-semibold text-left">访问说明符</th>
+                <th class="p-2.5 font-semibold text-left">可访问范围</th>
+                <th class="p-2.5 font-semibold text-left">典型用途</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono font-bold text-blue-700">public</td>
+                <td class="p-2.5 text-gray-700">任何地方（类内、类外、派生类）</td>
+                <td class="p-2.5 text-gray-700">对外接口（成员函数、构造函数）</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono font-bold text-yellow-700">protected</td>
+                <td class="p-2.5 text-gray-700">类自身 + 派生类</td>
+                <td class="p-2.5 text-gray-700">供子类使用但不对外公开的成员</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-2.5 font-mono font-bold text-red-700">private</td>
+                <td class="p-2.5 text-gray-700">仅类自身的成员函数</td>
+                <td class="p-2.5 text-gray-700">内部数据、辅助函数（默认）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><strong>为什么要用 private 而不是直接公开变量？</strong></p>
+        <ul>
+          <li><strong>数据验证</strong>：通过 setter 函数可以在赋值前检查合法性（如存款金额不能为负）</li>
+          <li><strong>维护不变量</strong>：余额不能小于 0，直接访问 balance 可能破坏这个约束</li>
+          <li><strong>可维护性</strong>：内部实现改变（如换存储格式）不影响外部调用者</li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>getter / setter 与 const 成员函数</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">class Temperature {
+private:
+    double celsius;   // 存储摄氏度
+
+public:
+    // setter：在赋值时进行验证
+    void setTemp(double c) {
+        if (c &lt; -273.15) {
+            throw std::invalid_argument("温度不能低于绝对零度");
+        }
+        celsius = c;
+    }
+
+    // const getter：不修改对象，可在 const 对象上调用
+    double getCelsius()    const { return celsius; }
+    double getFahrenheit() const { return celsius * 9.0/5.0 + 32; }
+    double getKelvin()     const { return celsius + 273.15; }
+};
+
+// const 对象只能调用 const 成员函数
+const Temperature freezing{};  // celsius = 0
+// freezing.setTemp(100);  // 错误！不能修改 const 对象
+double f = freezing.getFahrenheit();  // 正确：const 成员函数</code></pre>
+        </div>
+
+        <div class="info-box warning">
+          <span class="info-box-icon">⚠️</span>
+          <div class="info-box-content">
+            <p><strong>const 成员函数的承诺</strong>：函数签名末尾的 <code>const</code> 表示该函数承诺不会修改对象的任何数据成员。这让 const 对象（和 const 引用）也能调用这些函数。养成习惯：所有不修改状态的 getter 都应标记为 <code>const</code>。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第四节：this 指针 -->
+      <div class="content-section">
+        <h2><span>👉</span> this 指针</h2>
+
+        <p><code>this</code> 是一个隐式指针，在每个非静态成员函数内部自动可用，它指向<strong>当前正在调用该函数的对象</strong>。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>this 指针与链式调用</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+class Counter {
+    int count = 0;
+public:
+    // 返回 *this 引用，实现链式调用
+    Counter&amp; increment() {
+        count++;
+        return *this;    // 返回自身的引用
+    }
+
+    Counter&amp; add(int n) {
+        count += n;
+        return *this;
+    }
+
+    Counter&amp; reset() {
+        count = 0;
+        return *this;
+    }
+
+    void print() const {
+        cout &lt;&lt; "count = " &lt;&lt; count &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Counter c;
+    // 链式调用：每次都返回同一个对象的引用
+    c.increment().increment().add(5).increment().print();
+    // count = 8
+
+    // 解析链式调用：
+    // c.increment()  → count=1, 返回 c 的引用
+    // .increment()   → count=2, 返回 c 的引用
+    // .add(5)        → count=7, 返回 c 的引用
+    // .increment()   → count=8, 返回 c 的引用
+    // .print()       → 输出 count = 8
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <p><code>this</code> 指针的其他用途：</p>
+        <ul>
+          <li><strong>解决命名冲突</strong>：当参数名与成员名相同时，用 <code>this->name</code> 区分</li>
+          <li><strong>传递自身</strong>：将当前对象的指针传给其他函数</li>
+          <li><strong>链式调用</strong>：返回 <code>*this</code> 实现 Builder 模式等设计模式</li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>this 解决命名冲突</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">class Person {
+    string name;
+    int age;
+public:
+    // 参数名与成员名相同，用 this-> 区分
+    void setInfo(string name, int age) {
+        this->name = name;   // this->name 是成员，name 是参数
+        this->age  = age;
+    }
+};</code></pre>
+        </div>
+      </div>
+
+      <!-- 第五节：对象实例化 -->
+      <div class="content-section">
+        <h2><span>🏭</span> 对象实例化</h2>
+
+        <p>C++ 中有多种方式创建对象，各有适用场景：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>对象创建方式对比</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+class Point {
+public:
+    double x, y;
+    Point(double x = 0, double y = 0) : x(x), y(y) {}
+    void print() const { cout &lt;&lt; "(" &lt;&lt; x &lt;&lt; ", " &lt;&lt; y &lt;&lt; ")" &lt;&lt; endl; }
+};
+
+int main() {
+    // 1. 栈上创建（自动管理生命周期，函数结束自动销毁）
+    Point p1(3.0, 4.0);
+    p1.print();               // (3, 4)
+
+    // 2. 堆上创建（手动管理，用完必须 delete）
+    Point* p2 = new Point(1.0, 2.0);
+    p2->print();              // (1, 2)
+    delete p2;                // 释放内存
+
+    // 3. 对象数组（栈上）
+    Point points[3] = { {0,0}, {1,1}, {2,2} };
+    for (const auto&amp; p : points) p.print();
+
+    // 4. 动态对象数组（堆上）
+    Point* arr = new Point[5];   // 调用默认构造函数 5 次
+    delete[] arr;                 // 注意用 delete[]，不是 delete
+
+    // 5. 推荐：使用智能指针（C++11，自动释放）
+    // unique_ptr&lt;Point&gt; p3 = make_unique&lt;Point&gt;(5.0, 6.0);
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>优先使用栈上对象</strong>：栈上对象自动管理生命周期，速度更快，不会内存泄漏。只有在需要动态大小、跨函数传递、或者对象很大时才考虑堆分配。现代 C++ 推荐用 <code>unique_ptr</code> / <code>shared_ptr</code> 管理堆上对象（进阶课讲解）。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>🧠</span> 知识检验
+        </h2>
+
+        <div class="quiz-question">
+          <p>Q1. <code>class</code> 和 <code>struct</code> 在 C++ 中默认访问权限有什么不同？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. class 默认 public，struct 默认 private</label>
+            <label><input type="radio" name="q1" value="B"> B. class 默认 private，struct 默认 public</label>
+            <label><input type="radio" name="q1" value="C"> C. 两者默认访问权限相同，都是 public</label>
+            <label><input type="radio" name="q1" value="D"> D. 两者默认访问权限相同，都是 private</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. 下列关于 <code>const</code> 成员函数的说法，哪项正确？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. const 成员函数不能有任何参数</label>
+            <label><input type="radio" name="q2" value="B"> B. const 成员函数不能调用其他函数</label>
+            <label><input type="radio" name="q2" value="C"> C. const 成员函数不能修改对象的数据成员，可被 const 对象调用</label>
+            <label><input type="radio" name="q2" value="D"> D. const 成员函数的返回值一定是 const 类型</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. <code>this</code> 指针在成员函数中指向什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. 指向类的第一个数据成员</label>
+            <label><input type="radio" name="q3" value="B"> B. 指向调用该函数时传入的第一个参数</label>
+            <label><input type="radio" name="q3" value="C"> C. 指向调用该成员函数的当前对象</label>
+            <label><input type="radio" name="q3" value="D"> D. 指向类的静态数据区</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>📋</span> 课后作业
+        </h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释封装的意义：假设 <code>BankAccount</code> 类的 <code>balance</code> 是 <code>public</code> 而不是 <code>private</code>，会带来哪些潜在问题？请至少举出三个具体的风险。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">定义一个 <code>Circle</code> 类，包含私有成员 <code>radius</code>（半径，double），提供构造函数、计算面积 <code>area()</code>、计算周长 <code>perimeter()</code>（均为 const）、以及比较两个圆大小的函数 <code>isLargerThan(const Circle&amp; other)</code>。在 main 中测试各功能。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">定义一个整数栈类 <code>IntStack</code>，底层用固定大小数组（如 100 个元素）存储，实现 <code>push(int val)</code>、<code>pop()</code>（返回并移除顶部元素）、<code>top() const</code>（仅查看不移除）、<code>isEmpty() const</code>、<code>isFull() const</code> 操作，并进行栈溢出和空栈时的错误处理。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🔗</span> 延伸阅读
+        </h2>
+        <a href="https://en.cppreference.com/w/cpp/language/class" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">cppreference: class declaration</div>
+            <div class="text-xs text-gray-500 mt-0.5">C++ 类声明的完整官方参考，涵盖所有细节</div>
+          </div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/welcome-to-object-oriented-programming/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">LearnCpp: Chapter 13 - Object-oriented Programming</div>
+            <div class="text-xs text-gray-500 mt-0.5">循序渐进的 OOP 系列教程，示例丰富，中文友好</div>
+          </div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=2BP8NhxjrO0" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">TheCherno: Classes in C++</div>
+            <div class="text-xs text-gray-500 mt-0.5">视频讲解 C++ class 的核心概念，直观易懂</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 导航 -->
+      <div class="lesson-nav">
+        <a href="../beginner/08-structs.html" class="nav-btn">← 上一课：结构体（初级）</a>
+        <a href="02-constructors-destructors.html" class="nav-btn nav-btn-primary">下一课：构造与析构 →</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！class 默认 private（需要显式 public: 才能公开），struct 默认 public。这就是为什么 class 更适合封装——私有是"安全默认值"。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。class 默认 private，struct 默认 public，这是两者在 C++ 中的唯一本质区别。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！const 成员函数承诺不修改对象的任何数据成员（mutable 除外），因此可以被 const 对象安全调用。所有 getter 都应标记为 const。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。const 成员函数的关键特点是：不修改对象状态，因此可被 const 对象调用。它可以有参数，也可以调用其他 const 函数。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！this 是一个隐式指针，在每个非静态成员函数内部自动可用，指向调用该函数的当前对象。通过 *this 可以获取对象自身的引用，常用于链式调用。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。this 指针指向调用该成员函数的对象本身，是隐式的第一个参数，类型为 T* const（不能修改 this 自身，但可以修改它指向的内容）。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+
+</body>
+</html>

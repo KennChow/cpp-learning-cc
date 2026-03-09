@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
+  <defs>
+    <!-- Purple arrow (Base vptr → vtable) -->
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+      <path d="M1,1 L8,4 L1,7 Z" fill="#7c3aed"/>
+    </marker>
+    <!-- Orange arrow (Derived vptr → vtable) -->
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+      <path d="M1,1 L8,4 L1,7 Z" fill="#d97706"/>
+    </marker>
+    <!-- Red dashed arrow (dynamic dispatch) -->
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+      <path d="M1,1 L8,4 L1,7 Z" fill="#dc2626"/>
+    </marker>
+    <!-- Gray arrow (vtable entry → function) -->
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+      <path d="M1,1 L8,4 L1,7 Z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="720" height="380" fill="#f8fafc" rx="8"/>
+
+  <!-- Title -->
+  <text x="360" y="30" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="17" font-weight="bold" fill="#1e293b">虚函数表（vtable）工作原理</text>
+
+  <!-- ================================================================ -->
+  <!-- BASE OBJECT (left) -->
+  <!-- ================================================================ -->
+  <text x="75" y="58" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" font-weight="bold" fill="#1d4ed8">Base 对象</text>
+  <text x="75" y="72" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#475569">内存布局</text>
+
+  <!-- Outer box -->
+  <rect x="18" y="78" width="116" height="70" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+
+  <!-- vptr row -->
+  <rect x="18" y="78" width="116" height="28" rx="6" fill="#7c3aed"/>
+  <rect x="18" y="95" width="116" height="11" fill="#7c3aed"/>
+  <text x="76" y="97" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="12" font-weight="bold" fill="#fff">vptr</text>
+  <text x="76" y="110" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#e9d5ff">隐藏成员（8字节）</text>
+
+  <!-- data_ row -->
+  <rect x="18" y="106" width="116" height="28" rx="0" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <rect x="18" y="130" width="116" height="4" rx="0" fill="#dbeafe"/>
+  <text x="76" y="122" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#1e40af">data_  (int)</text>
+
+  <!-- vptr arrow: Base vptr → Base vtable -->
+  <line x1="134" y1="92" x2="240" y2="108" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowPurple)"/>
+
+  <!-- ================================================================ -->
+  <!-- BASE VTABLE (center) -->
+  <!-- ================================================================ -->
+  <text x="310" y="58" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" font-weight="bold" fill="#7c3aed">Base::vtable</text>
+
+  <rect x="242" y="64" width="138" height="90" rx="6" fill="#faf5ff" stroke="#7c3aed" stroke-width="2"/>
+
+  <!-- Entry [0] -->
+  <rect x="242" y="64" width="138" height="30" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+  <rect x="242" y="82" width="138" height="12" fill="#ede9fe"/>
+  <text x="252" y="80" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#5b21b6">[0]</text>
+  <text x="276" y="80" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#4c1d95">Base::speak()</text>
+  <text x="252" y="92" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#6d28d9">→ 函数指针 0x...</text>
+
+  <!-- Entry [1] -->
+  <rect x="242" y="96" width="138" height="30" rx="0" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+  <text x="252" y="112" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#5b21b6">[1]</text>
+  <text x="276" y="112" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#4c1d95">Base::~Base()</text>
+  <text x="252" y="124" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#6d28d9">→ 函数指针 0x...</text>
+
+  <!-- type_info pointer -->
+  <rect x="242" y="126" width="138" height="28" rx="0" fill="#f3e8ff" stroke="#7c3aed" stroke-width="1"/>
+  <rect x="242" y="140" width="138" height="14" rx="0" fill="#f3e8ff"/>
+  <text x="252" y="138" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#7c3aed">type_info* → "Base"</text>
+  <text x="252" y="150" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#9333ea">（运行时类型信息 RTTI）</text>
+
+  <!-- ================================================================ -->
+  <!-- DERIVED OBJECT (right-top) -->
+  <!-- ================================================================ -->
+  <text x="560" y="58" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" font-weight="bold" fill="#166534">Derived 对象</text>
+  <text x="560" y="72" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#475569">内存布局</text>
+
+  <rect x="500" y="78" width="130" height="90" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+
+  <!-- vptr row (Derived) -->
+  <rect x="500" y="78" width="130" height="28" rx="6" fill="#d97706"/>
+  <rect x="500" y="95" width="130" height="11" fill="#d97706"/>
+  <text x="565" y="97" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="12" font-weight="bold" fill="#fff">vptr</text>
+  <text x="565" y="110" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#fef3c7">指向 Derived vtable</text>
+
+  <!-- inherited data_ -->
+  <rect x="500" y="106" width="130" height="24" rx="0" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+  <text x="565" y="122" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#14532d">data_  (继承自 Base)</text>
+
+  <!-- extra_ (Derived only) -->
+  <rect x="500" y="130" width="130" height="24" rx="0" fill="#bbf7d0" stroke="#4ade80" stroke-width="1"/>
+  <rect x="500" y="142" width="130" height="12" rx="0" fill="#bbf7d0"/>
+  <text x="565" y="145" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#166534">extra_  (Derived 新增)</text>
+
+  <!-- Derived vptr arrow → Derived vtable -->
+  <line x1="500" y1="92" x2="420" y2="215" stroke="#d97706" stroke-width="2" marker-end="url(#arrowOrange)"/>
+
+  <!-- ================================================================ -->
+  <!-- DERIVED VTABLE (right-bottom) -->
+  <!-- ================================================================ -->
+  <text x="560" y="192" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" font-weight="bold" fill="#d97706">Derived::vtable</text>
+
+  <rect x="410" y="198" width="158" height="88" rx="6" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+
+  <!-- Entry [0] overridden -->
+  <rect x="410" y="198" width="158" height="30" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+  <rect x="410" y="216" width="158" height="12" fill="#fef3c7"/>
+  <text x="420" y="213" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#b45309">[0]</text>
+  <text x="442" y="213" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#92400e">Derived::speak()</text>
+  <text x="420" y="226" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#d97706">← 覆盖 Base::speak()</text>
+
+  <!-- Entry [1] inherited -->
+  <rect x="410" y="228" width="158" height="30" rx="0" fill="#fef9c3" stroke="#d97706" stroke-width="1"/>
+  <text x="420" y="244" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#b45309">[1]</text>
+  <text x="442" y="244" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#92400e">Base::~Base()</text>
+  <text x="420" y="257" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#d97706">（继承，未覆盖）</text>
+
+  <!-- type_info -->
+  <rect x="410" y="258" width="158" height="28" rx="0" fill="#fefce8" stroke="#d97706" stroke-width="1"/>
+  <rect x="410" y="272" width="158" height="14" rx="0" fill="#fefce8"/>
+  <text x="420" y="270" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#d97706">type_info* → "Derived"</text>
+  <text x="420" y="282" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#b45309">（运行时类型信息 RTTI）</text>
+
+  <!-- ================================================================ -->
+  <!-- DYNAMIC DISPATCH PATH (red dashed) -->
+  <!-- ================================================================ -->
+  <!-- Label: Base* ptr = new Derived() -->
+  <rect x="18" y="200" width="200" height="52" rx="6" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="28" y="218" font-family="'Segoe UI', Arial, sans-serif" font-size="11" font-weight="bold" fill="#dc2626">动态分发路径</text>
+  <text x="28" y="233" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#b91c1c">Base* ptr = new Derived();</text>
+  <text x="28" y="247" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#b91c1c">ptr-&gt;speak();  // Derived::speak()</text>
+
+  <!-- Red dashed arrow: box → vtable[0] -->
+  <line x1="218" y1="226" x2="406" y2="222" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRed)"/>
+  <text x="302" y="219" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#dc2626">查 vtable[0]</text>
+
+  <!-- ================================================================ -->
+  <!-- BOTTOM NOTES -->
+  <!-- ================================================================ -->
+  <rect x="18" y="302" width="684" height="68" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="30" y="320" font-family="'Segoe UI', Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e293b">工作原理说明</text>
+  <text x="30" y="337" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#334155">① 每个含虚函数的类有一个 vtable（函数指针数组），编译时生成，存于只读内存</text>
+  <text x="30" y="352" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#334155">② 每个对象有一个隐藏的 vptr（第一个成员），运行时指向所属类的 vtable</text>
+  <text x="30" y="367" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#334155">③ 虚函数调用：obj.vptr → vtable[n] → 实际函数地址（相比普通调用多一次间接寻址）</text>
+</svg>

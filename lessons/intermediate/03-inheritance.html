@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>03. 继承 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <style>
+    .lesson-layout { display: flex; min-height: calc(100vh - 112px); }
+    .sidebar { position: sticky; top: 112px; height: calc(100vh - 112px); width: 260px; min-width: 260px; overflow-y: auto; background: #1e293b; padding: 1rem 0; flex-shrink: 0; }
+    .sidebar-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #64748b; padding: 0.5rem 1.25rem 0.75rem; }
+    .sidebar-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.25rem; color: #94a3b8; font-size: 0.85rem; border-left: 3px solid transparent; transition: all 0.15s; text-decoration: none; white-space: nowrap; overflow: hidden; }
+    .sidebar-item:hover { color: #e2e8f0; background: rgba(255,255,255,.05); border-left-color: #475569; }
+    .sidebar-item.active { color: #93c5fd; background: rgba(59,130,246,.12); border-left-color: #3b82f6; font-weight: 600; }
+    .sidebar-item.completed { color: #6ee7b7; }
+    .lesson-num { width: 20px; height: 20px; border-radius: 4px; background: #334155; color: #94a3b8; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sidebar-item.active .lesson-num { background: #1e40af; color: #93c5fd; }
+    .sidebar-item.completed .lesson-num { background: #064e3b; color: #6ee7b7; }
+    .lesson-content { flex: 1; padding: 2rem 2.5rem; max-width: 900px; min-width: 0; }
+    .lesson-header { background: linear-gradient(135deg, #fef9c3, #fef3c7); border: 1px solid #fde68a; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; }
+    .objectives-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+    .content-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .content-section h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .content-section p { color: #475569; line-height: 1.75; margin-bottom: 0.75rem; font-size: 0.95rem; }
+    .content-section ul { color: #475569; font-size: 0.95rem; line-height: 1.75; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .content-section li { margin-bottom: 0.25rem; }
+    .code-block { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; margin: 1rem 0; font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.875rem; }
+    .code-block-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: #161b22; border-bottom: 1px solid #30363d; }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .code-block pre { margin: 0; padding: 1.25rem 1.5rem; overflow-x: auto; }
+    .info-box { display: flex; gap: 0.75rem; padding: 0.875rem 1.25rem; border-radius: 8px; margin: 0.75rem 0; }
+    .info-box.tip { background: #f0f9ff; border: 1px solid #bae6fd; }
+    .info-box.warning { background: #fffbeb; border: 1px solid #fde68a; }
+    .info-box.danger { background: #fff1f2; border: 1px solid #fecdd3; }
+    .info-box.info { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .info-box-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .info-box-content { font-size: 0.875rem; color: #475569; line-height: 1.65; }
+    .info-box-content p { margin-bottom: 0.25rem; }
+    .info-box-content p:last-child { margin-bottom: 0; }
+    .diagram-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.5rem; text-align: center; margin: 1rem 0; overflow-x: auto; }
+    .diagram-caption { font-size: 0.78rem; color: #64748b; margin-top: 0.75rem; }
+    .quiz-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .quiz-question { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; }
+    .quiz-question p { font-size: 0.92rem; font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; }
+    .quiz-options label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: #475569; cursor: pointer; padding: 0.3rem 0; }
+    .quiz-options input[type="radio"] { margin-top: 0.2rem; flex-shrink: 0; }
+    .quiz-feedback { margin-top: 0.6rem; padding: 0.6rem 0.875rem; border-radius: 6px; font-size: 0.85rem; display: none; }
+    .quiz-feedback.correct { display: block; background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .quiz-feedback.wrong { display: block; background: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; }
+    .assignment-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .assignment-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.25rem; }
+    .assignment-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 0.4rem; }
+    .badge-understand { background: #dbeafe; color: #1d4ed8; }
+    .badge-code { background: #dcfce7; color: #15803d; }
+    .badge-challenge { background: #fef9c3; color: #92400e; }
+    .resources-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .resource-card { display: flex; align-items: center; gap: 0.875rem; padding: 0.875rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.15s; text-decoration: none; }
+    .resource-card:hover { border-color: #93c5fd; background: #eff6ff; transform: translateX(4px); }
+    .resource-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .icon-docs { background: #dbeafe; }
+    .icon-tutorial { background: #f0fdf4; }
+    .icon-video { background: #fef3c7; }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+    .nav-btn { padding: 0.625rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; text-decoration: none; border: 1.5px solid #e2e8f0; color: #475569; transition: all 0.15s; }
+    .nav-btn:hover { border-color: #94a3b8; color: #1e293b; background: #f8fafc; }
+    .nav-btn-primary { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+    .nav-btn-primary:hover { background: #2563eb; border-color: #2563eb; color: #fff; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- 顶部导航 -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span>
+        <span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="01-oop-basics.html" class="px-3 py-1.5 text-sm text-green-700 bg-green-50 rounded-md font-medium">中级</a>
+        <a href="../advanced/01-move-semantics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span>
+        <span class="text-green-600">中级</span>
+        <span>›</span>
+        <span class="text-gray-800 font-medium">03. 继承</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-title">中级课程</div>
+      <a href="01-oop-basics.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>面向对象基础
+      </a>
+      <a href="02-constructors-destructors.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>构造与析构
+      </a>
+      <a href="03-inheritance.html" class="sidebar-item active">
+        <span class="lesson-num">→</span>继承
+      </a>
+      <a href="04-polymorphism.html" class="sidebar-item">
+        <span class="lesson-num">4</span>多态与虚函数
+      </a>
+      <a href="05-templates.html" class="sidebar-item">
+        <span class="lesson-num">5</span>模板基础
+      </a>
+      <a href="06-stl-containers.html" class="sidebar-item">
+        <span class="lesson-num">6</span>STL 容器
+      </a>
+      <a href="07-stl-algorithms.html" class="sidebar-item">
+        <span class="lesson-num">7</span>STL 算法
+      </a>
+      <a href="08-file-io-exceptions.html" class="sidebar-item">
+        <span class="lesson-num">8</span>文件 I/O 与异常
+      </a>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="lesson-content">
+
+      <!-- 课程头部 -->
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-yellow-600">中级 · 第 3 课</span>
+          <span class="text-xs text-gray-400">· 70分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">继承</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">继承</span>
+          <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">基类/派生类</span>
+          <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">override</span>
+          <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">final</span>
+          <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">多重继承</span>
+        </div>
+      </div>
+
+      <!-- 学习目标 -->
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🎯</span> 学习目标
+        </h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解继承的概念、语法和"is-a"关系的含义
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握 public / protected / private 三种继承方式的区别
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解构造函数和析构函数在继承体系中的调用顺序
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握 C++11 的 <code>override</code> 和 <code>final</code> 关键字
+          </li>
+        </ul>
+      </div>
+
+      <!-- 第一节：什么是继承 -->
+      <div class="content-section">
+        <h2><span>🧬</span> 什么是继承？</h2>
+
+        <p>继承（Inheritance）是一种代码复用机制，允许一个类（派生类/子类）获得另一个类（基类/父类）的成员。继承体现的是"<strong>is-a</strong>"关系：</p>
+
+        <ul>
+          <li>Dog（狗）is-a Animal（动物）✓</li>
+          <li>Car（汽车）is-a Vehicle（交通工具）✓</li>
+          <li>Stack（栈）is-a Array（数组）✗ —— 这是"has-a"关系，不应该用继承</li>
+        </ul>
+
+        <p>继承的优势：子类自动拥有父类的数据和方法，只需在子类中定义新增或修改的部分，避免重复代码。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>Animal → Dog / Cat 继承示例</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+// 基类（父类）
+class Animal {
+protected:                  // protected：子类可访问，外部不行
+    string name;
+    int    age;
+public:
+    Animal(string n, int a) : name(n), age(a) {}
+
+    void eat() { cout &lt;&lt; name &lt;&lt; " 在吃东西\n"; }
+
+    virtual void speak() {  // virtual：允许子类重写（第4课详讲）
+        cout &lt;&lt; name &lt;&lt; " 发出声音...\n";
+    }
+
+    void printInfo() const {
+        cout &lt;&lt; "名字: " &lt;&lt; name &lt;&lt; ", 年龄: " &lt;&lt; age &lt;&lt; "\n";
+    }
+};
+
+// 派生类（子类）— public 继承
+class Dog : public Animal {
+    string breed;  // Dog 自己的数据成员
+public:
+    // 子类构造函数：通过初始化列表调用父类构造函数
+    Dog(string n, int a, string b)
+        : Animal(n, a), breed(b) {}
+
+    // 重写父类的虚函数
+    void speak() override {
+        cout &lt;&lt; name &lt;&lt; " 汪汪叫！\n";  // 可访问 protected 成员 name
+    }
+
+    // Dog 特有的方法
+    void fetch() { cout &lt;&lt; name &lt;&lt; " 去取球了\n"; }
+};
+
+class Cat : public Animal {
+public:
+    Cat(string n, int a) : Animal(n, a) {}
+
+    void speak() override {
+        cout &lt;&lt; name &lt;&lt; " 喵喵叫！\n";
+    }
+
+    void purr() { cout &lt;&lt; name &lt;&lt; " 呼噜呼噜...\n"; }
+};
+
+int main() {
+    Dog dog("小白", 3, "柴犬");
+    Cat cat("咪咪", 2);
+
+    // 继承来的方法
+    dog.eat();       // 小白 在吃东西
+    dog.printInfo(); // 名字: 小白, 年龄: 3
+
+    // 子类特有方法
+    dog.speak();   // 小白 汪汪叫！（覆盖了父类的 speak）
+    dog.fetch();   // 小白 去取球了
+    cat.speak();   // 咪咪 喵喵叫！
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 第二节：三种继承方式 -->
+      <div class="content-section">
+        <h2><span>🔑</span> 三种继承方式</h2>
+
+        <p>C++ 有三种继承方式，决定了基类成员在派生类中的可见性：</p>
+
+        <div class="overflow-x-auto mt-3 mb-3">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-gray-800 text-white">
+                <th class="p-2.5 font-semibold text-left">基类成员访问</th>
+                <th class="p-2.5 font-semibold text-center">public 继承</th>
+                <th class="p-2.5 font-semibold text-center">protected 继承</th>
+                <th class="p-2.5 font-semibold text-center">private 继承</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono font-bold text-blue-700">public 成员</td>
+                <td class="p-2.5 text-center text-green-700 font-semibold">public</td>
+                <td class="p-2.5 text-center text-yellow-700 font-semibold">protected</td>
+                <td class="p-2.5 text-center text-red-700 font-semibold">private</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono font-bold text-yellow-700">protected 成员</td>
+                <td class="p-2.5 text-center text-yellow-700 font-semibold">protected</td>
+                <td class="p-2.5 text-center text-yellow-700 font-semibold">protected</td>
+                <td class="p-2.5 text-center text-red-700 font-semibold">private</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-2.5 font-mono font-bold text-red-700">private 成员</td>
+                <td class="p-2.5 text-center text-gray-400">不可访问</td>
+                <td class="p-2.5 text-center text-gray-400">不可访问</td>
+                <td class="p-2.5 text-center text-gray-400">不可访问</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>实践建议</strong>：绝大多数情况下使用 <code>public</code> 继承，它保留了"is-a"语义。<code>protected</code> 和 <code>private</code> 继承较少使用，它们更像是"根据...实现"（implemented-in-terms-of），语义上更接近组合（has-a）。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第三节：构造/析构顺序 -->
+      <div class="content-section">
+        <h2><span>⏱️</span> 构造与析构的调用顺序</h2>
+
+        <p>继承体系中，构造和析构的顺序有明确的规则：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>构造析构顺序演示</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+class A {
+public:
+    A()  { cout &lt;&lt; "A 构造\n"; }
+    ~A() { cout &lt;&lt; "A 析构\n"; }
+};
+
+class B : public A {
+    int x;
+public:
+    B(int v) : A(), x(v) {    // 先调用 A()，再初始化 x
+        cout &lt;&lt; "B 构造\n";
+    }
+    ~B() { cout &lt;&lt; "B 析构\n"; }  // B 的析构完成后再调用 A 的析构
+};
+
+class C : public B {
+public:
+    C() : B(42) {  // 先调用 B(42)（B 内部又调用 A()）
+        cout &lt;&lt; "C 构造\n";
+    }
+    ~C() { cout &lt;&lt; "C 析构\n"; }
+};
+
+int main() {
+    C obj;
+    // 构造顺序（从根类到派生类）：
+    // A 构造
+    // B 构造
+    // C 构造
+
+    // 析构顺序（构造的反顺序）：
+    // C 析构
+    // B 析构
+    // A 析构
+    return 0;
+}
+
+// 关键规则：
+// 构造：先父类（根 → 叶），后成员，最后本类函数体
+// 析构：先本类函数体，后成员，最后父类（叶 → 根，与构造相反）</code></pre>
+        </div>
+
+        <div class="info-box warning">
+          <span class="info-box-icon">⚠️</span>
+          <div class="info-box-content">
+            <p><strong>子类构造函数必须调用父类构造函数</strong>：如果父类没有默认构造函数，子类构造函数必须在初始化列表中显式调用父类构造函数。否则编译器会尝试调用父类的默认构造函数，如果不存在则编译报错。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第四节：override 和 final -->
+      <div class="content-section">
+        <h2><span>🔒</span> override 和 final（C++11）</h2>
+
+        <p><code>override</code> 和 <code>final</code> 是 C++11 引入的关键字（上下文关键字），帮助程序员更安全地处理虚函数。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>override 与 final 的用法</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">class Base {
+public:
+    virtual void foo(int x) { /* ... */ }
+    virtual void bar() { /* ... */ }
+};
+
+class Derived : public Base {
+public:
+    // ✓ override：告诉编译器"我打算覆盖父类的虚函数"
+    // 如果签名不匹配，编译器会报错（防止拼写错误）
+    void foo(int x) override { /* ... */ }
+
+    // ✗ 没有 override 时，拼写错误会静默创建新函数，而非覆盖
+    // void fooo(int x) { }   // 悄悄创建了新函数，不是 bug
+
+    // ✓ final：禁止子类继续覆盖这个虚函数
+    void bar() override final { /* ... */ }
+};
+
+class Further : public Derived {
+    // void bar() override { }  // 错误！bar() 被标记为 final，不能覆盖
+};
+
+// final 也可以用于类：禁止继续派生
+class Sealed final : public Base {
+    void foo(int x) override { /* ... */ }
+};
+// class TryExtend : public Sealed { };  // 错误！Sealed 是 final 类</code></pre>
+        </div>
+
+        <div class="info-box info">
+          <span class="info-box-icon">📌</span>
+          <div class="info-box-content">
+            <p><strong>养成好习惯</strong>：覆盖虚函数时<strong>始终</strong>加上 <code>override</code>。这能在编译期捕获签名不匹配的错误，比运行时调用错误函数要好得多。大型代码库中，缺少 override 是重构时的重要 bug 来源。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第五节：多重继承 -->
+      <div class="content-section">
+        <h2><span>🔀</span> 多重继承与菱形问题</h2>
+
+        <p>C++ 支持多重继承（一个类同时继承多个基类），这是 C++ 区别于 Java/C# 的特性之一。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>多重继承与菱形问题</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">// 多重继承的基本语法
+class Flyable {
+public:
+    void fly() { cout &lt;&lt; "飞行\n"; }
+};
+
+class Swimmable {
+public:
+    void swim() { cout &lt;&lt; "游泳\n"; }
+};
+
+// Duck 同时继承两个接口
+class Duck : public Flyable, public Swimmable {
+public:
+    void quack() { cout &lt;&lt; "嘎嘎！\n"; }
+};
+
+Duck d;
+d.fly();   // 来自 Flyable
+d.swim();  // 来自 Swimmable
+d.quack(); // Duck 自己的方法
+
+// ============ 菱形继承问题 ============
+class Animal { int id; };
+class Dog : public Animal { };
+class Cat : public Animal { };
+// DogCat 会有两份 Animal 的数据成员！
+class DogCat : public Dog, public Cat { };
+// DogCat dc;
+// dc.id;  // 错误！歧义：是 Dog::Animal::id 还是 Cat::Animal::id？
+
+// 解决方案：虚继承
+class VAnimal { int id; };
+class VDog : virtual public VAnimal { };  // 虚继承
+class VCat : virtual public VAnimal { };
+class VDogCat : public VDog, public VCat { };  // 只有一份 VAnimal 数据
+VDogCat vdc;
+// vdc.id;  // 正确！只有一份 id</code></pre>
+        </div>
+
+        <div class="info-box warning">
+          <span class="info-box-icon">⚠️</span>
+          <div class="info-box-content">
+            <p><strong>多重继承要谨慎</strong>：多重继承增加了复杂性（菱形问题、名字冲突）。现代 C++ 推荐用纯虚接口（类似 Java interface）进行多重继承，而不是多重实现继承。如果你觉得需要多重继承，先考虑是否能用组合（has-a）替代。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 继承树 SVG -->
+      <div class="content-section">
+        <h2><span>🌳</span> 继承层次图</h2>
+
+        <p>Animal 继承树的可视化展示，从基类到具体的派生类：</p>
+
+        <div class="diagram-container">
+          <svg width="520" height="260" viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="inherit-arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <polygon points="0 0, 8 4, 0 8" fill="none" stroke="#64748b" stroke-width="1"/>
+              </marker>
+            </defs>
+
+            <!-- Animal（根节点） -->
+            <rect x="185" y="10" width="150" height="45" rx="8" fill="#1e40af" stroke="#3b82f6" stroke-width="2"/>
+            <text x="260" y="30" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">Animal</text>
+            <text x="260" y="47" text-anchor="middle" font-size="10" fill="#93c5fd">name, age, eat(), speak()</text>
+
+            <!-- Dog -->
+            <rect x="60" y="110" width="140" height="45" rx="8" fill="#065f46" stroke="#10b981" stroke-width="2"/>
+            <text x="130" y="130" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">Dog</text>
+            <text x="130" y="147" text-anchor="middle" font-size="10" fill="#6ee7b7">breed, speak(), fetch()</text>
+
+            <!-- Cat -->
+            <rect x="320" y="110" width="140" height="45" rx="8" fill="#7c2d12" stroke="#f97316" stroke-width="2"/>
+            <text x="390" y="130" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">Cat</text>
+            <text x="390" y="147" text-anchor="middle" font-size="10" fill="#fed7aa">speak(), purr()</text>
+
+            <!-- Poodle -->
+            <rect x="20" y="210" width="130" height="40" rx="8" fill="#134e4a" stroke="#14b8a6" stroke-width="1.5"/>
+            <text x="85" y="228" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Poodle</text>
+            <text x="85" y="243" text-anchor="middle" font-size="10" fill="#99f6e4">卷毛犬</text>
+
+            <!-- Labrador -->
+            <rect x="170" y="210" width="130" height="40" rx="8" fill="#134e4a" stroke="#14b8a6" stroke-width="1.5"/>
+            <text x="235" y="228" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Labrador</text>
+            <text x="235" y="243" text-anchor="middle" font-size="10" fill="#99f6e4">拉布拉多</text>
+
+            <!-- 连接线：Animal → Dog -->
+            <line x1="220" y1="55" x2="155" y2="110" stroke="#64748b" stroke-width="1.5" marker-end="url(#inherit-arrow)"/>
+            <!-- 连接线：Animal → Cat -->
+            <line x1="300" y1="55" x2="365" y2="110" stroke="#64748b" stroke-width="1.5" marker-end="url(#inherit-arrow)"/>
+            <!-- 连接线：Dog → Poodle -->
+            <line x1="100" y1="155" x2="85" y2="210" stroke="#64748b" stroke-width="1.5" marker-end="url(#inherit-arrow)"/>
+            <!-- 连接线：Dog → Labrador -->
+            <line x1="160" y1="155" x2="220" y2="210" stroke="#64748b" stroke-width="1.5" marker-end="url(#inherit-arrow)"/>
+
+            <!-- 图例 -->
+            <text x="10" y="258" font-size="10" fill="#64748b">▷ 箭头方向：子类 → 父类（继承自）</text>
+          </svg>
+          <p class="diagram-caption">Animal 继承层次：基类 → 中间层 → 叶节点</p>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>🧠</span> 知识检验
+        </h2>
+
+        <div class="quiz-question">
+          <p>Q1. 以下代码中，Dog 的构造函数执行时，Animal 的构造函数何时被调用？</p>
+          <div class="code-block mb-3" style="font-size:0.82rem;">
+            <pre><code class="language-cpp">class Animal { public: Animal(string n) {} };
+class Dog : public Animal {
+    string breed;
+public:
+    Dog(string n, string b) : Animal(n), breed(b) {}
+};</code></pre>
+          </div>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. 在 Dog 构造函数函数体执行完毕之后</label>
+            <label><input type="radio" name="q1" value="B"> B. 在进入 Dog 构造函数函数体之前，由初始化列表触发</label>
+            <label><input type="radio" name="q1" value="C"> C. Animal 的构造函数不会被调用，需要手动调用</label>
+            <label><input type="radio" name="q1" value="D"> D. 和 Dog 函数体同时执行</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. <code>override</code> 关键字的主要作用是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 强制函数变为虚函数</label>
+            <label><input type="radio" name="q2" value="B"> B. 在编译期验证该函数确实覆盖了父类的虚函数，防止签名错误</label>
+            <label><input type="radio" name="q2" value="C"> C. 禁止子类继续覆盖该函数</label>
+            <label><input type="radio" name="q2" value="D"> D. 使函数在运行时更快</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. 在以下情境中，析构函数的调用顺序是？</p>
+          <div class="code-block mb-3" style="font-size:0.82rem;">
+            <pre><code class="language-cpp">class A { public: ~A() { cout &lt;&lt; "A\n"; } };
+class B : public A { public: ~B() { cout &lt;&lt; "B\n"; } };
+class C : public B { public: ~C() { cout &lt;&lt; "C\n"; } };
+// C obj; 超出作用域...</code></pre>
+          </div>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. A → B → C</label>
+            <label><input type="radio" name="q3" value="B"> B. C → A → B</label>
+            <label><input type="radio" name="q3" value="C"> C. C → B → A</label>
+            <label><input type="radio" name="q3" value="D"> D. 析构顺序不确定</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>📋</span> 课后作业
+        </h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释"is-a"和"has-a"关系的区别，并为以下场景判断应该用继承还是组合：(1) 学生和人；(2) 汽车和引擎；(3) 正方形和矩形（注意里氏替换原则）；(4) 经理和员工。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">创建 <code>Shape</code> 基类（包含 name 和 color 字符串成员），派生 <code>Circle</code>（半径）和 <code>Rectangle</code>（长宽），每个子类都有构造函数（通过初始化列表调用父类构造）以及 <code>area()</code> 和 <code>describe()</code> 方法。用 <code>override</code> 标注覆盖的函数。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">实现一个员工管理系统：<code>Employee</code> 基类（name、salary），派生 <code>Manager</code>（额外有 bonus）和 <code>Engineer</code>（额外有 level）。为 Manager 和 Engineer 各自覆盖 <code>getSalary()</code>（Manager 的薪资包含 bonus）。在 main 中创建多个对象，并将它们放入数组，统计总薪资。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🔗</span> 延伸阅读
+        </h2>
+        <a href="https://en.cppreference.com/w/cpp/language/derived_class" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">cppreference: 派生类</div>
+            <div class="text-xs text-gray-500 mt-0.5">派生类的完整参考，包括继承说明符、虚继承等</div>
+          </div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-inheritance/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">LearnCpp: 第17章 - 继承入门</div>
+            <div class="text-xs text-gray-500 mt-0.5">系统讲解继承的各个方面，配有大量示例</div>
+          </div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=X8nYM8wdNRE" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">TheCherno: Inheritance in C++</div>
+            <div class="text-xs text-gray-500 mt-0.5">视频讲解 C++ 继承机制，含实际代码演示</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 导航 -->
+      <div class="lesson-nav">
+        <a href="02-constructors-destructors.html" class="nav-btn">← 上一课：构造与析构</a>
+        <a href="04-polymorphism.html" class="nav-btn nav-btn-primary">下一课：多态与虚函数 →</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！构造函数的初始化列表在函数体执行前处理：先调用父类构造函数，再按声明顺序初始化成员，最后执行函数体。所以 Animal(n) 在进入 Dog 函数体之前就已执行。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。初始化列表的执行早于构造函数体：先 Animal(n)，再 breed(b)，然后才进入 Dog 的花括号函数体。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！override 让编译器验证该函数是否确实覆盖了父类的某个虚函数（签名完全匹配）。如果你拼错了函数名或参数类型不对，编译器会在编译期报错，而不是悄悄创建一个新函数。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。override 是一个安全检查机制，禁止子类继续覆盖的是 final 关键字，不是 override。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！析构顺序严格与构造顺序相反。构造时 A→B→C，析构时 C→B→A。最外层的派生类最先被析构，然后逐步向上到基类。这保证了对象销毁时的安全性。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C（C → B → A）。析构顺序是构造顺序的完全反转，派生类先析构，基类后析构。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+
+</body>
+</html>

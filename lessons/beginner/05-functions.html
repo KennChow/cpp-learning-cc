@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>05. 函数 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body class="bg-gray-50">
+
+  <!-- 顶部导航 -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span>
+        <span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="01-hello-world.html" class="px-3 py-1.5 text-sm text-blue-700 bg-blue-50 rounded-md font-medium">初级</a>
+        <a href="../intermediate/01-oop-basics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors">中级</a>
+        <a href="../advanced/01-move-semantics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span>
+        <span class="text-blue-600">初级</span>
+        <span>›</span>
+        <span class="text-gray-800 font-medium">05. 函数</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-title">初级课程</div>
+      <a href="01-hello-world.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>Hello World 与编译流程
+      </a>
+      <a href="02-variables-types.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>变量与基本类型
+      </a>
+      <a href="03-operators.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>运算符与表达式
+      </a>
+      <a href="04-control-flow.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>控制流
+      </a>
+      <a href="05-functions.html" class="sidebar-item active">
+        <span class="lesson-num">5</span>函数
+      </a>
+      <a href="06-arrays-strings.html" class="sidebar-item">
+        <span class="lesson-num">6</span>数组与字符串
+      </a>
+      <a href="07-pointers-references.html" class="sidebar-item">
+        <span class="lesson-num">7</span>指针与引用
+      </a>
+      <a href="08-structs.html" class="sidebar-item">
+        <span class="lesson-num">8</span>结构体
+      </a>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="lesson-content">
+
+      <!-- 课程头部 -->
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-blue-500">初级 · 第 5 课</span>
+          <span class="text-xs text-gray-400">· 55分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">函数</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">函数声明</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">参数传递</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">返回值</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">函数重载</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">递归</span>
+        </div>
+      </div>
+
+      <!-- 学习目标 -->
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🎯</span> 学习目标
+        </h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解函数的声明、定义和调用，掌握函数原型的使用
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握按值传递参数，理解函数内修改不影响调用者
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解函数返回值、<code>void</code> 函数及多个 return 点
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            了解函数重载和默认参数的用法
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解递归函数的原理，认识基准情况的重要性
+          </li>
+        </ul>
+      </div>
+
+      <!-- 第一节：为什么需要函数 -->
+      <div class="content-section">
+        <h2><span>🤔</span> 为什么需要函数？</h2>
+
+        <p>想象你在编写一个程序，需要在多个地方计算圆的面积。没有函数时，你需要重复写同样的计算代码。有了函数，你只需写一次，然后到处调用：</p>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-gray-800 text-white">
+                <th class="p-2.5 font-semibold text-left">优点</th>
+                <th class="p-2.5 font-semibold text-left">说明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-semibold text-blue-700">代码复用</td>
+                <td class="p-2.5 text-gray-700">一处定义，多处调用，避免重复代码</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-semibold text-blue-700">模块化</td>
+                <td class="p-2.5 text-gray-700">将大问题分解为小问题，每个函数负责一件事</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-semibold text-blue-700">可读性</td>
+                <td class="p-2.5 text-gray-700">函数名即注释，<code>calculateCircleArea(r)</code> 一目了然</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-2.5 font-semibold text-blue-700">易于测试</td>
+                <td class="p-2.5 text-gray-700">可以单独测试每个函数，找 bug 更容易</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 第二节：函数的基本结构 -->
+      <div class="content-section">
+        <h2><span>🏗️</span> 函数的基本结构</h2>
+
+        <p>C++ 函数由四个部分组成：返回类型、函数名、参数列表和函数体：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>函数基本结构</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">// 返回类型  函数名   参数列表
+   int      add    (int a, int b) {
+    // 函数体
+    return a + b;  // 返回值
+}
+
+// void 表示函数不返回任何值
+void greet(string name) {
+    cout &lt;&lt; "你好，" &lt;&lt; name &lt;&lt; "！" &lt;&lt; endl;
+    // 不需要 return（可以有 return; 来提前退出）
+}
+
+// 调用函数
+int result = add(3, 5);   // result = 8
+greet("世界");             // 输出：你好，世界！</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>函数命名建议</strong>：使用动词或动词短语，如 <code>calculateArea</code>、<code>printResult</code>、<code>isValid</code>。对于返回布尔值的函数，通常以 <code>is</code>、<code>has</code>、<code>can</code> 开头，使代码更像英语句子。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第三节：声明与定义分离 -->
+      <div class="content-section">
+        <h2><span>📋</span> 声明与定义分离</h2>
+
+        <p>C++ 编译器从上到下读取代码。如果在 <code>main</code> 中调用一个尚未"见过"的函数，编译器会报错。解决方案是使用<strong>函数原型（声明）</strong>：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>函数原型 vs 定义</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+// ===== 函数声明（原型）=====
+// 只告诉编译器：函数的名字、参数类型、返回类型
+// 参数名可以省略，但写上更清晰
+int add(int a, int b);       // 声明
+void printBanner(string msg); // 声明
+
+int main() {
+    // 因为上面有了声明，可以在这里调用
+    cout &lt;&lt; add(3, 5) &lt;&lt; endl;  // 输出 8
+    printBanner("C++ 学习");
+    return 0;
+}
+
+// ===== 函数定义（实现）=====
+// 可以放在 main 之后
+int add(int a, int b) {
+    return a + b;
+}
+
+void printBanner(string msg) {
+    cout &lt;&lt; "====== " &lt;&lt; msg &lt;&lt; " ======" &lt;&lt; endl;
+}
+
+// 在实际项目中：
+// 声明 → 放在 .h 头文件中
+// 定义 → 放在 .cpp 源文件中</code></pre>
+        </div>
+
+        <div class="info-box info">
+          <span class="info-box-icon">📌</span>
+          <div class="info-box-content">
+            <p><strong>头文件的作用</strong>：<code>#include &lt;iostream&gt;</code> 就是在引入一个头文件，它包含了 <code>cout</code>、<code>cin</code> 等函数/对象的声明。实际的实现（定义）在标准库的二进制文件中，链接时才会合并。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第四节：参数传递 -->
+      <div class="content-section">
+        <h2><span>📦</span> 参数传递——按值传递</h2>
+
+        <p>C++ 默认使用<strong>按值传递（pass by value）</strong>：函数接收的是参数的<strong>副本</strong>，在函数内修改参数，不会影响调用者的原始变量：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>按值传递演示</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+void tryToChange(int x) {
+    x = 999;   // 只修改了副本！
+    cout &lt;&lt; "函数内 x = " &lt;&lt; x &lt;&lt; endl;  // 999
+}
+
+void doubleValue(int n) {
+    n = n * 2;
+    cout &lt;&lt; "函数内 n = " &lt;&lt; n &lt;&lt; endl;
+}
+
+int main() {
+    int a = 42;
+    cout &lt;&lt; "调用前 a = " &lt;&lt; a &lt;&lt; endl;  // 42
+
+    tryToChange(a);   // 传递 a 的副本
+
+    cout &lt;&lt; "调用后 a = " &lt;&lt; a &lt;&lt; endl;  // 仍然是 42！
+
+    int num = 10;
+    doubleValue(num);
+    cout &lt;&lt; "调用后 num = " &lt;&lt; num &lt;&lt; endl;  // 仍然是 10
+
+    return 0;
+}
+// 输出：
+// 调用前 a = 42
+// 函数内 x = 999
+// 调用后 a = 42   ← 没有改变！</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>预告</strong>：如果想让函数修改调用者的变量，需要使用<strong>按引用传递</strong>（<code>int&amp; x</code>）或<strong>按指针传递</strong>（<code>int* x</code>）。这两种方式将在第 7 课《指针与引用》中详细讲解。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第五节：返回值 -->
+      <div class="content-section">
+        <h2><span>↩️</span> 函数返回值</h2>
+
+        <p><code>return</code> 语句将值传回调用者，并立即结束函数执行。一个函数可以有多个 <code>return</code> 语句：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>返回值详解</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+// 多个 return 点（early return 风格）
+string grade(int score) {
+    if (score >= 90) return "优秀";
+    if (score >= 80) return "良好";
+    if (score >= 70) return "中等";
+    if (score >= 60) return "及格";
+    return "不及格";  // 所有情况都要有 return
+}
+
+// void 函数：不返回值，但可以提前退出
+void printPositive(int n) {
+    if (n &lt;= 0) {
+        cout &lt;&lt; "不是正数，跳过" &lt;&lt; endl;
+        return;  // 提前退出，不执行后面的代码
+    }
+    cout &lt;&lt; "正数：" &lt;&lt; n &lt;&lt; endl;
+}
+
+// 返回值可以用于进一步计算
+int square(int n) { return n * n; }
+int sumOfSquares(int a, int b) {
+    return square(a) + square(b);  // 使用函数返回值
+}
+
+int main() {
+    cout &lt;&lt; grade(95) &lt;&lt; endl;    // 优秀
+    cout &lt;&lt; grade(73) &lt;&lt; endl;    // 中等
+    printPositive(-5);              // 不是正数，跳过
+    printPositive(8);               // 正数：8
+    cout &lt;&lt; sumOfSquares(3, 4) &lt;&lt; endl;  // 25
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 第六节：函数重载 -->
+      <div class="content-section">
+        <h2><span>🔀</span> 函数重载</h2>
+
+        <p>C++ 允许多个函数使用<strong>相同的名字</strong>，但参数类型或数量不同。编译器根据调用时传入的参数自动选择合适的版本：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>函数重载</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+// 同名函数，不同参数类型
+int add(int a, int b) {
+    cout &lt;&lt; "[int版本] ";
+    return a + b;
+}
+
+double add(double a, double b) {
+    cout &lt;&lt; "[double版本] ";
+    return a + b;
+}
+
+// 同名函数，不同参数数量
+int add(int a, int b, int c) {
+    cout &lt;&lt; "[三参数版本] ";
+    return a + b + c;
+}
+
+// 打印不同类型（重载的经典用例）
+void print(int n)    { cout &lt;&lt; "整数: " &lt;&lt; n &lt;&lt; endl; }
+void print(double d) { cout &lt;&lt; "浮点: " &lt;&lt; d &lt;&lt; endl; }
+void print(string s) { cout &lt;&lt; "字符串: " &lt;&lt; s &lt;&lt; endl; }
+
+int main() {
+    cout &lt;&lt; add(1, 2) &lt;&lt; endl;          // [int版本] 3
+    cout &lt;&lt; add(1.5, 2.5) &lt;&lt; endl;      // [double版本] 4.0
+    cout &lt;&lt; add(1, 2, 3) &lt;&lt; endl;       // [三参数版本] 6
+
+    print(42);        // 整数: 42
+    print(3.14);      // 浮点: 3.14
+    print("Hello");   // 字符串: Hello
+
+    return 0;
+}
+// 注意：重载只看参数，不看返回类型！
+// int foo();  和  double foo();  同时存在会导致编译错误</code></pre>
+        </div>
+
+        <div class="info-box danger">
+          <span class="info-box-icon">🚫</span>
+          <div class="info-box-content">
+            <p><strong>重载的判断依据</strong>：参数的<strong>类型</strong>和<strong>数量</strong>（统称为函数签名）。<strong>返回类型不参与重载判断</strong>。如果两个函数只有返回类型不同，编译器无法区分，会产生错误。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第七节：默认参数 -->
+      <div class="content-section">
+        <h2><span>⚙️</span> 默认参数</h2>
+
+        <p>可以为参数提供默认值，调用时如果不传该参数，则使用默认值。默认参数必须从右往左设置：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>默认参数</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+// 默认参数必须从右往左设置
+void printLine(char c = '-', int n = 40) {
+    for (int i = 0; i &lt; n; ++i) cout &lt;&lt; c;
+    cout &lt;&lt; endl;
+}
+
+// 混合：部分有默认值（默认值参数必须在右边）
+string createTag(string content,
+                 string tag = "p",
+                 string cls = "") {
+    string result = "&lt;" + tag;
+    if (!cls.empty()) result += " class=\"" + cls + "\"";
+    result += "&gt;" + content + "&lt;/" + tag + "&gt;";
+    return result;
+}
+
+int main() {
+    printLine();              // 使用全部默认值：40个'-'
+    printLine('=');           // 覆盖第一个：40个'='
+    printLine('*', 20);       // 覆盖全部：20个'*'
+
+    cout &lt;&lt; createTag("Hello") &lt;&lt; endl;
+    // 输出：&lt;p&gt;Hello&lt;/p&gt;
+
+    cout &lt;&lt; createTag("Title", "h1") &lt;&lt; endl;
+    // 输出：&lt;h1&gt;Title&lt;/h1&gt;
+
+    cout &lt;&lt; createTag("Info", "div", "info-box") &lt;&lt; endl;
+    // 输出：&lt;div class="info-box"&gt;Info&lt;/div&gt;
+
+    return 0;
+}
+
+// 错误示例：
+// void bad(int a = 0, int b);  // 错误！有默认值的参数必须在最右边</code></pre>
+        </div>
+      </div>
+
+      <!-- 第八节：递归函数 -->
+      <div class="content-section">
+        <h2><span>🌀</span> 递归函数</h2>
+
+        <p><strong>递归</strong>是指函数调用自身。每个递归函数必须有一个<strong>基准情况（base case）</strong>来终止递归，否则会无限调用导致栈溢出：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>递归：阶乘与斐波那契</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+// 阶乘：n! = n × (n-1)!，且 0! = 1
+int factorial(int n) {
+    // 基准情况（Base Case）：终止递归
+    if (n &lt;= 1) return 1;
+
+    // 递归情况：问题规模缩小
+    return n * factorial(n - 1);
+}
+// 执行过程：factorial(4)
+//   = 4 * factorial(3)
+//   = 4 * 3 * factorial(2)
+//   = 4 * 3 * 2 * factorial(1)
+//   = 4 * 3 * 2 * 1  = 24
+
+// 斐波那契：fib(n) = fib(n-1) + fib(n-2)
+int fibonacci(int n) {
+    if (n &lt;= 1) return n;  // 基准情况：fib(0)=0, fib(1)=1
+    return fibonacci(n-1) + fibonacci(n-2);
+}
+// 注意：这个实现有大量重复计算，效率低下
+// 生产代码应使用动态规划或迭代
+
+int main() {
+    for (int i = 0; i &lt;= 7; ++i)
+        cout &lt;&lt; i &lt;&lt; "! = " &lt;&lt; factorial(i) &lt;&lt; endl;
+
+    cout &lt;&lt; "\n斐波那契数列: ";
+    for (int i = 0; i &lt; 10; ++i)
+        cout &lt;&lt; fibonacci(i) &lt;&lt; " ";
+    cout &lt;&lt; endl;
+    return 0;
+}</code></pre>
+        </div>
+
+        <!-- 调用栈帧 SVG -->
+        <div class="mt-6">
+          <h3 class="text-base font-semibold text-gray-800 mb-3">factorial(3) 的调用栈</h3>
+          <div style="background:#1e1e2e;border-radius:10px;padding:20px;overflow-x:auto;">
+            <svg viewBox="0 0 560 320" width="100%" style="max-width:560px;display:block;margin:0 auto;">
+              <!-- 标题 -->
+              <text x="280" y="22" text-anchor="middle" fill="#cdd6f4" font-size="13" font-weight="bold">函数调用栈（栈从上往下增长）</text>
+
+              <!-- 栈帧：main -->
+              <rect x="180" y="38" width="200" height="52" rx="6" fill="#313244" stroke="#6c7086" stroke-width="1.5"/>
+              <text x="280" y="57" text-anchor="middle" fill="#89b4fa" font-size="12" font-weight="bold">main()</text>
+              <text x="280" y="73" text-anchor="middle" fill="#a6e3a1" font-size="11">调用 factorial(3)</text>
+              <text x="148" y="68" text-anchor="middle" fill="#585b70" font-size="10">栈底</text>
+
+              <!-- 箭头 main → factorial(3) -->
+              <line x1="280" y1="90" x2="280" y2="106" stroke="#f38ba8" stroke-width="2" marker-end="url(#arr)"/>
+
+              <!-- 栈帧：factorial(3) -->
+              <rect x="160" y="106" width="240" height="58" rx="6" fill="#1e3a5f" stroke="#89b4fa" stroke-width="1.5"/>
+              <text x="280" y="126" text-anchor="middle" fill="#89b4fa" font-size="12" font-weight="bold">factorial(3)</text>
+              <text x="280" y="142" text-anchor="middle" fill="#cdd6f4" font-size="11">n=3，返回 3 × factorial(2)</text>
+              <text x="280" y="156" text-anchor="middle" fill="#f9e2af" font-size="10">等待 factorial(2) 返回...</text>
+
+              <!-- 箭头 factorial(3) → factorial(2) -->
+              <line x1="280" y1="164" x2="280" y2="180" stroke="#f38ba8" stroke-width="2" marker-end="url(#arr)"/>
+
+              <!-- 栈帧：factorial(2) -->
+              <rect x="140" y="180" width="280" height="58" rx="6" fill="#1e3a5f" stroke="#89b4fa" stroke-width="1.5"/>
+              <text x="280" y="200" text-anchor="middle" fill="#89b4fa" font-size="12" font-weight="bold">factorial(2)</text>
+              <text x="280" y="216" text-anchor="middle" fill="#cdd6f4" font-size="11">n=2，返回 2 × factorial(1)</text>
+              <text x="280" y="230" text-anchor="middle" fill="#f9e2af" font-size="10">等待 factorial(1) 返回...</text>
+
+              <!-- 箭头 factorial(2) → factorial(1) -->
+              <line x1="280" y1="238" x2="280" y2="254" stroke="#f38ba8" stroke-width="2" marker-end="url(#arr)"/>
+
+              <!-- 栈帧：factorial(1) -->
+              <rect x="120" y="254" width="320" height="52" rx="6" fill="#1a3a1e" stroke="#a6e3a1" stroke-width="2"/>
+              <text x="280" y="274" text-anchor="middle" fill="#a6e3a1" font-size="12" font-weight="bold">factorial(1) ← 基准情况</text>
+              <text x="280" y="292" text-anchor="middle" fill="#cdd6f4" font-size="11">n=1，直接返回 1（不再递归）</text>
+              <text x="148" y="283" text-anchor="middle" fill="#585b70" font-size="10">栈顶</text>
+
+              <!-- 右侧返回值标注 -->
+              <text x="500" y="285" text-anchor="middle" fill="#a6e3a1" font-size="11">返回 1</text>
+              <text x="500" y="220" text-anchor="middle" fill="#a6e3a1" font-size="11">返回 2</text>
+              <text x="500" y="146" text-anchor="middle" fill="#a6e3a1" font-size="11">返回 6</text>
+              <line x1="450" y1="280" x2="480" y2="280" stroke="#a6e3a1" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <line x1="450" y1="215" x2="480" y2="215" stroke="#a6e3a1" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <line x1="450" y1="141" x2="480" y2="141" stroke="#a6e3a1" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+              <defs>
+                <marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+                  <polygon points="0 0, 8 3, 0 6" fill="#f38ba8"/>
+                </marker>
+              </defs>
+            </svg>
+          </div>
+          <p class="text-xs text-gray-500 mt-2 text-center">每次调用会在栈上创建新的栈帧，返回后栈帧弹出。如果递归太深，栈空间耗尽就会发生栈溢出（Stack Overflow）。</p>
+        </div>
+
+        <div class="info-box warning">
+          <span class="info-box-icon">⚠️</span>
+          <div class="info-box-content">
+            <p><strong>递归的优缺点</strong>：优点是代码简洁优雅，适合描述天然递归的问题（树遍历、分治算法）。缺点是每次调用需要保存栈帧，内存消耗大；递归层数过深会导致<strong>栈溢出（Stack Overflow）</strong>；很多递归（如朴素斐波那契）有大量重复计算，效率低。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 综合代码示例 -->
+      <div class="content-section">
+        <h2><span>🧪</span> 综合代码示例</h2>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>函数综合演示</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+// 函数声明（原型）
+int factorial(int n);
+int fibonacci(int n);
+double average(double a, double b, double c = 0.0);
+
+int main() {
+    // 函数调用演示
+    cout &lt;&lt; "5! = " &lt;&lt; factorial(5) &lt;&lt; endl;        // 120
+    cout &lt;&lt; "fib(10) = " &lt;&lt; fibonacci(10) &lt;&lt; endl;  // 55
+
+    // 默认参数：只传两个参数时，c 默认为 0.0
+    cout &lt;&lt; "average(3, 7) = " &lt;&lt; average(3, 7) &lt;&lt; endl;      // 3.333
+    cout &lt;&lt; "average(1, 2, 3) = " &lt;&lt; average(1, 2, 3) &lt;&lt; endl; // 2.0
+    return 0;
+}
+
+int factorial(int n) {
+    if (n &lt;= 1) return 1;
+    return n * factorial(n - 1);  // 递归调用
+}
+
+int fibonacci(int n) {
+    if (n &lt;= 1) return n;
+    return fibonacci(n-1) + fibonacci(n-2);
+}
+
+double average(double a, double b, double c) {
+    return (a + b + c) / 3.0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>🧠</span> 知识检验
+        </h2>
+
+        <div class="quiz-question">
+          <p>Q1. 函数重载的判断依据是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. 函数的返回类型</label>
+            <label><input type="radio" name="q1" value="B"> B. 参数的类型和数量（函数签名）</label>
+            <label><input type="radio" name="q1" value="C"> C. 函数名的长度</label>
+            <label><input type="radio" name="q1" value="D"> D. 函数体的内容</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. 按值传递时，在函数内修改参数会影响调用者的变量吗？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 会影响，修改后立即同步</label>
+            <label><input type="radio" name="q2" value="B"> B. 不会影响，函数内操作的是副本</label>
+            <label><input type="radio" name="q2" value="C"> C. 只有 int 类型不影响，其他类型会影响</label>
+            <label><input type="radio" name="q2" value="D"> D. 取决于编译器</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. 递归函数必须有什么才能避免无限递归？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. return 语句</label>
+            <label><input type="radio" name="q3" value="B"> B. 循环结构</label>
+            <label><input type="radio" name="q3" value="C"> C. 基准情况（base case）——使递归停止的条件</label>
+            <label><input type="radio" name="q3" value="D"> D. 函数重载</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>📋</span> 课后作业
+        </h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释函数声明与函数定义的区别，为什么在 C++ 中有时候需要函数声明（原型）？在什么情况下可以省略声明？</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">实现一个函数 <code>isPrime(int n)</code>，判断一个数是否为质数（只能被 1 和自身整除）。在 <code>main</code> 中调用它，打印 1-50 之间的所有质数。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">实现汉诺塔递归函数 <code>hanoi(int n, char from, char to, char via)</code>，输出将 n 个盘子从 from 柱移动到 to 柱（借助 via 柱）的每一步操作。验证 n=3 时共需 7 步。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🔗</span> 延伸阅读
+        </h2>
+        <a href="https://en.cppreference.com/w/cpp/language/function" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">cppreference: 函数声明</div>
+            <div class="text-xs text-gray-500 mt-0.5">完整的 C++ 函数语法参考，包括 lambda、constexpr 函数等高级特性</div>
+          </div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-functions/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">LearnCpp.com: Chapter 2 - Functions</div>
+            <div class="text-xs text-gray-500 mt-0.5">系统讲解函数的各个方面，包括作用域、前向声明等</div>
+          </div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=V9zuox47zr0" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">TheCherno: Functions in C++</div>
+            <div class="text-xs text-gray-500 mt-0.5">视频讲解 C++ 函数，包括函数栈帧和调用约定的底层原理</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 导航 -->
+      <div class="lesson-nav">
+        <a href="04-control-flow.html" class="nav-btn">← 上一课：控制流</a>
+        <a href="06-arrays-strings.html" class="nav-btn nav-btn-primary">下一课：数组与字符串 →</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！函数重载由参数的类型和数量（函数签名）决定。返回类型不参与重载判断——如果两个函数只有返回类型不同，编译器无法区分，会产生编译错误。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。函数重载的依据是参数的类型和数量，与返回类型无关。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！按值传递时，函数接收到的是原始变量的副本。修改副本不会影响原始变量。如果想让函数修改调用者的变量，需要使用引用（int& x）或指针（int* x）。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。按值传递就是传递副本，函数内的修改不会影响调用者。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！递归函数必须有基准情况（base case），即不再调用自身、直接返回结果的条件。没有基准情况的递归会无限调用自身，直到栈溢出（Stack Overflow）导致程序崩溃。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。基准情况（base case）是递归函数的"出口"，没有它递归就无法终止。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+
+</body>
+</html>

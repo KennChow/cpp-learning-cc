@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>03. 运算符与表达式 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body class="bg-gray-50">
+
+  <!-- 顶部导航 -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span>
+        <span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="01-hello-world.html" class="px-3 py-1.5 text-sm text-blue-700 bg-blue-50 rounded-md font-medium">初级</a>
+        <a href="../intermediate/01-oop-basics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors">中级</a>
+        <a href="../advanced/01-move-semantics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span>
+        <span class="text-blue-600">初级</span>
+        <span>›</span>
+        <span class="text-gray-800 font-medium">03. 运算符与表达式</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-title">初级课程</div>
+      <a href="01-hello-world.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>Hello World 与编译流程
+      </a>
+      <a href="02-variables-types.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>变量与基本类型
+      </a>
+      <a href="03-operators.html" class="sidebar-item active">
+        <span class="lesson-num">3</span>运算符与表达式
+      </a>
+      <a href="04-control-flow.html" class="sidebar-item">
+        <span class="lesson-num">4</span>控制流
+      </a>
+      <a href="05-functions.html" class="sidebar-item">
+        <span class="lesson-num">5</span>函数
+      </a>
+      <a href="06-arrays-strings.html" class="sidebar-item">
+        <span class="lesson-num">6</span>数组与字符串
+      </a>
+      <a href="07-pointers-references.html" class="sidebar-item">
+        <span class="lesson-num">7</span>指针与引用
+      </a>
+      <a href="08-structs.html" class="sidebar-item">
+        <span class="lesson-num">8</span>结构体
+      </a>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="lesson-content">
+
+      <!-- 课程头部 -->
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-blue-500">初级 · 第 3 课</span>
+          <span class="text-xs text-gray-400">· 40分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">运算符与表达式</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">运算符</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">表达式</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">位运算</span>
+        </div>
+      </div>
+
+      <!-- 学习目标 -->
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🎯</span> 学习目标
+        </h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握算术、关系、逻辑、赋值、位运算符的用法
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解运算符优先级与结合性，避免常见陷阱
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握前置/后置自增自减、三目运算符的区别
+          </li>
+        </ul>
+      </div>
+
+      <!-- 第一节：算术运算符 -->
+      <div class="content-section">
+        <h2><span>➕</span> 算术运算符</h2>
+
+        <p>算术运算符用于执行数学计算。C++ 提供了完整的四则运算和取余运算：</p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-gray-800 text-white">
+                <th class="p-2.5 font-semibold text-left">运算符</th>
+                <th class="p-2.5 font-semibold text-left">名称</th>
+                <th class="p-2.5 font-semibold text-left">示例</th>
+                <th class="p-2.5 font-semibold text-left">结果</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>+</code></td>
+                <td class="p-2.5 text-gray-700">加法</td>
+                <td class="p-2.5 font-mono text-sm text-gray-600">5 + 3</td>
+                <td class="p-2.5 text-gray-700">8</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>-</code></td>
+                <td class="p-2.5 text-gray-700">减法</td>
+                <td class="p-2.5 font-mono text-sm text-gray-600">10 - 4</td>
+                <td class="p-2.5 text-gray-700">6</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>*</code></td>
+                <td class="p-2.5 text-gray-700">乘法</td>
+                <td class="p-2.5 font-mono text-sm text-gray-600">3 * 4</td>
+                <td class="p-2.5 text-gray-700">12</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>/</code></td>
+                <td class="p-2.5 text-gray-700">除法（注意整数截断！）</td>
+                <td class="p-2.5 font-mono text-sm text-gray-600">7 / 2</td>
+                <td class="p-2.5 text-gray-700">3（不是 3.5！）</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>%</code></td>
+                <td class="p-2.5 text-gray-700">取余（模运算）</td>
+                <td class="p-2.5 font-mono text-sm text-gray-600">7 % 3</td>
+                <td class="p-2.5 text-gray-700">1（7 = 2×3 + 1）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block mt-4">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>算术运算符示例</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    int a{10}, b{3};
+
+    std::cout &lt;&lt; "a + b = " &lt;&lt; a + b &lt;&lt; "\n";   // 13
+    std::cout &lt;&lt; "a - b = " &lt;&lt; a - b &lt;&lt; "\n";   // 7
+    std::cout &lt;&lt; "a * b = " &lt;&lt; a * b &lt;&lt; "\n";   // 30
+    std::cout &lt;&lt; "a / b = " &lt;&lt; a / b &lt;&lt; "\n";   // 3（整数截断）
+    std::cout &lt;&lt; "a % b = " &lt;&lt; a % b &lt;&lt; "\n";   // 1
+
+    // 浮点除法
+    std::cout &lt;&lt; "10.0 / 3 = " &lt;&lt; 10.0 / 3 &lt;&lt; "\n"; // 3.33333
+
+    // 取余的实用技巧
+    std::cout &lt;&lt; "判断奇偶: " &lt;&lt; (a % 2 == 0 ? "偶数" : "奇数") &lt;&lt; "\n";
+    std::cout &lt;&lt; "循环索引: " &lt;&lt; 15 % 7 &lt;&lt; "\n"; // 1，用于循环队列
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box warning">
+          <span class="info-box-icon">⚠️</span>
+          <div class="info-box-content">
+            <p><strong>除以零是未定义行为！</strong>整数除以 0 会导致程序崩溃（运行时错误），浮点除以 0 会得到 <code>inf</code> 或 <code>nan</code>。在做除法前要确保除数不为零。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第二节：关系运算符 -->
+      <div class="content-section">
+        <h2><span>⚖️</span> 关系运算符</h2>
+
+        <p>关系运算符用于比较两个值，结果总是 <code>bool</code> 类型（<code>true</code> 或 <code>false</code>）：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>关系运算符</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    int x{5}, y{10};
+
+    std::cout &lt;&lt; (x == y) &lt;&lt; "\n";  // 0 (false) — 相等
+    std::cout &lt;&lt; (x != y) &lt;&lt; "\n";  // 1 (true)  — 不等
+    std::cout &lt;&lt; (x &lt;  y) &lt;&lt; "\n";  // 1 (true)  — 小于
+    std::cout &lt;&lt; (x &gt;  y) &lt;&lt; "\n";  // 0 (false) — 大于
+    std::cout &lt;&lt; (x &lt;= y) &lt;&lt; "\n";  // 1 (true)  — 小于等于
+    std::cout &lt;&lt; (x &gt;= y) &lt;&lt; "\n";  // 0 (false) — 大于等于
+
+    // 配合 boolalpha 输出 true/false 而非 1/0
+    std::cout &lt;&lt; std::boolalpha;
+    std::cout &lt;&lt; (x == y) &lt;&lt; "\n";  // false
+    std::cout &lt;&lt; (x &lt;  y) &lt;&lt; "\n";  // true
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box danger">
+          <span class="info-box-icon">🚫</span>
+          <div class="info-box-content">
+            <p><strong>经典错误：= 和 == 混淆！</strong> <code>if (x = 5)</code> 是赋值（将 5 赋给 x，结果永远为真），<code>if (x == 5)</code> 才是比较。防范技巧：写 <code>if (5 == x)</code>（常量在左），如果误写成 <code>=</code> 会报编译错误。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第三节：逻辑运算符 -->
+      <div class="content-section">
+        <h2><span>🧩</span> 逻辑运算符与短路求值</h2>
+
+        <p>逻辑运算符用于组合多个条件。C++ 的 <code>&&</code> 和 <code>||</code> 具有<strong>短路求值（Short-circuit Evaluation）</strong>特性：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>逻辑运算符</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    bool a{true}, b{false};
+
+    // && (AND)：两者都为 true 才返回 true
+    std::cout &lt;&lt; (a && b) &lt;&lt; "\n";  // false
+    std::cout &lt;&lt; (a && a) &lt;&lt; "\n";  // true
+
+    // || (OR)：至少一个为 true 就返回 true
+    std::cout &lt;&lt; (a || b) &lt;&lt; "\n";  // true
+    std::cout &lt;&lt; (b || b) &lt;&lt; "\n";  // false
+
+    // ! (NOT)：取反
+    std::cout &lt;&lt; (!a) &lt;&lt; "\n";  // false
+    std::cout &lt;&lt; (!b) &lt;&lt; "\n";  // true
+
+    // ===== 短路求值 =====
+    int x{0};
+
+    // && 短路：左边为 false，右边不执行
+    // 如果 x == 0，则 (1/x) 不会被计算，避免除零崩溃
+    if (x != 0 && (10 / x > 1)) {
+        std::cout &lt;&lt; "安全计算\n";
+    } else {
+        std::cout &lt;&lt; "x 为 0，短路保护生效\n";
+    }
+
+    // || 短路：左边为 true，右边不执行
+    int* ptr = nullptr;
+    if (ptr == nullptr || *ptr == 0) {
+        std::cout &lt;&lt; "空指针检查通过，不会解引用\n";
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>短路求值的实用价值</strong>：检查指针或除数之前，先用 <code>&&</code> 的短路特性进行安全性检查。如 <code>ptr != nullptr && ptr->value > 0</code>，只有指针非空时才访问其成员。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第四节：赋值运算符 -->
+      <div class="content-section">
+        <h2><span>📝</span> 赋值运算符</h2>
+
+        <p>复合赋值运算符是"先运算后赋值"的简写形式，代码更简洁：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>赋值运算符</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    int x{10};
+
+    x += 5;   // 等同于 x = x + 5;  → 15
+    std::cout &lt;&lt; "x += 5:  " &lt;&lt; x &lt;&lt; "\n";
+
+    x -= 3;   // 等同于 x = x - 3;  → 12
+    std::cout &lt;&lt; "x -= 3:  " &lt;&lt; x &lt;&lt; "\n";
+
+    x *= 2;   // 等同于 x = x * 2;  → 24
+    std::cout &lt;&lt; "x *= 2:  " &lt;&lt; x &lt;&lt; "\n";
+
+    x /= 4;   // 等同于 x = x / 4;  → 6
+    std::cout &lt;&lt; "x /= 4:  " &lt;&lt; x &lt;&lt; "\n";
+
+    x %= 4;   // 等同于 x = x % 4;  → 2
+    std::cout &lt;&lt; "x %= 4:  " &lt;&lt; x &lt;&lt; "\n";
+
+    // 链式赋值（右结合）
+    int a, b, c;
+    a = b = c = 100;   // c = 100, b = 100, a = 100
+    std::cout &lt;&lt; a &lt;&lt; " " &lt;&lt; b &lt;&lt; " " &lt;&lt; c &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 第五节：自增/自减 -->
+      <div class="content-section">
+        <h2><span>🔢</span> 自增与自减运算符</h2>
+
+        <p><code>++</code> 和 <code>--</code> 有前置和后置两种形式，区别在于<strong>返回值的时机</strong>：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>前置 vs 后置</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    int a{5};
+
+    // 前置 ++：先自增，再使用（返回自增后的值）
+    int b = ++a;   // a 先变 6，b = 6
+    std::cout &lt;&lt; "++a: a=" &lt;&lt; a &lt;&lt; " b=" &lt;&lt; b &lt;&lt; "\n";  // a=6, b=6
+
+    a = 5;  // 重置
+
+    // 后置 ++：先使用，再自增（返回自增前的值）
+    int c = a++;   // c = 5，然后 a 变 6
+    std::cout &lt;&lt; "a++: a=" &lt;&lt; a &lt;&lt; " c=" &lt;&lt; c &lt;&lt; "\n";  // a=6, c=5
+
+    // 实际用法：在循环中通常两者效果一样
+    for (int i = 0; i &lt; 5; ++i) {  // 推荐使用前置 ++
+        std::cout &lt;&lt; i &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">🚀</span>
+          <div class="info-box-content">
+            <p><strong>循环中推荐使用前置 <code>++i</code></strong>：对于内置类型，两者性能相同。但对于自定义类型（如迭代器），后置 <code>i++</code> 需要创建一个临时对象保存旧值，效率略低。养成使用 <code>++i</code> 的习惯是好实践。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第六节：位运算符 -->
+      <div class="content-section">
+        <h2><span>🔌</span> 位运算符</h2>
+
+        <p>位运算符直接操作整数的二进制位，在底层编程、标志位操作、性能优化等场景非常有用：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>位运算符详解</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;bitset&gt;   // 用于二进制打印
+
+int main() {
+    unsigned int a{0b00001100};  // 12，二进制 0000 1100
+    unsigned int b{0b00001010};  // 10，二进制 0000 1010
+
+    // & (AND)：对应位都为 1 才为 1
+    std::cout &lt;&lt; "a & b  = " &lt;&lt; std::bitset&lt;8&gt;(a & b)  &lt;&lt; " (" &lt;&lt; (a & b)  &lt;&lt; ")\n"; // 0000 1000 = 8
+
+    // | (OR)：对应位有一个为 1 就为 1
+    std::cout &lt;&lt; "a | b  = " &lt;&lt; std::bitset&lt;8&gt;(a | b)  &lt;&lt; " (" &lt;&lt; (a | b)  &lt;&lt; ")\n"; // 0000 1110 = 14
+
+    // ^ (XOR)：对应位不同为 1，相同为 0
+    std::cout &lt;&lt; "a ^ b  = " &lt;&lt; std::bitset&lt;8&gt;(a ^ b)  &lt;&lt; " (" &lt;&lt; (a ^ b)  &lt;&lt; ")\n"; // 0000 0110 = 6
+
+    // ~ (NOT)：按位取反
+    std::cout &lt;&lt; "~a     = " &lt;&lt; std::bitset&lt;8&gt;(~a & 0xFF) &lt;&lt; "\n";  // 1111 0011
+
+    // << (左移)：相当于乘以 2 的幂
+    std::cout &lt;&lt; "a &lt;&lt; 1 = " &lt;&lt; std::bitset&lt;8&gt;(a &lt;&lt; 1) &lt;&lt; " (" &lt;&lt; (a &lt;&lt; 1) &lt;&lt; ")\n"; // 24 = 12*2
+
+    // >> (右移)：相当于除以 2 的幂
+    std::cout &lt;&lt; "a &gt;&gt; 1 = " &lt;&lt; std::bitset&lt;8&gt;(a &gt;&gt; 1) &lt;&lt; " (" &lt;&lt; (a &gt;&gt; 1) &lt;&lt; ")\n"; // 6 = 12/2
+
+    // 实际应用：标志位操作
+    const unsigned int READ    = 0b001;  // 1
+    const unsigned int WRITE   = 0b010;  // 2
+    const unsigned int EXECUTE = 0b100;  // 4
+
+    unsigned int perms = READ | WRITE;   // 设置读和写权限
+    std::cout &lt;&lt; "\n权限设置: " &lt;&lt; std::bitset&lt;3&gt;(perms) &lt;&lt; "\n";
+    std::cout &lt;&lt; "有读权限: " &lt;&lt; std::boolalpha &lt;&lt; (bool)(perms & READ)    &lt;&lt; "\n";
+    std::cout &lt;&lt; "有执行权限: " &lt;&lt; std::boolalpha &lt;&lt; (bool)(perms & EXECUTE) &lt;&lt; "\n";
+
+    perms |= EXECUTE;  // 添加执行权限
+    perms &amp;= ~WRITE;   // 移除写权限
+    std::cout &lt;&lt; "修改后权限: " &lt;&lt; std::bitset&lt;3&gt;(perms) &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 第七节：运算符优先级 -->
+      <div class="content-section">
+        <h2><span>📊</span> 运算符优先级</h2>
+
+        <p>当表达式中出现多个运算符时，<strong>优先级</strong>决定了计算顺序。优先级高的先计算，相同优先级的按<strong>结合性</strong>计算。</p>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="precedence-table">
+            <thead>
+              <tr>
+                <th>优先级</th>
+                <th>运算符</th>
+                <th>描述</th>
+                <th>结合性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1（最高）</td>
+                <td><code>() [] . -></code></td>
+                <td>括号、下标、成员访问</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><code>++ -- ! ~ (type) * & sizeof</code></td>
+                <td>一元运算符</td>
+                <td>右→左</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><code>* / %</code></td>
+                <td>乘、除、取余</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><code>+ -</code></td>
+                <td>加法、减法</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><code>&lt;&lt; >></code></td>
+                <td>位移</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td><code>&lt; &lt;= > >=</code></td>
+                <td>关系比较</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td><code>== !=</code></td>
+                <td>相等比较</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td><code>&amp;</code></td>
+                <td>按位与</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td><code>^</code></td>
+                <td>按位异或</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td><code>|</code></td>
+                <td>按位或</td>
+                <td>左→右</td>
+              </tr>
+              <tr class="highlight">
+                <td>11 ⚠️</td>
+                <td><code>&amp;&amp;</code></td>
+                <td>逻辑与（短路）</td>
+                <td>左→右</td>
+              </tr>
+              <tr class="highlight">
+                <td>12 ⚠️</td>
+                <td><code>||</code></td>
+                <td>逻辑或（短路）</td>
+                <td>左→右</td>
+              </tr>
+              <tr>
+                <td>13</td>
+                <td><code>?:</code></td>
+                <td>条件（三目）</td>
+                <td>右→左</td>
+              </tr>
+              <tr>
+                <td>14</td>
+                <td><code>= += -= *= /= %= &amp;= |= ^= &lt;&lt;= >>=</code></td>
+                <td>赋值</td>
+                <td>右→左</td>
+              </tr>
+              <tr>
+                <td>15（最低）</td>
+                <td><code>,</code></td>
+                <td>逗号</td>
+                <td>左→右</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="info-box warning">
+          <span class="info-box-icon">⚠️</span>
+          <div class="info-box-content">
+            <p><strong>常见陷阱</strong>：<code>&amp;</code>（位与，优先级8）比 <code>==</code>（优先级7）低！所以 <code>x & 0xFF == 0</code> 实际上是 <code>x & (0xFF == 0)</code>，即 <code>x & false</code>，结果是 0。正确写法：<code>(x & 0xFF) == 0</code>。<strong>遇到不确定的情况，加括号！</strong></p>
+          </div>
+        </div>
+
+        <div class="code-block mt-4">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>优先级陷阱示例</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    int x{6};
+
+    // 陷阱1：& 优先级低于 ==
+    // std::cout &lt;&lt; (x & 1 == 0) &lt;&lt; "\n";  // 实际是 x & (1 == 0) = x & false = 0
+    std::cout &lt;&lt; ((x & 1) == 0) &lt;&lt; "\n";   // 正确：6 的末位是 0，所以是偶数 → true
+
+    // 陷阱2：！的结合性（右→左）
+    int a{1}, b{2};
+    // !a + b 是 (!a) + b = 0 + 2 = 2，不是 !(a + b)
+    std::cout &lt;&lt; (!a + b) &lt;&lt; "\n";  // 2，而非 !(1+2)=false
+
+    // 正确做法：有疑虑时加括号
+    std::cout &lt;&lt; (2 + 3 * 4) &lt;&lt; "\n";   // 14 (* 优先于 +)
+    std::cout &lt;&lt; ((2 + 3) * 4) &lt;&lt; "\n"; // 20 (括号改变优先级)
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 第八节：三目运算符 -->
+      <div class="content-section">
+        <h2><span>❓</span> 条件（三目）运算符</h2>
+
+        <p>三目运算符 <code>?:</code> 是 <code>if-else</code> 的简洁替代，适合在表达式中嵌入简单的条件选择：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>三目运算符</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    int score{85};
+
+    // 语法：条件 ? 真时的值 : 假时的值
+    std::string grade = (score >= 60) ? "及格" : "不及格";
+    std::cout &lt;&lt; "成绩: " &lt;&lt; grade &lt;&lt; "\n";  // 及格
+
+    // 求两数最大值
+    int a{7}, b{12};
+    int maxVal = (a > b) ? a : b;
+    std::cout &lt;&lt; "最大值: " &lt;&lt; maxVal &lt;&lt; "\n";  // 12
+
+    // 嵌套三目（可读性差，不推荐）
+    int x{75};
+    std::string level = (x >= 90) ? "优秀" : (x >= 75) ? "良好" : (x >= 60) ? "及格" : "不及格";
+    std::cout &lt;&lt; "评级: " &lt;&lt; level &lt;&lt; "\n";  // 良好
+
+    // 在输出中使用（常见用法）
+    for (int i = 1; i &lt;= 5; ++i) {
+        std::cout &lt;&lt; i &lt;&lt; (i % 2 == 0 ? "（偶）" : "（奇）") &lt;&lt; "\n";
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 综合代码示例 -->
+      <div class="content-section">
+        <h2><span>🧪</span> 动手练习</h2>
+        <p>综合练习各类运算符：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>综合运算符练习</span>
+            <span></span>
+          </div>
+          <pre id="editor-03"><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    int a{15}, b{4};
+
+    // 算术
+    std::cout &lt;&lt; "=== 算术运算 ===\n";
+    std::cout &lt;&lt; a &lt;&lt; " / " &lt;&lt; b &lt;&lt; " = " &lt;&lt; a / b &lt;&lt; "\n";
+    std::cout &lt;&lt; a &lt;&lt; " % " &lt;&lt; b &lt;&lt; " = " &lt;&lt; a % b &lt;&lt; "\n";
+
+    // 关系和逻辑
+    std::cout &lt;&lt; "\n=== 关系与逻辑 ===\n";
+    bool cond = (a > 10) && (b &lt; 10);
+    std::cout &lt;&lt; std::boolalpha &lt;&lt; "a>10 && b<10: " &lt;&lt; cond &lt;&lt; "\n";
+
+    // 位运算
+    std::cout &lt;&lt; "\n=== 位运算 ===\n";
+    std::cout &lt;&lt; "a << 1 = " &lt;&lt; (a &lt;&lt; 1) &lt;&lt; "  (×2)\n";
+    std::cout &lt;&lt; "a >> 1 = " &lt;&lt; (a &gt;&gt; 1) &lt;&lt; "  (÷2 整数)\n";
+    std::cout &lt;&lt; "a & b  = " &lt;&lt; (a &amp; b)  &lt;&lt; "\n";
+
+    // 三目
+    std::cout &lt;&lt; "\n=== 三目运算 ===\n";
+    std::cout &lt;&lt; "最大值: " &lt;&lt; (a > b ? a : b) &lt;&lt; "\n";
+    std::cout &lt;&lt; (a % 2 == 0 ? "a是偶数" : "a是奇数") &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>🧠</span> 知识检验
+        </h2>
+
+        <div class="quiz-question">
+          <p>Q1. 表达式 <code>17 % 5</code> 的结果是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. 3.4</label>
+            <label><input type="radio" name="q1" value="B"> B. 2</label>
+            <label><input type="radio" name="q1" value="C"> C. 3</label>
+            <label><input type="radio" name="q1" value="D"> D. 12</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. <code>int x{5}; int y = x++;</code> 执行后，<code>y</code> 的值是多少？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 4</label>
+            <label><input type="radio" name="q2" value="B"> B. 5</label>
+            <label><input type="radio" name="q2" value="C"> C. 6</label>
+            <label><input type="radio" name="q2" value="D"> D. 未定义</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. 关于短路求值，以下说法正确的是？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. <code>false && expr</code> 中，<code>expr</code> 一定会被执行</label>
+            <label><input type="radio" name="q3" value="B"> B. <code>true || expr</code> 中，<code>expr</code> 不会被执行</label>
+            <label><input type="radio" name="q3" value="C"> C. 短路求值只适用于位运算符</label>
+            <label><input type="radio" name="q3" value="D"> D. <code>&amp;&amp;</code> 和 <code>||</code> 都不支持短路求值</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>📋</span> 课后作业
+        </h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释 <code>2 + 3 * 4 - 1</code> 的计算顺序和最终结果。然后用括号改写，使结果变为 15。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">编写程序：输入一个整数，判断并输出：① 是奇数还是偶数（用 <code>%</code>）；② 是否能被 3 和 5 同时整除（用 <code>&amp;&amp;</code>）；③ 用位运算检查最低位是 0 还是 1（用 <code>&amp;</code>）。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">仅用位运算（不用 <code>+</code>），实现两个整数的加法（提示：用异或 <code>^</code> 计算无进位和，用 <code>&amp;</code> 和左移计算进位，循环直到进位为 0）。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🔗</span> 延伸阅读
+        </h2>
+        <a href="https://en.cppreference.com/w/cpp/language/operator_precedence" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">cppreference: 运算符优先级</div>
+            <div class="text-xs text-gray-500 mt-0.5">完整的 C++ 运算符优先级和结合性表</div>
+          </div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/operator-precedence-and-associativity/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">LearnCpp.com: 第5章 运算符</div>
+            <div class="text-xs text-gray-500 mt-0.5">详细讲解所有运算符类型，含大量示例</div>
+          </div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=TB4-1DzJT_0" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">TheCherno: Operators in C++</div>
+            <div class="text-xs text-gray-500 mt-0.5">视频讲解 C++ 运算符，重点讲解操作符重载</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 导航 -->
+      <div class="lesson-nav">
+        <a href="02-variables-types.html" class="nav-btn">← 上一课：变量与基本类型</a>
+        <a href="04-control-flow.html" class="nav-btn nav-btn-primary">下一课：控制流 →</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！17 = 3 × 5 + 2，所以 17 % 5 = 2（余数）。取余运算返回被除数除以除数后的余数。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。17 % 5 = 2，因为 17 = 3×5 + 2，余数是 2。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！后置 x++ 先返回当前值（5）赋给 y，然后 x 自增变为 6。所以 y = 5，x = 6。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。后置 ++ 是"先用再增"：y 先被赋值为 x 的当前值 5，然后 x 变为 6。y = 5。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！|| 短路：左边为 true 时，右边的表达式不会被执行，因为结果已经确定是 true。同样，&& 短路：左边为 false 时右边不执行。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B — true || expr 中 expr 不会被执行（|| 短路）。false && expr 同理，expr 也不会执行。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+
+</body>
+</html>

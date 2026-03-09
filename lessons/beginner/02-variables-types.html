@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>02. 变量与基本类型 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body class="bg-gray-50">
+
+  <!-- 顶部导航 -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span>
+        <span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="01-hello-world.html" class="px-3 py-1.5 text-sm text-blue-700 bg-blue-50 rounded-md font-medium">初级</a>
+        <a href="../intermediate/01-oop-basics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors">中级</a>
+        <a href="../advanced/01-move-semantics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span>
+        <span class="text-blue-600">初级</span>
+        <span>›</span>
+        <span class="text-gray-800 font-medium">02. 变量与基本类型</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- 主体布局 -->
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-title">初级课程</div>
+      <a href="01-hello-world.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>Hello World 与编译流程
+      </a>
+      <a href="02-variables-types.html" class="sidebar-item active">
+        <span class="lesson-num">2</span>变量与基本类型
+      </a>
+      <a href="03-operators.html" class="sidebar-item">
+        <span class="lesson-num">3</span>运算符与表达式
+      </a>
+      <a href="04-control-flow.html" class="sidebar-item">
+        <span class="lesson-num">4</span>控制流
+      </a>
+      <a href="05-functions.html" class="sidebar-item">
+        <span class="lesson-num">5</span>函数
+      </a>
+      <a href="06-arrays-strings.html" class="sidebar-item">
+        <span class="lesson-num">6</span>数组与字符串
+      </a>
+      <a href="07-pointers-references.html" class="sidebar-item">
+        <span class="lesson-num">7</span>指针与引用
+      </a>
+      <a href="08-structs.html" class="sidebar-item">
+        <span class="lesson-num">8</span>结构体
+      </a>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="lesson-content">
+
+      <!-- 课程头部 -->
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-blue-500">初级 · 第 2 课</span>
+          <span class="text-xs text-gray-400">· 45分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">变量与基本类型</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">变量</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">数据类型</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">内存</span>
+        </div>
+      </div>
+
+      <!-- 学习目标 -->
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🎯</span> 学习目标
+        </h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握 C++ 基本数据类型（<code>int</code>, <code>float</code>, <code>double</code>, <code>char</code>, <code>bool</code>）及其大小
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解变量的声明、初始化、赋值与作用域
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            了解 <code>sizeof</code> 运算符、类型转换和整数溢出
+          </li>
+        </ul>
+      </div>
+
+      <!-- 第一节：变量是什么 -->
+      <div class="content-section">
+        <h2><span>📦</span> 变量是什么</h2>
+
+        <p>变量是内存中一块<strong>有名字的存储空间</strong>。你可以把它想象成一个标注了名称的盒子，用来存放数据。程序运行时，每个变量都对应一个内存地址，存储特定类型的值。</p>
+
+        <div class="diagram-container">
+          <svg width="100%" viewBox="0 0 500 120" xmlns="http://www.w3.org/2000/svg" style="max-width:500px">
+            <!-- 内存示意 -->
+            <text x="20" y="20" font-size="12" font-weight="bold" fill="#374151">内存（RAM）</text>
+            <!-- 内存格子 -->
+            <rect x="20" y="30" width="460" height="50" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+
+            <!-- 变量 age=25，4字节 -->
+            <rect x="30" y="35" width="80" height="40" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+            <text x="70" y="52" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">25</text>
+            <text x="70" y="67" text-anchor="middle" font-size="9" fill="#3b82f6">int age</text>
+
+            <!-- 变量 pi，8字节 -->
+            <rect x="120" y="35" width="120" height="40" rx="3" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
+            <text x="180" y="52" text-anchor="middle" font-size="11" font-weight="bold" fill="#065f46">3.14159</text>
+            <text x="180" y="67" text-anchor="middle" font-size="9" fill="#059669">double pi</text>
+
+            <!-- 变量 grade，1字节 -->
+            <rect x="250" y="35" width="40" height="40" rx="3" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+            <text x="270" y="52" text-anchor="middle" font-size="11" font-weight="bold" fill="#9d174d">'A'</text>
+            <text x="270" y="67" text-anchor="middle" font-size="9" fill="#db2777">char g</text>
+
+            <!-- 变量 ok，1字节 -->
+            <rect x="300" y="35" width="40" height="40" rx="3" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+            <text x="320" y="52" text-anchor="middle" font-size="11" font-weight="bold" fill="#713f12">true</text>
+            <text x="320" y="67" text-anchor="middle" font-size="9" fill="#b45309">bool ok</text>
+
+            <!-- 空闲内存 -->
+            <rect x="350" y="35" width="120" height="40" rx="3" fill="#f1f5f9" stroke="#cbd5e1" stroke-dasharray="4,3"/>
+            <text x="410" y="58" text-anchor="middle" font-size="10" fill="#94a3b8">（空闲）</text>
+
+            <!-- 地址标注 -->
+            <text x="30" y="95" font-size="9" fill="#94a3b8">0x1000</text>
+            <text x="118" y="95" font-size="9" fill="#94a3b8">0x1004</text>
+            <text x="248" y="95" font-size="9" fill="#94a3b8">0x100C</text>
+            <text x="298" y="95" font-size="9" fill="#94a3b8">0x100D</text>
+          </svg>
+          <p class="diagram-caption">不同类型的变量在内存中占用不同大小的空间</p>
+        </div>
+      </div>
+
+      <!-- 第二节：基本数据类型 -->
+      <div class="content-section">
+        <h2><span>🔢</span> 基本数据类型</h2>
+
+        <p>C++ 提供了一系列内置的基本数据类型。了解每种类型的大小和取值范围非常重要，可以帮助你选择合适的类型并避免错误。</p>
+
+        <!-- 内存格子宽度对比图 -->
+        <div class="diagram-container">
+          <svg width="100%" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+            <text x="350" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f172a">各类型内存宽度对比（1格 = 1字节）</text>
+
+            <!-- bool: 1字节 -->
+            <text x="80" y="48" text-anchor="end" font-size="11" font-weight="600" fill="#374151">bool</text>
+            <rect x="88" y="35" width="30" height="22" rx="3" fill="#fce7f3" stroke="#ec4899"/>
+            <text x="103" y="50" text-anchor="middle" font-size="10" fill="#9d174d">1B</text>
+
+            <!-- char: 1字节 -->
+            <text x="80" y="78" text-anchor="end" font-size="11" font-weight="600" fill="#374151">char</text>
+            <rect x="88" y="65" width="30" height="22" rx="3" fill="#fce7f3" stroke="#ec4899"/>
+            <text x="103" y="80" text-anchor="middle" font-size="10" fill="#9d174d">1B</text>
+
+            <!-- short: 2字节 -->
+            <text x="80" y="108" text-anchor="end" font-size="11" font-weight="600" fill="#374151">short</text>
+            <rect x="88" y="95" width="60" height="22" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+            <text x="118" y="110" text-anchor="middle" font-size="10" fill="#92400e">2B</text>
+
+            <!-- int: 4字节 -->
+            <text x="80" y="138" text-anchor="end" font-size="11" font-weight="600" fill="#374151">int</text>
+            <rect x="88" y="125" width="120" height="22" rx="3" fill="#d1fae5" stroke="#10b981"/>
+            <text x="148" y="140" text-anchor="middle" font-size="10" fill="#065f46">4B</text>
+
+            <!-- float: 4字节 -->
+            <text x="80" y="168" text-anchor="end" font-size="11" font-weight="600" fill="#374151">float</text>
+            <rect x="88" y="155" width="120" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+            <text x="148" y="170" text-anchor="middle" font-size="10" fill="#1e40af">4B</text>
+
+            <!-- long / double: 8字节 -->
+            <text x="80" y="198" text-anchor="end" font-size="11" font-weight="600" fill="#374151">long / double</text>
+            <rect x="88" y="185" width="240" height="22" rx="3" fill="#f3e8ff" stroke="#a855f7"/>
+            <text x="208" y="200" text-anchor="middle" font-size="10" fill="#7e22ce">8B</text>
+
+            <!-- 刻度 -->
+            <line x1="88" y1="28" x2="88" y2="210" stroke="#e2e8f0" stroke-width="1"/>
+            <line x1="118" y1="28" x2="118" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+            <line x1="148" y1="28" x2="148" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+            <line x1="208" y1="28" x2="208" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+            <line x1="328" y1="28" x2="328" y2="210" stroke="#e2e8f0" stroke-width="1"/>
+            <text x="88" y="22" text-anchor="middle" font-size="9" fill="#94a3b8">0</text>
+            <text x="118" y="22" text-anchor="middle" font-size="9" fill="#94a3b8">1</text>
+            <text x="148" y="22" text-anchor="middle" font-size="9" fill="#94a3b8">2</text>
+            <text x="208" y="22" text-anchor="middle" font-size="9" fill="#94a3b8">4</text>
+            <text x="328" y="22" text-anchor="middle" font-size="9" fill="#94a3b8">8字节</text>
+          </svg>
+          <p class="diagram-caption">（64位系统上的典型大小，实际大小可能因平台不同而异）</p>
+        </div>
+
+        <!-- 类型详情表 -->
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-gray-800 text-white">
+                <th class="p-2.5 text-left font-semibold">类型</th>
+                <th class="p-2.5 text-left font-semibold">大小</th>
+                <th class="p-2.5 text-left font-semibold">取值范围</th>
+                <th class="p-2.5 text-left font-semibold">用途</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>bool</code></td>
+                <td class="p-2.5 text-gray-600">1 字节</td>
+                <td class="p-2.5 text-gray-600"><code>true</code> / <code>false</code></td>
+                <td class="p-2.5 text-gray-600">逻辑值、条件标志</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>char</code></td>
+                <td class="p-2.5 text-gray-600">1 字节</td>
+                <td class="p-2.5 text-gray-600">-128 ~ 127（或 0 ~ 255）</td>
+                <td class="p-2.5 text-gray-600">单个字符（ASCII）</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>short</code></td>
+                <td class="p-2.5 text-gray-600">2 字节</td>
+                <td class="p-2.5 text-gray-600">-32,768 ~ 32,767</td>
+                <td class="p-2.5 text-gray-600">小整数，内存敏感场景</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>int</code></td>
+                <td class="p-2.5 text-gray-600">4 字节</td>
+                <td class="p-2.5 text-gray-600">约 -21亿 ~ 21亿</td>
+                <td class="p-2.5 text-gray-600">通用整数（最常用）</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>long</code> / <code>long long</code></td>
+                <td class="p-2.5 text-gray-600">8 字节</td>
+                <td class="p-2.5 text-gray-600">约 ±922京</td>
+                <td class="p-2.5 text-gray-600">大整数（文件大小、时间戳）</td>
+              </tr>
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>float</code></td>
+                <td class="p-2.5 text-gray-600">4 字节</td>
+                <td class="p-2.5 text-gray-600">±3.4×10³⁸（约7位精度）</td>
+                <td class="p-2.5 text-gray-600">单精度浮点（图形学常用）</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-2.5 font-mono text-pink-700"><code>double</code></td>
+                <td class="p-2.5 text-gray-600">8 字节</td>
+                <td class="p-2.5 text-gray-600">±1.7×10³⁰⁸（约15位精度）</td>
+                <td class="p-2.5 text-gray-600">双精度浮点（默认浮点类型）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 第三节：变量声明与初始化 -->
+      <div class="content-section">
+        <h2><span>✍️</span> 变量声明与初始化</h2>
+
+        <p>C++ 变量必须先声明再使用。声明指定了变量的类型和名称，初始化则赋予了初始值。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>变量声明的各种形式</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    // 1. 声明但不初始化（值是未定义的垃圾值！）
+    int a;          // 危险！a 的值不确定
+
+    // 2. 声明并赋初值（C 风格）
+    int b = 10;     // 赋值初始化
+    double pi = 3.14159;
+
+    // 3. C++11 统一初始化语法（推荐）
+    int c{42};      // 大括号初始化，更安全
+    double x{2.71828};
+    bool flag{true};
+    char grade{'A'};
+
+    // 4. 同时声明多个同类型变量
+    int m = 1, n = 2, k = 3;
+
+    // 5. auto 类型推导（C++11）
+    auto result = 100;      // 编译器推导为 int
+    auto price = 9.99;      // 推导为 double
+
+    std::cout &lt;&lt; "b = " &lt;&lt; b &lt;&lt; std::endl;
+    std::cout &lt;&lt; "pi = " &lt;&lt; pi &lt;&lt; std::endl;
+    std::cout &lt;&lt; "grade = " &lt;&lt; grade &lt;&lt; std::endl;
+    std::cout &lt;&lt; "flag = " &lt;&lt; flag &lt;&lt; std::endl;  // 输出 1（true）
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box danger">
+          <span class="info-box-icon">🚫</span>
+          <div class="info-box-content">
+            <p><strong>未初始化变量</strong>是 C++ 中最常见的 bug 来源之一。未初始化的局部变量包含"垃圾值"（上次使用那块内存残留的数据）。<strong>始终在声明时初始化变量！</strong></p>
+          </div>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>大括号初始化（<code>int x{42};</code>）的优势</strong>：它会在发生<strong>精度缩窄</strong>时产生编译错误，例如 <code>int x{3.14};</code> 会报错，而 <code>int x = 3.14;</code> 则会静默截断为 3。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第四节：const 常量 -->
+      <div class="content-section">
+        <h2><span>🔒</span> const 常量</h2>
+
+        <p><code>const</code> 关键字将变量标记为<strong>只读</strong>，声明后值不能被修改。使用常量可以避免意外修改，让代码更安全、更具可读性。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>const 的使用</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    // const 变量必须在声明时初始化
+    const double PI = 3.14159265358979;
+    const int MAX_STUDENTS = 100;
+    const char NEWLINE = '\n';
+
+    // 错误！不能修改 const 变量
+    // PI = 3.14;  // 编译错误：assignment of read-only variable
+
+    // constexpr：编译期常量（C++11，比 const 更严格，性能更好）
+    constexpr int ARRAY_SIZE = 1000;
+    constexpr double GRAVITY = 9.81;
+
+    std::cout &lt;&lt; "圆周率 PI = " &lt;&lt; PI &lt;&lt; NEWLINE;
+    std::cout &lt;&lt; "最大学生数 = " &lt;&lt; MAX_STUDENTS &lt;&lt; NEWLINE;
+    std::cout &lt;&lt; "重力加速度 = " &lt;&lt; GRAVITY &lt;&lt; " m/s²" &lt;&lt; NEWLINE;
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 第五节：sizeof 运算符 -->
+      <div class="content-section">
+        <h2><span>📏</span> sizeof 运算符</h2>
+
+        <p><code>sizeof</code> 是一个编译期运算符，返回类型或变量占用的<strong>字节数</strong>。它不是函数，不需要函数调用的开销。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>sizeof 演示</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    // 对类型使用 sizeof
+    std::cout &lt;&lt; "sizeof(bool)        = " &lt;&lt; sizeof(bool)        &lt;&lt; " 字节\n";
+    std::cout &lt;&lt; "sizeof(char)        = " &lt;&lt; sizeof(char)        &lt;&lt; " 字节\n";
+    std::cout &lt;&lt; "sizeof(short)       = " &lt;&lt; sizeof(short)       &lt;&lt; " 字节\n";
+    std::cout &lt;&lt; "sizeof(int)         = " &lt;&lt; sizeof(int)         &lt;&lt; " 字节\n";
+    std::cout &lt;&lt; "sizeof(long)        = " &lt;&lt; sizeof(long)        &lt;&lt; " 字节\n";
+    std::cout &lt;&lt; "sizeof(long long)   = " &lt;&lt; sizeof(long long)   &lt;&lt; " 字节\n";
+    std::cout &lt;&lt; "sizeof(float)       = " &lt;&lt; sizeof(float)       &lt;&lt; " 字节\n";
+    std::cout &lt;&lt; "sizeof(double)      = " &lt;&lt; sizeof(double)      &lt;&lt; " 字节\n";
+
+    // 对变量使用 sizeof
+    int x = 42;
+    double y = 3.14;
+    std::cout &lt;&lt; "sizeof(x)           = " &lt;&lt; sizeof(x) &lt;&lt; " 字节\n";
+    std::cout &lt;&lt; "sizeof(y)           = " &lt;&lt; sizeof(y) &lt;&lt; " 字节\n";
+
+    return 0;
+}
+
+/* 典型 64 位系统输出：
+sizeof(bool)        = 1 字节
+sizeof(char)        = 1 字节
+sizeof(short)       = 2 字节
+sizeof(int)         = 4 字节
+sizeof(long)        = 8 字节
+sizeof(long long)   = 8 字节
+sizeof(float)       = 4 字节
+sizeof(double)      = 8 字节 */</code></pre>
+        </div>
+      </div>
+
+      <!-- 第六节：类型转换 -->
+      <div class="content-section">
+        <h2><span>🔄</span> 类型转换</h2>
+
+        <p>C++ 中类型转换分为<strong>隐式转换</strong>（编译器自动执行）和<strong>显式转换</strong>（程序员手动指定）。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>类型转换示例</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    // ===== 隐式转换（自动提升到更大的类型）=====
+    int a = 10;
+    double b = a;          // int → double，无损失
+    std::cout &lt;&lt; "b = " &lt;&lt; b &lt;&lt; "\n";  // 10.0
+
+    double c = 3.99;
+    int d = c;             // double → int，截断小数！
+    std::cout &lt;&lt; "d = " &lt;&lt; d &lt;&lt; "\n";  // 3（不是4！）
+
+    // ===== 显式转换（static_cast，推荐方式）=====
+    double price = 9.75;
+    int floorPrice = static_cast&lt;int&gt;(price);  // 明确意图
+    std::cout &lt;&lt; "floorPrice = " &lt;&lt; floorPrice &lt;&lt; "\n";  // 9
+
+    // 整数除法 vs 浮点除法
+    int x = 7, y = 2;
+    std::cout &lt;&lt; "7 / 2 = " &lt;&lt; x / y &lt;&lt; "\n";            // 3（整数除法！）
+    std::cout &lt;&lt; "7.0 / 2 = " &lt;&lt; 7.0 / 2 &lt;&lt; "\n";        // 3.5
+    std::cout &lt;&lt; "7 / 2.0 = " &lt;&lt; x / 2.0 &lt;&lt; "\n";        // 3.5
+    std::cout &lt;&lt; "(double)7/2 = " &lt;&lt; (double)x / y &lt;&lt; "\n"; // 3.5，C 风格转换
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box warning">
+          <span class="info-box-icon">⚠️</span>
+          <div class="info-box-content">
+            <p><strong>初学者最常见的陷阱：整数除法截断。</strong>计算 <code>7 / 2</code> 结果是 <code>3</code> 而不是 <code>3.5</code>！只要两个操作数都是整数，C++ 就执行整数除法。要得到浮点结果，至少一个操作数必须是浮点类型。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第七节：整数溢出 -->
+      <div class="content-section">
+        <h2><span>💥</span> 整数溢出</h2>
+
+        <p>当一个整数的值超出其类型能表示的最大范围时，就会发生<strong>溢出（Overflow）</strong>。有符号整数溢出是未定义行为（UB），无符号整数溢出会"回绕"。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>整数溢出演示</span>
+            <span></span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;climits&gt;    // 包含各类型的极限值
+
+int main() {
+    // 查看 int 的边界值
+    std::cout &lt;&lt; "int 最大值: " &lt;&lt; INT_MAX &lt;&lt; "\n";  // 2147483647
+    std::cout &lt;&lt; "int 最小值: " &lt;&lt; INT_MIN &lt;&lt; "\n";  // -2147483648
+
+    // 演示有符号整数溢出（行为未定义，但通常表现为回绕）
+    int maxVal = INT_MAX;       // 2147483647
+    int overflow = maxVal + 1;  // 未定义行为！通常变成 -2147483648
+    std::cout &lt;&lt; "INT_MAX + 1 = " &lt;&lt; overflow &lt;&lt; "\n";
+
+    // 无符号整数溢出：安全地回绕（定义好的行为）
+    unsigned int u = 0;
+    unsigned int underflow = u - 1;   // 回绕到 UINT_MAX（4294967295）
+    std::cout &lt;&lt; "0u - 1 = " &lt;&lt; underflow &lt;&lt; "\n";
+
+    // 用 long long 避免溢出
+    long long big = 3000000000LL;   // 后缀 LL 表示 long long
+    std::cout &lt;&lt; "big = " &lt;&lt; big &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box danger">
+          <span class="info-box-icon">🚫</span>
+          <div class="info-box-content">
+            <p><strong>有符号整数溢出是未定义行为（Undefined Behavior）</strong>！编译器有权假设它不会发生，并据此进行优化，可能导致完全出乎意料的结果。安全写法：在运算前检查值的范围，或使用更大的类型（如 <code>long long</code>）。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 代码示例区 -->
+      <div class="content-section">
+        <h2><span>🧪</span> 动手练习</h2>
+        <p>综合演示各种变量类型、<code>sizeof</code> 和类型转换：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots">
+              <div class="dot bg-red-500"></div>
+              <div class="dot bg-yellow-500"></div>
+              <div class="dot bg-green-500"></div>
+            </div>
+            <span>综合练习（可复制到本地运行）</span>
+            <span></span>
+          </div>
+          <pre id="editor-02"><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    // 声明各种类型变量
+    bool isStudent{true};
+    char initial{'Z'};
+    int age{20};
+    double gpa{3.85};
+
+    // 输出变量值和大小
+    std::cout &lt;&lt; "isStudent = " &lt;&lt; isStudent &lt;&lt; " (size: " &lt;&lt; sizeof(isStudent) &lt;&lt; "B)\n";
+    std::cout &lt;&lt; "initial   = " &lt;&lt; initial   &lt;&lt; " (size: " &lt;&lt; sizeof(initial)   &lt;&lt; "B)\n";
+    std::cout &lt;&lt; "age       = " &lt;&lt; age       &lt;&lt; " (size: " &lt;&lt; sizeof(age)       &lt;&lt; "B)\n";
+    std::cout &lt;&lt; "gpa       = " &lt;&lt; gpa       &lt;&lt; " (size: " &lt;&lt; sizeof(gpa)       &lt;&lt; "B)\n";
+
+    // 整数除法 vs 浮点除法
+    std::cout &lt;&lt; "\n7 / 2 = " &lt;&lt; 7 / 2 &lt;&lt; " (整数除法)\n";
+    std::cout &lt;&lt; "7.0 / 2 = " &lt;&lt; 7.0 / 2 &lt;&lt; " (浮点除法)\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>🧠</span> 知识检验
+        </h2>
+
+        <!-- Q1 -->
+        <div class="quiz-question">
+          <p>Q1. 以下哪种初始化方式在发生精度缩窄时会产生编译错误？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. <code>int x = 3.14;</code></label>
+            <label><input type="radio" name="q1" value="B"> B. <code>int x(3.14);</code></label>
+            <label><input type="radio" name="q1" value="C"> C. <code>int x{3.14};</code></label>
+            <label><input type="radio" name="q1" value="D"> D. <code>auto x = 3.14;</code></label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question mt-5">
+          <p>Q2. 在 64 位系统上，<code>sizeof(double)</code> 的值通常是多少？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 2 字节</label>
+            <label><input type="radio" name="q2" value="B"> B. 4 字节</label>
+            <label><input type="radio" name="q2" value="C"> C. 8 字节</label>
+            <label><input type="radio" name="q2" value="D"> D. 16 字节</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question mt-5">
+          <p>Q3. 表达式 <code>7 / 2</code> 在 C++ 中的结果是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. 3.5</label>
+            <label><input type="radio" name="q3" value="B"> B. 4</label>
+            <label><input type="radio" name="q3" value="C"> C. 3</label>
+            <label><input type="radio" name="q3" value="D"> D. 编译错误</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <span>📋</span> 课后作业
+        </h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释 <code>int</code> 和 <code>unsigned int</code> 的区别。如果 <code>int</code> 是 4 字节，它们各自的取值范围是什么？</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">编写程序，声明并初始化代表一个学生信息的变量（学号、姓名首字母、年龄、GPA、是否在校），用 <code>sizeof</code> 输出每个变量的大小，然后打印所有信息。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">编写程序演示整数溢出：让一个 <code>unsigned char</code>（1字节，范围 0-255）从 250 开始，每次加 1 并输出，观察到达 255 后再加 1 会发生什么。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🔗</span> 延伸阅读
+        </h2>
+        <a href="https://en.cppreference.com/w/cpp/language/types" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">cppreference: 基本类型</div>
+            <div class="text-xs text-gray-500 mt-0.5">所有基本类型的完整规范，包括各平台的大小保证</div>
+          </div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-fundamental-data-types/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">LearnCpp.com: 第4章 基本数据类型</div>
+            <div class="text-xs text-gray-500 mt-0.5">详细讲解每种类型的用法，包含大量练习</div>
+          </div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=zB9RI8_wExo" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div>
+            <div class="text-sm font-semibold text-gray-800">TheCherno: Variables in C++</div>
+            <div class="text-xs text-gray-500 mt-0.5">视频讲解 C++ 变量类型，内容直观易懂</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 导航 -->
+      <div class="lesson-nav">
+        <a href="01-hello-world.html" class="nav-btn">← 上一课：Hello World 与编译流程</a>
+        <a href="03-operators.html" class="nav-btn nav-btn-primary">下一课：运算符与表达式 →</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！大括号初始化 int x{3.14} 会产生编译错误（或警告），因为 3.14 → int 会损失精度。这正是推荐使用大括号初始化的原因之一。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C — int x{3.14} 使用大括号初始化，会在精度缩窄时报编译错误。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！double 是双精度浮点数，在 64 位系统上占 8 字节（64位），提供约15-17位有效数字的精度。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C — 8 字节。float 是 4 字节，double 是 8 字节。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！7 和 2 都是整数，C++ 执行整数除法，结果是 3（向零截断，不是四舍五入）。要得到 3.5 需要用 7.0/2 或 (double)7/2。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C — 3。两个整数相除执行整数除法，小数部分被截断。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+
+</body>
+</html>

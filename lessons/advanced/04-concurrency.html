@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>04. 并发编程 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body class="bg-gray-50">
+
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span><span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="../intermediate/01-oop-basics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors">中级</a>
+        <a href="01-move-semantics.html" class="px-3 py-1.5 text-sm text-purple-700 bg-purple-50 rounded-md font-medium">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span><span class="text-purple-600">进阶</span>
+        <span>›</span><span class="text-gray-800 font-medium">04. 并发编程</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+    <aside class="sidebar">
+      <div class="sidebar-title">进阶课程</div>
+      <a href="01-move-semantics.html" class="sidebar-item"><span class="lesson-num">1</span>移动语义与右值引用</a>
+      <a href="02-smart-pointers.html" class="sidebar-item"><span class="lesson-num">2</span>智能指针</a>
+      <a href="03-lambda-functional.html" class="sidebar-item"><span class="lesson-num">3</span>Lambda 与函数式编程</a>
+      <a href="04-concurrency.html" class="sidebar-item active"><span class="lesson-num">4</span>并发编程</a>
+      <a href="05-template-metaprogramming.html" class="sidebar-item"><span class="lesson-num">5</span>模板元编程</a>
+      <a href="06-design-patterns.html" class="sidebar-item"><span class="lesson-num">6</span>设计模式</a>
+      <a href="07-memory-management.html" class="sidebar-item"><span class="lesson-num">7</span>内存管理深入</a>
+      <a href="08-modern-cpp17-20.html" class="sidebar-item"><span class="lesson-num">8</span>C++17/20 新特性</a>
+    </aside>
+
+    <main class="lesson-content">
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-purple-500">进阶 · 第 4 课</span>
+          <span class="text-xs text-gray-400">· 75分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">并发编程</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">C++11</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">std::thread</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">mutex</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">async/future</span>
+        </div>
+      </div>
+
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🎯</span> 学习目标</h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 <code>std::thread</code> 创建和管理线程</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解数据竞争，使用 <code>mutex</code> 和 <code>lock_guard</code> 保护共享数据</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>掌握 <code>condition_variable</code> 实现线程间通信</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 <code>std::async</code> 和 <code>future</code> 实现异步任务</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解 <code>atomic</code> 原子操作的使用场景</li>
+        </ul>
+      </div>
+
+      <!-- 1. std::thread -->
+      <div class="content-section">
+        <h2><span>🧵</span> 1. std::thread 创建线程</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>线程创建与管理</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;thread&gt;
+#include &lt;iostream&gt;
+
+void worker(int id, int n) {
+    for (int i = 0; i &lt; n; ++i) {
+        std::cout &lt;&lt; "Thread " &lt;&lt; id &lt;&lt; ": " &lt;&lt; i &lt;&lt; "\n";
+    }
+}
+
+int main() {
+    // 创建线程（立即开始执行）
+    std::thread t1(worker, 1, 5);  // 函数 + 参数
+    std::thread t2([](){ std::cout &lt;&lt; "Lambda thread\n"; });
+
+    // join()：等待线程结束（阻塞）
+    t1.join();
+    t2.join();
+
+    // detach()：线程独立运行，不再等待
+    std::thread t3(worker, 3, 3);
+    t3.detach();  // t3 在后台运行，main 不等待
+    // 注意：main 结束后 detach 的线程会被强制终止
+
+    // 获取线程 ID
+    std::thread t4([](){
+        std::cout &lt;&lt; "Thread ID: " &lt;&lt; std::this_thread::get_id() &lt;&lt; "\n";
+    });
+    std::cout &lt;&lt; "t4 ID: " &lt;&lt; t4.get_id() &lt;&lt; "\n";
+    t4.join();
+
+    // 硬件并发数
+    unsigned int cores = std::thread::hardware_concurrency();
+    std::cout &lt;&lt; "CPU 核心数: " &lt;&lt; cores &lt;&lt; "\n";
+
+    return 0;
+    // 注意：若线程对象销毁时既未 join 也未 detach，程序会 terminate！
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 2. 数据竞争 -->
+      <div class="content-section">
+        <h2><span>⚠️</span> 2. 数据竞争（Data Race）</h2>
+        <p>当多个线程同时访问同一变量，且至少一个是写操作，而没有同步机制时，就发生<strong>数据竞争</strong>，结果是未定义行为（UB）。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>数据竞争示例（危险！）</span>
+          </div>
+          <pre><code class="language-cpp">int counter = 0;  // 共享变量
+
+void unsafe_increment() {
+    for (int i = 0; i &lt; 100000; ++i) {
+        ++counter;  // 非原子操作！
+        // 实际是：读 counter → 加 1 → 写回
+        // 线程切换可能在任何步骤之间发生
+    }
+}
+
+int main() {
+    std::thread t1(unsafe_increment);
+    std::thread t2(unsafe_increment);
+    t1.join();
+    t2.join();
+    // counter 的结果不是 200000，而是随机的！
+    std::cout &lt;&lt; counter &lt;&lt; "\n";  // 可能是 123456，每次不同
+    return 0;
+}</code></pre>
+        </div>
+
+        <!-- 线程时序 SVG -->
+        <div class="mt-6 flex justify-center">
+          <svg width="580" height="220" viewBox="0 0 580 220" xmlns="http://www.w3.org/2000/svg" class="rounded-xl border border-gray-200 bg-white p-4">
+            <!-- 时间轴 -->
+            <line x1="60" y1="180" x2="540" y2="180" stroke="#9ca3af" stroke-width="1.5"/>
+            <text x="300" y="200" text-anchor="middle" fill="#9ca3af" font-size="11">时间 →</text>
+
+            <!-- 线程标签 -->
+            <text x="40" y="60" text-anchor="end" fill="#7c3aed" font-size="12" font-weight="bold">线程1</text>
+            <text x="40" y="120" text-anchor="end" fill="#0284c7" font-size="12" font-weight="bold">线程2</text>
+
+            <!-- 线程1 时间线 -->
+            <line x1="60" y1="60" x2="540" y2="60" stroke="#e9d5ff" stroke-width="8" stroke-linecap="round"/>
+            <!-- 线程1 操作 -->
+            <rect x="80" y="44" width="60" height="32" rx="4" fill="#7c3aed"/>
+            <text x="110" y="64" text-anchor="middle" fill="white" font-size="9">读 cnt=0</text>
+            <rect x="200" y="44" width="60" height="32" rx="4" fill="#7c3aed"/>
+            <text x="230" y="64" text-anchor="middle" fill="white" font-size="9">+1 = 1</text>
+            <rect x="380" y="44" width="60" height="32" rx="4" fill="#ef4444"/>
+            <text x="410" y="58" text-anchor="middle" fill="white" font-size="9">写 cnt=1</text>
+            <text x="410" y="70" text-anchor="middle" fill="#fecaca" font-size="8">（覆盖了1！）</text>
+
+            <!-- 线程2 时间线 -->
+            <line x1="60" y1="120" x2="540" y2="120" stroke="#bae6fd" stroke-width="8" stroke-linecap="round"/>
+            <!-- 线程2 操作 -->
+            <rect x="140" y="104" width="60" height="32" rx="4" fill="#0284c7"/>
+            <text x="170" y="124" text-anchor="middle" fill="white" font-size="9">读 cnt=0</text>
+            <rect x="290" y="104" width="60" height="32" rx="4" fill="#0284c7"/>
+            <text x="320" y="124" text-anchor="middle" fill="white" font-size="9">+1 = 1</text>
+            <rect x="450" y="104" width="60" height="32" rx="4" fill="#0284c7"/>
+            <text x="480" y="124" text-anchor="middle" fill="white" font-size="9">写 cnt=1</text>
+
+            <!-- 问题标注 -->
+            <path d="M 170 104 L 110 76" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <text x="130" y="95" fill="#ef4444" font-size="9">两者都读到 0</text>
+
+            <text x="290" y="195" text-anchor="middle" fill="#9ca3af" font-size="10">预期结果应为 2，实际两次写入都写了 1（丢失更新）</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 3. mutex -->
+      <div class="content-section">
+        <h2><span>🔐</span> 3. mutex 与 lock_guard</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>互斥锁保护共享数据</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;mutex&gt;
+
+std::mutex mtx;
+int counter = 0;
+
+void safe_increment() {
+    for (int i = 0; i &lt; 100000; ++i) {
+        // lock_guard：RAII 风格，构造时加锁，析构时解锁
+        std::lock_guard&lt;std::mutex&gt; lock(mtx);
+        ++counter;  // 临界区：同一时刻只有一个线程能执行
+        // lock 在此行结束时析构，自动解锁
+    }
+}
+
+// unique_lock：更灵活（可以手动解锁、配合 condition_variable）
+void flexible_lock() {
+    std::unique_lock&lt;std::mutex&gt; lock(mtx);
+    // ... 执行一些操作 ...
+    lock.unlock();  // 提前解锁
+
+    // ... 不需要保护的操作 ...
+
+    lock.lock();    // 重新加锁
+    // ... 继续临界区 ...
+}  // lock 析构时若已加锁则解锁
+
+// 避免死锁：同时锁多个 mutex
+std::mutex mtx1, mtx2;
+void safe_multi_lock() {
+    // C++17：std::scoped_lock（推荐）
+    std::scoped_lock lock(mtx1, mtx2);  // 原子地锁定多个 mutex
+
+    // 等价的 C++11 方式
+    // std::lock(mtx1, mtx2);  // 死锁安全的同时锁定
+    // std::lock_guard&lt;std::mutex&gt; l1(mtx1, std::adopt_lock);
+    // std::lock_guard&lt;std::mutex&gt; l2(mtx2, std::adopt_lock);
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 4. condition_variable -->
+      <div class="content-section">
+        <h2><span>📡</span> 4. condition_variable — 线程间通信</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>生产者-消费者模式</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;condition_variable&gt;
+#include &lt;queue&gt;
+
+std::queue&lt;int&gt; buffer;
+std::mutex mtx;
+std::condition_variable cv;
+bool done = false;
+
+void producer() {
+    for (int i = 0; i &lt; 10; ++i) {
+        {
+            std::lock_guard&lt;std::mutex&gt; lock(mtx);
+            buffer.push(i);
+            std::cout &lt;&lt; "生产: " &lt;&lt; i &lt;&lt; "\n";
+        }
+        cv.notify_one();  // 通知一个等待的线程
+    }
+    {
+        std::lock_guard&lt;std::mutex&gt; lock(mtx);
+        done = true;
+    }
+    cv.notify_all();  // 通知所有等待的线程
+}
+
+void consumer(int id) {
+    while (true) {
+        std::unique_lock&lt;std::mutex&gt; lock(mtx);
+        // wait：释放锁并等待，被唤醒后重新获取锁
+        // 带谓词版本：防止虚假唤醒（spurious wakeup）
+        cv.wait(lock, []{ return !buffer.empty() || done; });
+
+        if (buffer.empty() &amp;&amp; done) break;
+
+        int val = buffer.front();
+        buffer.pop();
+        lock.unlock();  // 处理前释放锁
+
+        std::cout &lt;&lt; "消费者 " &lt;&lt; id &lt;&lt; " 消费: " &lt;&lt; val &lt;&lt; "\n";
+    }
+}
+
+int main() {
+    std::thread prod(producer);
+    std::thread cons1(consumer, 1);
+    std::thread cons2(consumer, 2);
+    prod.join(); cons1.join(); cons2.join();
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 5. async 和 future -->
+      <div class="content-section">
+        <h2><span>🔮</span> 5. std::async 与 std::future</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>异步任务</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;future&gt;
+
+// 计算密集型任务
+long long heavy_computation(int n) {
+    long long sum = 0;
+    for (int i = 0; i &lt; n; ++i) sum += i;
+    return sum;
+}
+
+int main() {
+    // std::async：在新线程中异步执行任务
+    auto future1 = std::async(std::launch::async,
+        heavy_computation, 1000000);
+
+    // 主线程可以同时做其他事
+    std::cout &lt;&lt; "异步任务已启动，主线程继续工作...\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // get()：阻塞等待并获取结果
+    long long result = future1.get();
+    std::cout &lt;&lt; "结果: " &lt;&lt; result &lt;&lt; "\n";
+
+    // 并行执行多个任务
+    auto f1 = std::async(std::launch::async, heavy_computation, 1000000);
+    auto f2 = std::async(std::launch::async, heavy_computation, 2000000);
+    auto f3 = std::async(std::launch::async, heavy_computation, 3000000);
+
+    std::cout &lt;&lt; "三个结果: "
+              &lt;&lt; f1.get() &lt;&lt; ", "
+              &lt;&lt; f2.get() &lt;&lt; ", "
+              &lt;&lt; f3.get() &lt;&lt; "\n";
+
+    // promise + future：手动控制
+    std::promise&lt;int&gt; prom;
+    std::future&lt;int&gt; fut = prom.get_future();
+
+    std::thread t([&prom](){
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        prom.set_value(42);  // 设置值，唤醒等待的 get()
+    });
+
+    std::cout &lt;&lt; "等待 promise: " &lt;&lt; fut.get() &lt;&lt; "\n";  // 42
+    t.join();
+
+    // std::launch::deferred：延迟执行（调用 get() 时才在当前线程执行）
+    auto lazy = std::async(std::launch::deferred, heavy_computation, 500);
+    std::cout &lt;&lt; "延迟执行结果: " &lt;&lt; lazy.get() &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 6. atomic -->
+      <div class="content-section">
+        <h2><span>⚛️</span> 6. std::atomic — 原子操作</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>原子类型</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;atomic&gt;
+
+// atomic 保证操作的原子性（无需 mutex）
+std::atomic&lt;int&gt; atomic_counter{0};
+
+void atomic_increment() {
+    for (int i = 0; i &lt; 100000; ++i) {
+        ++atomic_counter;  // 原子操作，线程安全
+        // 等价于：atomic_counter.fetch_add(1)
+    }
+}
+
+// atomic 常用操作
+std::atomic&lt;int&gt; val{10};
+val.store(20);             // 原子写入
+int v = val.load();        // 原子读取
+int old = val.fetch_add(5); // 原子加，返回旧值
+int expected = 20;
+val.compare_exchange_strong(expected, 100);
+// 如果 val == expected，则 val = 100，返回 true
+// 否则 expected = val 的当前值，返回 false
+
+// 原子标志（最轻量的原子类型）
+std::atomic_flag flag = ATOMIC_FLAG_INIT;
+// test_and_set：原子地检查并置位
+if (!flag.test_and_set()) {
+    std::cout &lt;&lt; "第一次进入\n";
+}
+flag.clear();  // 清除标志
+
+// atomic vs mutex 的选择：
+// - atomic：适合简单的计数器、标志位
+// - mutex：适合保护复杂的数据结构或多步操作</code></pre>
+        </div>
+      </div>
+
+      <!-- 综合示例 -->
+      <div class="content-section">
+        <h2><span>🧪</span> 综合代码示例：线程池</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>simple_thread_pool.cpp</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;mutex&gt;
+#include &lt;condition_variable&gt;
+#include &lt;queue&gt;
+#include &lt;functional&gt;
+#include &lt;vector&gt;
+#include &lt;atomic&gt;
+
+class ThreadPool {
+    std::vector&lt;std::thread&gt; workers_;
+    std::queue&lt;std::function&lt;void()&gt;&gt; tasks_;
+    std::mutex queue_mutex_;
+    std::condition_variable cv_;
+    std::atomic&lt;bool&gt; stop_{false};
+
+public:
+    ThreadPool(size_t num_threads) {
+        for (size_t i = 0; i &lt; num_threads; ++i) {
+            workers_.emplace_back([this]() {
+                while (true) {
+                    std::function&lt;void()&gt; task;
+                    {
+                        std::unique_lock&lt;std::mutex&gt; lock(queue_mutex_);
+                        cv_.wait(lock, [this]{
+                            return stop_ || !tasks_.empty();
+                        });
+                        if (stop_ &amp;&amp; tasks_.empty()) return;
+                        task = std::move(tasks_.front());
+                        tasks_.pop();
+                    }
+                    task();  // 执行任务
+                }
+            });
+        }
+    }
+
+    template&lt;typename F&gt;
+    void enqueue(F&amp;&amp; f) {
+        {
+            std::lock_guard&lt;std::mutex&gt; lock(queue_mutex_);
+            tasks_.emplace(std::forward&lt;F&gt;(f));
+        }
+        cv_.notify_one();
+    }
+
+    ~ThreadPool() {
+        stop_ = true;
+        cv_.notify_all();
+        for (auto&amp; t : workers_) t.join();
+    }
+};
+
+int main() {
+    ThreadPool pool(4);  // 4 个工作线程
+    std::mutex cout_mtx;
+
+    for (int i = 0; i &lt; 10; ++i) {
+        pool.enqueue([i, &cout_mtx]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::lock_guard&lt;std::mutex&gt; lock(cout_mtx);
+            std::cout &lt;&lt; "任务 " &lt;&lt; i &lt;&lt; " 完成，线程: "
+                      &lt;&lt; std::this_thread::get_id() &lt;&lt; "\n";
+        });
+    }
+    // ThreadPool 析构时等待所有任务完成
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>🧠</span> 知识检验</h2>
+
+        <div class="quiz-question">
+          <p>Q1. 为什么推荐用 <code>lock_guard</code> 而不是手动调用 <code>mutex.lock()</code> / <code>mutex.unlock()</code>？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. lock_guard 性能更好</label>
+            <label><input type="radio" name="q1" value="B"> B. 遵循 RAII 原则，异常发生时也能自动解锁，防止死锁</label>
+            <label><input type="radio" name="q1" value="C"> C. 手动 lock/unlock 不支持递归锁</label>
+            <label><input type="radio" name="q1" value="D"> D. lock_guard 支持跨线程解锁</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. 什么是数据竞争（data race）？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 多个线程竞争 CPU 资源导致性能下降</label>
+            <label><input type="radio" name="q2" value="B"> B. 多个线程并发访问同一内存位置，且至少有一个写操作，没有同步机制</label>
+            <label><input type="radio" name="q2" value="C"> C. 两个线程互相等待对方持有的锁</label>
+            <label><input type="radio" name="q2" value="D"> D. 线程读取了另一个线程写入的旧值</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. <code>std::async</code> 相对于 <code>std::thread</code> 的主要优势是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. async 创建的线程更轻量</label>
+            <label><input type="radio" name="q3" value="B"> B. async 不需要 join</label>
+            <label><input type="radio" name="q3" value="C"> C. 通过 future 可以方便地获取异步任务的返回值和异常</label>
+            <label><input type="radio" name="q3" value="D"> D. async 支持更多平台</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📋</span> 课后作业</h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释死锁（deadlock）的四个必要条件，以及 <code>std::scoped_lock</code> 如何破坏其中一个条件来避免死锁。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">实现一个线程安全的有界队列（Bounded Queue），使用 <code>mutex</code> + <code>condition_variable</code>：当队列满时 push 阻塞，当队列空时 pop 阻塞。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">使用 <code>std::async</code> 实现并行归并排序：将数组分成两半，分别在异步任务中排序，然后归并。测量相对于单线程版本的速度提升。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🔗</span> 延伸阅读</h2>
+        <a href="https://en.cppreference.com/w/cpp/thread/thread" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">cppreference: std::thread</div><div class="text-xs text-gray-500 mt-0.5">完整的线程库文档</div></div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-concurrency/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div><div class="text-sm font-semibold text-gray-800">LearnCpp: Chapter 19 - Concurrency</div><div class="text-xs text-gray-500 mt-0.5">系统性并发编程教程</div></div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=80ifzK3b8QQ" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div><div class="text-sm font-semibold text-gray-800">CppCon: Concurrency in Modern C++</div><div class="text-xs text-gray-500 mt-0.5">CppCon 并发编程深度讲解</div></div>
+        </a>
+      </div>
+
+      <div class="lesson-nav">
+        <a href="03-lambda-functional.html" class="nav-btn nav-btn-secondary">← 上一课：Lambda 与函数式编程</a>
+        <a href="05-template-metaprogramming.html" class="nav-btn nav-btn-primary">下一课：模板元编程 →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！lock_guard 遵循 RAII：构造时加锁，析构时解锁。即使临界区内抛出异常，lock_guard 的析构也会自动解锁，防止死锁。手动 lock/unlock 在异常发生时可能跳过 unlock。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。性能差异微乎其微，关键是异常安全性。lock_guard 析构时必然解锁，而手动管理可能因异常而跳过 unlock。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！数据竞争的精确定义：两个或更多线程并发访问同一内存位置，至少一个是写操作，且没有同步机制。它是未定义行为（UB），后果不可预测。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。选项 C 描述的是死锁（deadlock），选项 D 描述的是可见性问题，都不是数据竞争的定义。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！std::async 返回 std::future，可以通过 future.get() 获取返回值，若任务抛出异常也会在 get() 时重新抛出。std::thread 无法直接获取返回值。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。async 的 future 在超出作用域时会隐式 join（除非 detach），性能与 thread 相近，关键优势是返回值和异常传播机制。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+</body>
+</html>

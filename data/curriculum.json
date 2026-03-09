@@ -1,0 +1,337 @@
+{
+  "levels": {
+    "beginner": {
+      "title": "初级",
+      "description": "C++ 基础语法与核心概念",
+      "color": "blue",
+      "lessons": [
+        {
+          "id": "beginner-01",
+          "title": "Hello World 与编译流程",
+          "file": "lessons/beginner/01-hello-world.html",
+          "duration": "30分钟",
+          "tags": ["入门", "编译"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: main 函数", "url": "https://en.cppreference.com/w/cpp/language/main_function" },
+            { "type": "tutorial", "title": "LearnCpp.com: 0.5 编译器安装", "url": "https://www.learncpp.com/cpp-tutorial/installing-an-integrated-development-environment-ide/" },
+            { "type": "video", "title": "TheCherno: Welcome to C++", "url": "https://www.youtube.com/watch?v=18c3MTX0PK0" }
+          ]
+        },
+        {
+          "id": "beginner-02",
+          "title": "变量与基本类型",
+          "file": "lessons/beginner/02-variables-types.html",
+          "duration": "45分钟",
+          "tags": ["变量", "数据类型", "内存"],
+          "diagrams": ["memory-types"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 基本类型", "url": "https://en.cppreference.com/w/cpp/language/types" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第4章 基本数据类型", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-fundamental-data-types/" },
+            { "type": "video", "title": "TheCherno: Variables in C++", "url": "https://www.youtube.com/watch?v=zB9RI8_wExo" }
+          ]
+        },
+        {
+          "id": "beginner-03",
+          "title": "运算符与表达式",
+          "file": "lessons/beginner/03-operators.html",
+          "duration": "40分钟",
+          "tags": ["运算符", "表达式", "位运算"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 运算符优先级", "url": "https://en.cppreference.com/w/cpp/language/operator_precedence" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第5章 运算符", "url": "https://www.learncpp.com/cpp-tutorial/operator-precedence-and-associativity/" },
+            { "type": "video", "title": "TheCherno: Operators in C++", "url": "https://www.youtube.com/watch?v=TB4-1DzJT_0" }
+          ]
+        },
+        {
+          "id": "beginner-04",
+          "title": "控制流",
+          "file": "lessons/beginner/04-control-flow.html",
+          "duration": "50分钟",
+          "tags": ["if-else", "switch", "循环", "break", "continue"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 语句", "url": "https://en.cppreference.com/w/cpp/language/statements" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第7章 控制流", "url": "https://www.learncpp.com/cpp-tutorial/control-flow-introduction/" },
+            { "type": "video", "title": "TheCherno: Loops in C++", "url": "https://www.youtube.com/watch?v=_1AwR-un4Hk" }
+          ]
+        },
+        {
+          "id": "beginner-05",
+          "title": "函数",
+          "file": "lessons/beginner/05-functions.html",
+          "duration": "45分钟",
+          "tags": ["函数", "参数", "返回值", "调用栈"],
+          "diagrams": ["call-stack"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 函数声明", "url": "https://en.cppreference.com/w/cpp/language/function" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第2章 函数基础", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-functions/" },
+            { "type": "video", "title": "TheCherno: Functions in C++", "url": "https://www.youtube.com/watch?v=V9zuox47zr0" }
+          ]
+        },
+        {
+          "id": "beginner-06",
+          "title": "数组与字符串",
+          "file": "lessons/beginner/06-arrays-strings.html",
+          "duration": "45分钟",
+          "tags": ["数组", "字符串", "C风格字符串", "std::string"],
+          "diagrams": ["array-layout"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: std::string", "url": "https://en.cppreference.com/w/cpp/string/basic_string" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第11章 数组", "url": "https://www.learncpp.com/cpp-tutorial/arrays-part-i/" },
+            { "type": "video", "title": "TheCherno: Arrays in C++", "url": "https://www.youtube.com/watch?v=ENDaJi08jCU" }
+          ]
+        },
+        {
+          "id": "beginner-07",
+          "title": "指针与引用",
+          "file": "lessons/beginner/07-pointers-references.html",
+          "duration": "60分钟",
+          "tags": ["指针", "引用", "内存地址", "堆", "栈"],
+          "diagrams": ["pointer-basic", "pointer-null", "pointer-arithmetic", "heap-alloc"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 指针声明", "url": "https://en.cppreference.com/w/cpp/language/pointer" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第9章 指针与引用", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-pointers/" },
+            { "type": "video", "title": "TheCherno: Pointers in C++", "url": "https://www.youtube.com/watch?v=DTxHyVn0ODg" }
+          ]
+        },
+        {
+          "id": "beginner-08",
+          "title": "结构体",
+          "file": "lessons/beginner/08-structs.html",
+          "duration": "40分钟",
+          "tags": ["结构体", "struct", "内存对齐", "自定义类型"],
+          "diagrams": ["struct-alignment"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 类/结构体", "url": "https://en.cppreference.com/w/cpp/language/class" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第10章 结构体", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-structs-members-and-member-selection/" },
+            { "type": "video", "title": "TheCherno: Structs in C++", "url": "https://www.youtube.com/watch?v=ULR6h_5DqMs" }
+          ]
+        }
+      ]
+    },
+    "intermediate": {
+      "title": "中级",
+      "description": "面向对象编程与 STL 标准库",
+      "color": "green",
+      "lessons": [
+        {
+          "id": "intermediate-01",
+          "title": "面向对象基础",
+          "file": "lessons/intermediate/01-oop-basics.html",
+          "duration": "50分钟",
+          "tags": ["OOP", "类", "对象", "封装"],
+          "diagrams": ["class-structure"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 类", "url": "https://en.cppreference.com/w/cpp/language/class" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第13章 面向对象基础", "url": "https://www.learncpp.com/cpp-tutorial/welcome-to-object-oriented-programming/" },
+            { "type": "video", "title": "TheCherno: Classes in C++", "url": "https://www.youtube.com/watch?v=2BP8NhxjrO0" }
+          ]
+        },
+        {
+          "id": "intermediate-02",
+          "title": "构造与析构",
+          "file": "lessons/intermediate/02-constructors-destructors.html",
+          "duration": "45分钟",
+          "tags": ["构造函数", "析构函数", "对象生命周期", "RAII"],
+          "diagrams": ["object-lifecycle"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 构造函数", "url": "https://en.cppreference.com/w/cpp/language/constructor" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第14章 构造函数", "url": "https://www.learncpp.com/cpp-tutorial/constructors/" },
+            { "type": "video", "title": "TheCherno: Constructors in C++", "url": "https://www.youtube.com/watch?v=FXhALMsHwEY" }
+          ]
+        },
+        {
+          "id": "intermediate-03",
+          "title": "继承",
+          "file": "lessons/intermediate/03-inheritance.html",
+          "duration": "50分钟",
+          "tags": ["继承", "基类", "派生类", "访问控制"],
+          "diagrams": ["inheritance-tree"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 继承", "url": "https://en.cppreference.com/w/cpp/language/derived_class" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第17章 继承", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-inheritance/" },
+            { "type": "video", "title": "TheCherno: Inheritance in C++", "url": "https://www.youtube.com/watch?v=X8nYM8wdNRE" }
+          ]
+        },
+        {
+          "id": "intermediate-04",
+          "title": "多态与虚函数",
+          "file": "lessons/intermediate/04-polymorphism.html",
+          "duration": "55分钟",
+          "tags": ["多态", "虚函数", "vtable", "override", "纯虚函数"],
+          "diagrams": ["vtable"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 虚函数", "url": "https://en.cppreference.com/w/cpp/language/virtual" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第18章 虚函数", "url": "https://www.learncpp.com/cpp-tutorial/pointers-and-references-to-the-base-class-of-derived-objects/" },
+            { "type": "video", "title": "TheCherno: Virtual Functions in C++", "url": "https://www.youtube.com/watch?v=oIV2KchSyGQ" }
+          ]
+        },
+        {
+          "id": "intermediate-05",
+          "title": "模板基础",
+          "file": "lessons/intermediate/05-templates-basics.html",
+          "duration": "50分钟",
+          "tags": ["模板", "泛型编程", "函数模板", "类模板"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 函数模板", "url": "https://en.cppreference.com/w/cpp/language/function_template" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第19章 模板", "url": "https://www.learncpp.com/cpp-tutorial/function-templates/" },
+            { "type": "video", "title": "TheCherno: Templates in C++", "url": "https://www.youtube.com/watch?v=I-hZkUa9mIs" }
+          ]
+        },
+        {
+          "id": "intermediate-06",
+          "title": "STL 容器",
+          "file": "lessons/intermediate/06-stl-containers.html",
+          "duration": "55分钟",
+          "tags": ["STL", "vector", "map", "set", "list", "deque"],
+          "diagrams": ["stl-containers"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 容器库", "url": "https://en.cppreference.com/w/cpp/container" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第23章 STL 容器", "url": "https://www.learncpp.com/cpp-tutorial/the-standard-library/" },
+            { "type": "video", "title": "TheCherno: The Standard Template Library in C++", "url": "https://www.youtube.com/watch?v=SYLgG7Q5Zws" }
+          ]
+        },
+        {
+          "id": "intermediate-07",
+          "title": "STL 算法",
+          "file": "lessons/intermediate/07-stl-algorithms.html",
+          "duration": "50分钟",
+          "tags": ["STL", "算法", "迭代器", "sort", "find", "transform"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 算法库", "url": "https://en.cppreference.com/w/cpp/algorithm" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第23.3章 STL 算法", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-standard-library-algorithms/" },
+            { "type": "video", "title": "CppCon: STL Algorithms", "url": "https://www.youtube.com/watch?v=2olsGf6JIkU" }
+          ]
+        },
+        {
+          "id": "intermediate-08",
+          "title": "文件 I/O 与异常",
+          "file": "lessons/intermediate/08-file-io-exceptions.html",
+          "duration": "50分钟",
+          "tags": ["文件IO", "fstream", "异常处理", "try-catch", "throw"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 文件 I/O", "url": "https://en.cppreference.com/w/cpp/io/basic_fstream" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第28章 文件输入输出", "url": "https://www.learncpp.com/cpp-tutorial/basic-file-io/" },
+            { "type": "video", "title": "TheCherno: File I/O in C++", "url": "https://www.youtube.com/watch?v=aFexnWBHOgA" }
+          ]
+        }
+      ]
+    },
+    "advanced": {
+      "title": "进阶",
+      "description": "现代 C++ 特性与高级编程技巧",
+      "color": "purple",
+      "lessons": [
+        {
+          "id": "advanced-01",
+          "title": "移动语义与右值引用",
+          "file": "lessons/advanced/01-move-semantics.html",
+          "duration": "60分钟",
+          "tags": ["移动语义", "右值引用", "std::move", "完美转发"],
+          "diagrams": ["value-categories"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 右值引用", "url": "https://en.cppreference.com/w/cpp/language/reference" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第22章 移动语义", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-smart-pointers-move-semantics/" },
+            { "type": "video", "title": "CppCon: Understanding Value Categories", "url": "https://www.youtube.com/watch?v=XS2JddPq7GQ" }
+          ]
+        },
+        {
+          "id": "advanced-02",
+          "title": "智能指针",
+          "file": "lessons/advanced/02-smart-pointers.html",
+          "duration": "55分钟",
+          "tags": ["智能指针", "unique_ptr", "shared_ptr", "weak_ptr", "RAII"],
+          "diagrams": ["smart-pointer-ownership"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: unique_ptr", "url": "https://en.cppreference.com/w/cpp/memory/unique_ptr" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第22.1章 智能指针", "url": "https://www.learncpp.com/cpp-tutorial/intro-to-smart-pointers-move-semantics/" },
+            { "type": "video", "title": "TheCherno: Smart Pointers in C++", "url": "https://www.youtube.com/watch?v=UOB7-B2MfwA" }
+          ]
+        },
+        {
+          "id": "advanced-03",
+          "title": "Lambda 与函数式编程",
+          "file": "lessons/advanced/03-lambda-functional.html",
+          "duration": "50分钟",
+          "tags": ["Lambda", "函数对象", "std::function", "闭包", "捕获列表"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: Lambda 表达式", "url": "https://en.cppreference.com/w/cpp/language/lambda" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第20章 Lambda", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-lambdas-anonymous-functions/" },
+            { "type": "video", "title": "TheCherno: Lambdas in C++", "url": "https://www.youtube.com/watch?v=mWgmBBz0y8c" }
+          ]
+        },
+        {
+          "id": "advanced-04",
+          "title": "并发编程",
+          "file": "lessons/advanced/04-concurrency.html",
+          "duration": "65分钟",
+          "tags": ["并发", "线程", "mutex", "atomic", "async", "future"],
+          "diagrams": ["thread-timeline"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 线程支持库", "url": "https://en.cppreference.com/w/cpp/thread" },
+            { "type": "tutorial", "title": "LearnCpp.com: 并发编程", "url": "https://www.learncpp.com/cpp-tutorial/multithreading-introduction/" },
+            { "type": "video", "title": "CppCon: C++ Concurrency", "url": "https://www.youtube.com/watch?v=80ifzK3b8QQ" }
+          ]
+        },
+        {
+          "id": "advanced-05",
+          "title": "模板元编程",
+          "file": "lessons/advanced/05-template-metaprogramming.html",
+          "duration": "70分钟",
+          "tags": ["模板元编程", "TMP", "constexpr", "type_traits", "SFINAE"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: type_traits", "url": "https://en.cppreference.com/w/cpp/header/type_traits" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第19章 模板进阶", "url": "https://www.learncpp.com/cpp-tutorial/template-specialization/" },
+            { "type": "video", "title": "CppCon: Template Metaprogramming", "url": "https://www.youtube.com/watch?v=Am2is2QCvxY" }
+          ]
+        },
+        {
+          "id": "advanced-06",
+          "title": "设计模式",
+          "file": "lessons/advanced/06-design-patterns.html",
+          "duration": "65分钟",
+          "tags": ["设计模式", "单例", "工厂", "观察者", "策略"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 习惯用法", "url": "https://en.cppreference.com/w/cpp/language/expressions" },
+            { "type": "tutorial", "title": "Refactoring.Guru: C++ 设计模式", "url": "https://refactoring.guru/design-patterns/cpp" },
+            { "type": "video", "title": "CppCon: Design Patterns in C++", "url": "https://www.youtube.com/watch?v=2UUqX2eIdSM" }
+          ]
+        },
+        {
+          "id": "advanced-07",
+          "title": "内存管理深入",
+          "file": "lessons/advanced/07-memory-management.html",
+          "duration": "60分钟",
+          "tags": ["内存管理", "内存池", "分配器", "内存泄漏", "valgrind"],
+          "diagrams": ["memory-pool"],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: 动态内存管理", "url": "https://en.cppreference.com/w/cpp/memory" },
+            { "type": "tutorial", "title": "LearnCpp.com: 第22章 动态内存分配", "url": "https://www.learncpp.com/cpp-tutorial/dynamic-memory-allocation-with-new-and-delete/" },
+            { "type": "video", "title": "CppCon: Memory Management", "url": "https://www.youtube.com/watch?v=ZZOE4ESNMD0" }
+          ]
+        },
+        {
+          "id": "advanced-08",
+          "title": "C++17/20 新特性",
+          "file": "lessons/advanced/08-cpp17-20-features.html",
+          "duration": "60分钟",
+          "tags": ["C++17", "C++20", "结构化绑定", "std::optional", "概念", "协程"],
+          "diagrams": [],
+          "externalLinks": [
+            { "type": "docs", "title": "cppreference: C++20", "url": "https://en.cppreference.com/w/cpp/20" },
+            { "type": "tutorial", "title": "LearnCpp.com: C++17 特性", "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-c17/" },
+            { "type": "video", "title": "CppCon: C++20 What's in it for you", "url": "https://www.youtube.com/watch?v=Y652wQqbYEI" }
+          ]
+        }
+      ]
+    }
+  }
+}

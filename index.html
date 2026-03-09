@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C++ 学院 — 掌握 C++，从内存模型到现代特性</title>
+  <meta name="description" content="系统学习 C++ 编程语言，从基础语法到现代 C++17/20 特性，配合在线编译器与图解教学。">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PrismJS 语法高亮主题 -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <!-- 自定义样式 -->
+  <link rel="stylesheet" href="css/main.css">
+
+  <script>
+    // Tailwind 配置
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#3b82f6', dark: '#2563eb', light: '#93c5fd' },
+            accent:  { DEFAULT: '#06b6d4' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50">
+
+<!-- ════════════════════════════════════════
+     顶部导航栏
+     ════════════════════════════════════════ -->
+<header class="top-nav">
+  <div class="nav-inner">
+    <!-- Logo -->
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-badge">C++</div>
+      <span>C++ 学院</span>
+    </a>
+
+    <!-- 三级下拉导航 -->
+    <nav aria-label="主导航">
+      <ul class="nav-menu" id="navMenu">
+        <!-- 初级 -->
+        <li class="nav-menu-item" id="menu-beginner">
+          <button class="nav-menu-btn" onclick="toggleMenu('menu-beginner')">
+            🌱 初级课程 <span class="chevron">▾</span>
+          </button>
+          <div class="nav-dropdown" id="dd-beginner">
+            <a class="nav-dropdown-item" href="#"><span class="item-num">01</span>Hello World 与程序结构</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">02</span>变量与数据类型</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">03</span>运算符与表达式</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">04</span>控制流：if / for / while</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">05</span>函数与作用域</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">06</span>数组与字符串</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">07</span>指针与引用</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">08</span>结构体与枚举</a>
+          </div>
+        </li>
+
+        <!-- 中级 -->
+        <li class="nav-menu-item" id="menu-intermediate">
+          <button class="nav-menu-btn" onclick="toggleMenu('menu-intermediate')">
+            🔥 中级课程 <span class="chevron">▾</span>
+          </button>
+          <div class="nav-dropdown" id="dd-intermediate">
+            <a class="nav-dropdown-item" href="#"><span class="item-num">09</span>OOP 基础与类设计</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">10</span>构造函数与析构函数</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">11</span>继承与访问控制</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">12</span>多态与虚函数</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">13</span>模板编程入门</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">14</span>STL 容器</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">15</span>STL 算法与迭代器</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">16</span>文件 IO 与异常处理</a>
+          </div>
+        </li>
+
+        <!-- 进阶 -->
+        <li class="nav-menu-item" id="menu-advanced">
+          <button class="nav-menu-btn" onclick="toggleMenu('menu-advanced')">
+            ⚡ 进阶课程 <span class="chevron">▾</span>
+          </button>
+          <div class="nav-dropdown" id="dd-advanced">
+            <a class="nav-dropdown-item" href="#"><span class="item-num">17</span>移动语义与右值引用</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">18</span>智能指针</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">19</span>Lambda 与函数式编程</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">20</span>并发编程与线程</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">21</span>模板元编程</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">22</span>设计模式</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">23</span>内存管理深度解析</a>
+            <a class="nav-dropdown-item" href="#"><span class="item-num">24</span>C++17 / C++20 新特性</a>
+          </div>
+        </li>
+
+        <li class="nav-menu-item">
+          <button class="nav-menu-btn">📚 参考资料</button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- 右侧操作区 -->
+    <div class="flex items-center gap-3 ml-auto">
+      <!-- 在线编译器按钮 -->
+      <a href="compiler.html" class="btn btn-primary btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        在线编译器
+      </a>
+
+      <!-- 进度圆环 -->
+      <div class="progress-ring-wrap" title="整体学习进度" id="navProgressRing">
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <circle class="progress-ring-bg" cx="20" cy="20" r="16" stroke-width="3"/>
+          <circle class="progress-ring-fill" id="ringFill" cx="20" cy="20" r="16"
+                  stroke-width="3" stroke-dasharray="100.53" stroke-dashoffset="100.53"/>
+        </svg>
+        <div class="progress-ring-text" id="ringText">0%</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     Hero 区
+     ════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <!-- 左侧文字 -->
+    <div class="fade-in">
+      <div class="hero-tag">
+        <span>🚀</span> 系统化 · 图解化 · 实战化
+      </div>
+      <h1 class="hero-title">
+        掌握 <span class="gradient-text">C++</span>，<br>
+        从内存模型<br>到现代特性
+      </h1>
+      <p class="hero-desc">
+        24 节精品课程，覆盖 C++11 到 C++20 全栈特性。<br>
+        每节课配备图解、代码示例、在线编译器与课后作业，<br>
+        让你真正理解 C++ 的精髓。
+      </p>
+      <div class="hero-cta">
+        <a href="#courses" class="btn btn-primary btn-lg">
+          🎯 开始学习
+        </a>
+        <a href="compiler.html" class="btn btn-secondary btn-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          在线编译器
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">24</div>
+          <div class="hero-stat-label">精品课程</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">200+</div>
+          <div class="hero-stat-label">代码示例</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">100%</div>
+          <div class="hero-stat-label">浏览器可运行</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：打字机代码块 -->
+    <div class="slide-up" style="animation-delay:.15s">
+      <div class="hero-code-block">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #30363d;">
+          <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></div>
+          <div style="width:12px;height:12px;border-radius:50%;background:#febc2e"></div>
+          <div style="width:12px;height:12px;border-radius:50%;background:#28c840"></div>
+          <span style="margin-left:auto;font-size:.7rem;color:#8b949e;font-family:var(--font-mono)">main.cpp — C++20</span>
+        </div>
+        <div id="typewriter-output" style="min-height:280px;font-family:var(--font-mono)"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     课程卡片区
+     ════════════════════════════════════════ -->
+<section class="section-pad bg-white" id="courses">
+  <div class="container">
+    <div class="text-center mb-12">
+      <div class="section-tag">课程体系</div>
+      <h2 class="section-title">三阶段系统学习路径</h2>
+      <p class="section-subtitle">从零基础到工程实战，每个阶段 8 门课程，循序渐进</p>
+    </div>
+
+    <!-- ── 初级 ── -->
+    <div class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600 font-bold text-sm">🌱</div>
+        <h3 class="text-xl font-bold text-slate-800">初级阶段</h3>
+        <span class="text-sm text-slate-400">—— 掌握 C++ 核心语法</span>
+        <div class="ml-auto">
+          <span class="progress-badge in-progress" id="badge-beginner">进行中</span>
+        </div>
+      </div>
+      <div class="card-grid-3" id="grid-beginner">
+        <!-- 由 JS 渲染 -->
+      </div>
+    </div>
+
+    <!-- ── 中级 ── -->
+    <div class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">🔥</div>
+        <h3 class="text-xl font-bold text-slate-800">中级阶段</h3>
+        <span class="text-sm text-slate-400">—— 面向对象与 STL 精通</span>
+        <div class="ml-auto">
+          <span class="progress-badge locked" id="badge-intermediate">未解锁</span>
+        </div>
+      </div>
+      <div class="card-grid-3" id="grid-intermediate">
+      </div>
+    </div>
+
+    <!-- ── 进阶 ── -->
+    <div>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm">⚡</div>
+        <h3 class="text-xl font-bold text-slate-800">进阶阶段</h3>
+        <span class="text-sm text-slate-400">—— 现代 C++ 与工程实践</span>
+        <div class="ml-auto">
+          <span class="progress-badge locked" id="badge-advanced">未解锁</span>
+        </div>
+      </div>
+      <div class="card-grid-3" id="grid-advanced">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     特性亮点区
+     ════════════════════════════════════════ -->
+<section class="section-pad" style="background:var(--bg-page)">
+  <div class="container">
+    <div class="text-center mb-12">
+      <div class="section-tag">平台特性</div>
+      <h2 class="section-title">为什么选择 C++ 学院</h2>
+    </div>
+    <div class="card-grid-3">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#dbeafe">💻</div>
+        <div class="feature-title">在线编译器</div>
+        <p class="feature-desc">
+          内嵌 Monaco Editor，支持 C++11/14/17/20，通过 Wandbox API 编译运行，
+          无需安装任何开发环境，打开浏览器即可写代码。
+        </p>
+        <div class="mt-4">
+          <a href="compiler.html" class="btn btn-primary btn-sm">立即体验 →</a>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#dcfce7">🎨</div>
+        <div class="feature-title">图解教学</div>
+        <p class="feature-desc">
+          复杂概念（内存布局、继承图、所有权模型）均配有精心绘制的 SVG 图解，
+          让抽象的底层原理一目了然。
+        </p>
+        <div class="mt-4">
+          <a href="#" class="btn btn-secondary btn-sm">查看示例 →</a>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fef3c7">📝</div>
+        <div class="feature-title">课后作业</div>
+        <p class="feature-desc">
+          每节课提供三种难度作业：理解题、编程题、挑战题，配合进度追踪，
+          确保每个知识点都能真正掌握。
+        </p>
+        <div class="mt-4">
+          <a href="#" class="btn btn-dark btn-sm">查看题库 →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     学习路径 SVG 图
+     ════════════════════════════════════════ -->
+<section class="section-pad bg-white">
+  <div class="container">
+    <div class="text-center mb-10">
+      <div class="section-tag">学习路径</div>
+      <h2 class="section-title">三阶段成长路线图</h2>
+      <p class="section-subtitle">每个阶段都有明确的学习目标和里程碑</p>
+    </div>
+
+    <div class="path-diagram">
+      <svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;position:relative;z-index:1">
+        <!-- 连接线 -->
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" opacity=".7"/>
+          </marker>
+          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1"/>
+          </linearGradient>
+          <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1"/>
+          </linearGradient>
+        </defs>
+
+        <!-- 箭头连线 -->
+        <line x1="285" y1="140" x2="335" y2="140" stroke="url(#grad1)" stroke-width="3" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
+        <line x1="615" y1="140" x2="665" y2="140" stroke="url(#grad2)" stroke-width="3" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
+
+        <!-- ── 阶段一：初级 ── -->
+        <rect x="20" y="60" width="265" height="160" rx="16" fill="#0f2d1e" stroke="#22c55e" stroke-width="1.5" stroke-opacity=".5"/>
+        <circle cx="54" cy="94" r="18" fill="#166534" opacity=".8"/>
+        <text x="54" y="99" text-anchor="middle" fill="#4ade80" font-size="16">🌱</text>
+        <text x="82" y="91" fill="#4ade80" font-size="14" font-weight="700">初级阶段</text>
+        <text x="82" y="108" fill="#6ee7b7" font-size="11" opacity=".8">Beginner</text>
+        <line x1="24" y1="120" x2="281" y2="120" stroke="#22c55e" stroke-width=".5" stroke-opacity=".3"/>
+        <text x="36" y="140" fill="#a7f3d0" font-size="10.5">✦ Hello World &amp; 程序结构</text>
+        <text x="36" y="156" fill="#a7f3d0" font-size="10.5">✦ 变量、运算符、控制流</text>
+        <text x="36" y="172" fill="#a7f3d0" font-size="10.5">✦ 函数、数组、字符串</text>
+        <text x="36" y="188" fill="#a7f3d0" font-size="10.5">✦ 指针、引用、结构体</text>
+        <rect x="36" y="200" width="80" height="12" rx="6" fill="#166534"/>
+        <rect x="36" y="200" width="48" height="12" rx="6" fill="#22c55e"/>
+        <text x="125" y="210" fill="#4ade80" font-size="9.5" font-weight="600">60%</text>
+
+        <!-- ── 阶段二：中级 ── -->
+        <rect x="350" y="60" width="265" height="160" rx="16" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.5" stroke-opacity=".5"/>
+        <circle cx="384" cy="94" r="18" fill="#1e3a8a" opacity=".8"/>
+        <text x="384" y="99" text-anchor="middle" fill="#60a5fa" font-size="16">🔥</text>
+        <text x="412" y="91" fill="#60a5fa" font-size="14" font-weight="700">中级阶段</text>
+        <text x="412" y="108" fill="#93c5fd" font-size="11" opacity=".8">Intermediate</text>
+        <line x1="354" y1="120" x2="611" y2="120" stroke="#3b82f6" stroke-width=".5" stroke-opacity=".3"/>
+        <text x="366" y="140" fill="#bfdbfe" font-size="10.5">✦ OOP 基础、构造析构</text>
+        <text x="366" y="156" fill="#bfdbfe" font-size="10.5">✦ 继承、多态、虚函数</text>
+        <text x="366" y="172" fill="#bfdbfe" font-size="10.5">✦ 模板编程、STL 容器</text>
+        <text x="366" y="188" fill="#bfdbfe" font-size="10.5">✦ 算法、文件IO、异常</text>
+        <rect x="366" y="200" width="80" height="12" rx="6" fill="#1e3a8a"/>
+        <text x="455" y="210" fill="#60a5fa" font-size="9.5" font-weight="600">未开始</text>
+
+        <!-- ── 阶段三：进阶 ── -->
+        <rect x="680" y="60" width="200" height="160" rx="16" fill="#1a0f2d" stroke="#a855f7" stroke-width="1.5" stroke-opacity=".5"/>
+        <circle cx="710" cy="94" r="18" fill="#4c1d95" opacity=".8"/>
+        <text x="710" y="99" text-anchor="middle" fill="#c084fc" font-size="16">⚡</text>
+        <text x="736" y="91" fill="#c084fc" font-size="14" font-weight="700">进阶阶段</text>
+        <text x="736" y="108" fill="#d8b4fe" font-size="11" opacity=".8">Advanced</text>
+        <line x1="684" y1="120" x2="876" y2="120" stroke="#a855f7" stroke-width=".5" stroke-opacity=".3"/>
+        <text x="696" y="140" fill="#e9d5ff" font-size="10.5">✦ 移动语义、智能指针</text>
+        <text x="696" y="156" fill="#e9d5ff" font-size="10.5">✦ Lambda、并发编程</text>
+        <text x="696" y="172" fill="#e9d5ff" font-size="10.5">✦ 模板元编程、设计模式</text>
+        <text x="696" y="188" fill="#e9d5ff" font-size="10.5">✦ C++17 / C++20 新特性</text>
+        <rect x="696" y="200" width="80" height="12" rx="6" fill="#4c1d95"/>
+        <text x="785" y="210" fill="#c084fc" font-size="9.5" font-weight="600">未解锁</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     代码示例预览
+     ════════════════════════════════════════ -->
+<section class="section-pad" style="background:var(--bg-page)">
+  <div class="container">
+    <div class="text-center mb-10">
+      <div class="section-tag">课程预览</div>
+      <h2 class="section-title">精心设计的教学内容</h2>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <!-- 代码示例 -->
+      <div class="code-block">
+        <div class="code-block-header">
+          <div class="code-block-dots">
+            <div class="code-block-dot"></div>
+            <div class="code-block-dot"></div>
+            <div class="code-block-dot"></div>
+          </div>
+          <span class="code-block-lang">C++ — 智能指针示例</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">复制</button>
+        </div>
+        <pre><code><span class="tk-include">#include</span> <span class="tk-string">&lt;iostream&gt;</span>
+<span class="tk-include">#include</span> <span class="tk-string">&lt;memory&gt;</span>
+<span class="tk-include">#include</span> <span class="tk-string">&lt;vector&gt;</span>
+<span class="tk-keyword">using namespace</span> std;
+
+<span class="tk-keyword">class</span> <span class="tk-type">Resource</span> {
+<span class="tk-keyword">public</span>:
+    <span class="tk-type">string</span> name;
+    <span class="tk-function">Resource</span>(<span class="tk-type">string</span> n) : name(n) {
+        cout &lt;&lt; <span class="tk-string">"[构造] "</span> &lt;&lt; name &lt;&lt; endl;
+    }
+    ~<span class="tk-function">Resource</span>() {
+        cout &lt;&lt; <span class="tk-string">"[析构] "</span> &lt;&lt; name &lt;&lt; endl;
+    }
+};
+
+<span class="tk-type">int</span> <span class="tk-function">main</span>() {
+    <span class="tk-comment">// unique_ptr：独占所有权</span>
+    <span class="tk-keyword">auto</span> p1 = make_unique&lt;<span class="tk-type">Resource</span>&gt;(<span class="tk-string">"独占资源"</span>);
+
+    <span class="tk-comment">// shared_ptr：共享所有权，引用计数</span>
+    <span class="tk-keyword">auto</span> s1 = make_shared&lt;<span class="tk-type">Resource</span>&gt;(<span class="tk-string">"共享资源"</span>);
+    <span class="tk-keyword">auto</span> s2 = s1; <span class="tk-comment">// 引用计数 → 2</span>
+    cout &lt;&lt; <span class="tk-string">"引用计数: "</span> &lt;&lt; s1.<span class="tk-function">use_count</span>() &lt;&lt; endl;
+
+    <span class="tk-comment">// 离开作用域，自动释放内存</span>
+    <span class="tk-keyword">return</span> <span class="tk-number">0</span>;
+} <span class="tk-comment">// 无需手动 delete！</span></code></pre>
+      </div>
+
+      <!-- 作业卡片预览 -->
+      <div class="flex flex-col gap-4">
+        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wider mb-1">课后作业示例</h3>
+        <div class="hw-card comprehension">
+          <span class="hw-type-tag">理解题</span>
+          <div class="hw-title">unique_ptr 和 shared_ptr 的区别是什么？</div>
+          <div class="hw-desc">解释两种智能指针的所有权模型，并说明各自适用的场景。考虑引用计数的开销。</div>
+          <div class="hw-footer">
+            <span class="hw-points">⭐ 10 分</span>
+            <button class="hw-btn">作答</button>
+          </div>
+        </div>
+        <div class="hw-card coding">
+          <span class="hw-type-tag">编程题</span>
+          <div class="hw-title">实现一个简单的智能指针</div>
+          <div class="hw-desc">用模板类实现具备引用计数的 SmartPtr，支持拷贝构造、赋值运算符，离开作用域自动 delete。</div>
+          <div class="hw-footer">
+            <span class="hw-points">⭐ 30 分</span>
+            <button class="hw-btn">去编写</button>
+          </div>
+        </div>
+        <div class="hw-card challenge">
+          <span class="hw-type-tag">挑战题</span>
+          <div class="hw-title">解决循环引用问题</div>
+          <div class="hw-desc">构造一个 A ↔ B 循环引用场景，用 weak_ptr 打破循环，并用 Valgrind 验证无内存泄漏。</div>
+          <div class="hw-footer">
+            <span class="hw-points">⭐ 50 分</span>
+            <button class="hw-btn">挑战</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     外部资源
+     ════════════════════════════════════════ -->
+<section class="section-pad bg-white">
+  <div class="container">
+    <div class="text-center mb-10">
+      <div class="section-tag">延伸阅读</div>
+      <h2 class="section-title">精选外部资源</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+      <ul class="resource-list">
+        <li class="resource-item">
+          <div class="resource-icon">📖</div>
+          <div class="resource-content">
+            <a class="resource-title" href="https://cppreference.com" target="_blank" rel="noopener">cppreference.com</a>
+            <div class="resource-desc">最权威的 C++ 标准库参考手册，含所有标准函数签名与用例</div>
+          </div>
+          <span class="resource-tag">官方</span>
+        </li>
+        <li class="resource-item">
+          <div class="resource-icon">🎮</div>
+          <div class="resource-content">
+            <a class="resource-title" href="https://godbolt.org" target="_blank" rel="noopener">Compiler Explorer</a>
+            <div class="resource-desc">实时查看 C++ 代码的汇编输出，深入理解编译器行为</div>
+          </div>
+          <span class="resource-tag">工具</span>
+        </li>
+        <li class="resource-item">
+          <div class="resource-icon">📝</div>
+          <div class="resource-content">
+            <a class="resource-title" href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines" target="_blank" rel="noopener">C++ Core Guidelines</a>
+            <div class="resource-desc">Bjarne Stroustrup 主编的 C++ 最佳实践指南</div>
+          </div>
+          <span class="resource-tag">规范</span>
+        </li>
+      </ul>
+      <ul class="resource-list">
+        <li class="resource-item">
+          <div class="resource-icon">🧪</div>
+          <div class="resource-content">
+            <a class="resource-title" href="https://wandbox.org" target="_blank" rel="noopener">Wandbox</a>
+            <div class="resource-desc">支持多编译器版本的在线 C++ 运行环境，本站编译器使用其 API</div>
+          </div>
+          <span class="resource-tag">工具</span>
+        </li>
+        <li class="resource-item">
+          <div class="resource-icon">💬</div>
+          <div class="resource-content">
+            <a class="resource-title" href="https://stackoverflow.com/questions/tagged/c%2B%2B" target="_blank" rel="noopener">Stack Overflow — C++</a>
+            <div class="resource-desc">遇到问题时的最佳求助社区，有数十万 C++ 相关问答</div>
+          </div>
+          <span class="resource-tag">社区</span>
+        </li>
+        <li class="resource-item">
+          <div class="resource-icon">📦</div>
+          <div class="resource-content">
+            <a class="resource-title" href="https://github.com/fffaraz/awesome-cpp" target="_blank" rel="noopener">Awesome C++</a>
+            <div class="resource-desc">精选 C++ 开源库、框架与工具的 GitHub 列表</div>
+          </div>
+          <span class="resource-tag">资源</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     页脚
+     ════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- 品牌列 -->
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="nav-logo-badge" style="width:28px;height:28px;font-size:.75rem">C++</div>
+          <span style="font-size:1rem;font-weight:700;color:#94a3b8">C++ 学院</span>
+        </div>
+        <p style="font-size:.82rem;line-height:1.7;color:#475569;max-width:220px">
+          专注于 C++ 系统化教学，帮助开发者从入门到精通现代 C++ 编程。
+        </p>
+        <div class="flex gap-3 mt-4">
+          <a href="#" class="footer-link" title="GitHub">⌂ GitHub</a>
+          <a href="#" class="footer-link" title="Bilibili">▶ Bilibili</a>
+        </div>
+      </div>
+      <!-- 课程列 -->
+      <div>
+        <div class="footer-col-title">课程</div>
+        <a class="footer-link" href="#">初级课程（8节）</a>
+        <a class="footer-link" href="#">中级课程（8节）</a>
+        <a class="footer-link" href="#">进阶课程（8节）</a>
+        <a class="footer-link" href="#">课程路线图</a>
+      </div>
+      <!-- 工具列 -->
+      <div>
+        <div class="footer-col-title">工具</div>
+        <a class="footer-link" href="compiler.html">在线编译器</a>
+        <a class="footer-link" href="#">代码格式化</a>
+        <a class="footer-link" href="#">题库</a>
+        <a class="footer-link" href="#">学习进度</a>
+      </div>
+      <!-- 关于列 -->
+      <div>
+        <div class="footer-col-title">关于</div>
+        <a class="footer-link" href="#">关于我们</a>
+        <a class="footer-link" href="#">更新日志</a>
+        <a class="footer-link" href="#">问题反馈</a>
+        <a class="footer-link" href="#">隐私政策</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 C++ 学院. 保留所有权利.</span>
+      <span style="font-size:.75rem;color:#334155">用 ❤️ 和 C++20 构建</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════
+     内联 JS
+     ════════════════════════════════════════ -->
+<script>
+/* ── 课程数据 ── */
+const courses = {
+  beginner: [
+    { icon: '👋', color: 'bg-green-50', title: 'Hello World 与程序结构', desc: '编写第一个 C++ 程序，理解编译链接流程、头文件与命名空间。', lessons: 5, id: 'b1' },
+    { icon: '📦', color: 'bg-blue-50',  title: '变量与数据类型',          desc: '整型、浮点、字符、布尔类型，auto 推导，类型转换与溢出。',   lessons: 6, id: 'b2' },
+    { icon: '🔢', color: 'bg-yellow-50',title: '运算符与表达式',           desc: '算术、逻辑、位运算，运算符优先级，三目运算符。',           lessons: 4, id: 'b3' },
+    { icon: '🔀', color: 'bg-purple-50',title: '控制流',                  desc: 'if/else、switch、for、while、do-while，break 与 continue。', lessons: 6, id: 'b4' },
+    { icon: '🔧', color: 'bg-red-50',   title: '函数与作用域',             desc: '函数定义、重载、默认参数、内联函数、递归，作用域规则。',     lessons: 7, id: 'b5' },
+    { icon: '📋', color: 'bg-teal-50',  title: '数组与字符串',             desc: 'C 数组、std::array、std::string，字符处理函数。',           lessons: 5, id: 'b6' },
+    { icon: '👉', color: 'bg-orange-50',title: '指针与引用',               desc: '指针算术、解引用、空指针，引用 vs 指针，const 指针。',       lessons: 8, id: 'b7' },
+    { icon: '🏗️', color: 'bg-indigo-50',title: '结构体与枚举',             desc: 'struct 定义与成员，enum/enum class，typedef 与 using。',     lessons: 5, id: 'b8' },
+  ],
+  intermediate: [
+    { icon: '🏛️', color: 'bg-blue-50',  title: 'OOP 基础与类设计',        desc: '封装、类与对象，成员函数，访问修饰符，this 指针。',         lessons: 7, id: 'm1' },
+    { icon: '🔨', color: 'bg-green-50', title: '构造函数与析构函数',       desc: '默认/拷贝/移动构造，初始化列表，Rule of Three/Five。',      lessons: 8, id: 'm2' },
+    { icon: '🧬', color: 'bg-purple-50',title: '继承与访问控制',           desc: '单继承与多继承，public/protected/private 继承，虚基类。',    lessons: 7, id: 'm3' },
+    { icon: '🎭', color: 'bg-red-50',   title: '多态与虚函数',             desc: '虚函数表、纯虚函数、抽象类，dynamic_cast，RTTI。',          lessons: 8, id: 'm4' },
+    { icon: '🧩', color: 'bg-yellow-50',title: '模板编程入门',             desc: '函数模板、类模板，模板特化，SFINAE 基础。',                 lessons: 6, id: 'm5' },
+    { icon: '📚', color: 'bg-teal-50',  title: 'STL 容器',                desc: 'vector、list、map、set、unordered_map，选择原则与复杂度。',   lessons: 9, id: 'm6' },
+    { icon: '⚙️', color: 'bg-orange-50',title: 'STL 算法与迭代器',        desc: 'sort、find、transform、accumulate，迭代器类型与适配器。',    lessons: 7, id: 'm7' },
+    { icon: '💾', color: 'bg-indigo-50',title: '文件 IO 与异常处理',       desc: 'fstream 读写，try/catch/throw，自定义异常类。',             lessons: 6, id: 'm8' },
+  ],
+  advanced: [
+    { icon: '🚀', color: 'bg-purple-50',title: '移动语义与右值引用',       desc: '左值/右值，移动构造，std::move，完美转发与万能引用。',       lessons: 8, id: 'a1' },
+    { icon: '🛡️', color: 'bg-blue-50',  title: '智能指针',                desc: 'unique_ptr、shared_ptr、weak_ptr，自定义删除器，循环引用。', lessons: 7, id: 'a2' },
+    { icon: 'λ',  color: 'bg-green-50', title: 'Lambda 与函数式编程',     desc: 'Lambda 捕获，std::function，bind，函数对象与组合。',        lessons: 6, id: 'a3' },
+    { icon: '⚡', color: 'bg-red-50',   title: '并发编程与线程',           desc: 'std::thread、mutex、condition_variable、future/promise。',  lessons: 10, id: 'a4' },
+    { icon: '🧮', color: 'bg-yellow-50',title: '模板元编程',               desc: '编译期计算，type_traits，constexpr，concept（C++20）。',    lessons: 8, id: 'a5' },
+    { icon: '🏗️', color: 'bg-teal-50',  title: '设计模式',                desc: '单例、工厂、观察者、CRTP、策略模式的 C++ 实现。',           lessons: 9, id: 'a6' },
+    { icon: '🔬', color: 'bg-orange-50',title: '内存管理深度解析',         desc: '堆栈布局、allocator，内存池，Valgrind 调试，ASAN。',         lessons: 7, id: 'a7' },
+    { icon: '✨', color: 'bg-indigo-50',title: 'C++17 / C++20 新特性',    desc: '结构化绑定、if constexpr、协程、ranges、格式化库 std::format。', lessons: 8, id: 'a8' },
+  ]
+};
+
+/* ── 从 localStorage 读取进度 ── */
+function getProgress() {
+  try {
+    return JSON.parse(localStorage.getItem('cpp_academy_progress') || '{}');
+  } catch { return {}; }
+}
+
+function saveProgress(data) {
+  localStorage.setItem('cpp_academy_progress', JSON.stringify(data));
+}
+
+/* 若无数据，写入示例进度 */
+function initProgress() {
+  const p = getProgress();
+  if (Object.keys(p).length === 0) {
+    const demo = {};
+    // 初级：b1 完成，b2 进行中，其余未开始
+    ['b1'].forEach(id => { demo[id] = { progress: 100, completed: true }; });
+    ['b2'].forEach(id => { demo[id] = { progress: 45,  completed: false }; });
+    saveProgress(demo);
+  }
+  return getProgress();
+}
+
+/* ── 渲染课程卡片 ── */
+function renderCourseGrid(containerId, courseList, progress) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = courseList.map((c, idx) => {
+    const p = progress[c.id] || { progress: 0, completed: false };
+    const pct = p.progress || 0;
+    const isComplete = p.completed;
+    const isNew = pct === 0;
+    const badgeClass = isComplete ? 'done' : (pct > 0 ? 'in-progress' : 'locked');
+    const badgeText  = isComplete ? '已完成' : (pct > 0 ? '进行中' : '未开始');
+
+    return `
+      <div class="course-card" onclick="window.location.href='#'" style="animation-delay:${idx * 0.05}s">
+        <div class="flex items-start justify-between">
+          <div class="course-card-icon ${c.color}">${c.icon}</div>
+          <span class="progress-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div>
+          <div class="course-card-title">${c.title}</div>
+          <div class="course-card-desc mt-1">${c.desc}</div>
+        </div>
+        <div>
+          <div class="progress-label">
+            <span>${c.lessons} 节课</span>
+            <span>${pct}%</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill ${isComplete ? 'complete' : ''}" style="width:${pct}%"></div>
+          </div>
+        </div>
+        <div class="course-card-meta">
+          <span>⏱ 约 ${Math.ceil(c.lessons * 15 / 60 * 2) / 2}h</span>
+          <a href="#" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">
+            ${isNew ? '开始学习' : (isComplete ? '复习' : '继续学习')}
+          </a>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── 更新导航进度圆环 ── */
+function updateProgressRing(progress) {
+  const allIds = [
+    ...courses.beginner, ...courses.intermediate, ...courses.advanced
+  ].map(c => c.id);
+  const total = allIds.length;
+  const done  = allIds.filter(id => progress[id]?.completed).length;
+  const partSum = allIds.reduce((sum, id) => sum + (progress[id]?.progress || 0), 0);
+  const overall = Math.round(partSum / total);
+
+  const r = 16;
+  const circ = 2 * Math.PI * r; // ≈ 100.53
+  const fill = document.getElementById('ringFill');
+  const text = document.getElementById('ringText');
+  if (fill) fill.style.strokeDashoffset = circ * (1 - overall / 100);
+  if (text) text.textContent = overall + '%';
+}
+
+/* ── 更新阶段徽章 ── */
+function updateStageBadges(progress) {
+  const checkStage = (list, badgeId) => {
+    const done = list.filter(c => progress[c.id]?.completed).length;
+    const started = list.filter(c => (progress[c.id]?.progress || 0) > 0).length;
+    const badge = document.getElementById(badgeId);
+    if (!badge) return;
+    if (done === list.length) {
+      badge.className = 'progress-badge done';
+      badge.textContent = '已完成';
+    } else if (started > 0) {
+      badge.className = 'progress-badge in-progress';
+      badge.textContent = `${done}/${list.length} 已完成`;
+    } else {
+      badge.className = 'progress-badge locked';
+      badge.textContent = '未解锁';
+    }
+  };
+  checkStage(courses.beginner,      'badge-beginner');
+  checkStage(courses.intermediate,  'badge-intermediate');
+  checkStage(courses.advanced,      'badge-advanced');
+}
+
+/* ── 导航下拉菜单 ── */
+function toggleMenu(id) {
+  const item = document.getElementById(id);
+  const isOpen = item.classList.contains('open');
+  // 关闭所有
+  document.querySelectorAll('.nav-menu-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// 点击外部关闭
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-menu-item')) {
+    document.querySelectorAll('.nav-menu-item.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+/* ── 复制代码按钮 ── */
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = '已复制 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+/* ── 打字机动效 ── */
+const heroCode = [
+  { text: '#include <iostream>\n', cls: 'tk-include' },
+  { text: '#include <memory>\n',   cls: 'tk-include' },
+  { text: '#include <concepts>\n', cls: 'tk-include' },
+  { text: '\n' },
+  { text: '// C++20：概念约束模板\n', cls: 'tk-comment' },
+  { text: 'template<', cls: '' },
+  { text: 'typename', cls: 'tk-keyword' },
+  { text: ' T>\n', cls: '' },
+  { text: '    requires', cls: 'tk-keyword' },
+  { text: ' std::integral<T> || std::floating_point<T>\n', cls: 'tk-type' },
+  { text: 'T ', cls: 'tk-type' },
+  { text: 'square', cls: 'tk-function' },
+  { text: '(T x) { ', cls: '' },
+  { text: 'return', cls: 'tk-keyword' },
+  { text: ' x * x; }\n\n', cls: '' },
+  { text: 'int', cls: 'tk-type' },
+  { text: ' main() {\n', cls: '' },
+  { text: '    // 智能指针 + Lambda\n', cls: 'tk-comment' },
+  { text: '    auto', cls: 'tk-keyword' },
+  { text: ' nums = std::make_unique<std::vector<', cls: '' },
+  { text: 'int', cls: 'tk-type' },
+  { text: '>>(\n', cls: '' },
+  { text: '        std::initializer_list<', cls: '' },
+  { text: 'int', cls: 'tk-type' },
+  { text: '>{', cls: '' },
+  { text: '1', cls: 'tk-number' },
+  { text: ', ', cls: '' },
+  { text: '2', cls: 'tk-number' },
+  { text: ', ', cls: '' },
+  { text: '3', cls: 'tk-number' },
+  { text: ', ', cls: '' },
+  { text: '4', cls: 'tk-number' },
+  { text: '});\n', cls: '' },
+  { text: '    for', cls: 'tk-keyword' },
+  { text: ' (', cls: '' },
+  { text: 'auto', cls: 'tk-keyword' },
+  { text: ' n : *nums)\n', cls: '' },
+  { text: '        std::cout << square(n) << ', cls: '' },
+  { text: '"\\n"', cls: 'tk-string' },
+  { text: ';\n', cls: '' },
+  { text: '    return', cls: 'tk-keyword' },
+  { text: ' 0;\n}\n', cls: '' },
+];
+
+let twIndex = 0, twChunk = 0, twEl;
+
+function typewriterStep() {
+  if (!twEl) return;
+  if (twIndex >= heroCode.length) {
+    // 打完后停顿 3 秒重新播放
+    setTimeout(() => {
+      twEl.innerHTML = '';
+      twIndex = 0;
+      typewriterStep();
+    }, 3000);
+    return;
+  }
+  const chunk = heroCode[twIndex];
+  const char  = chunk.text[twChunk];
+
+  // 创建或复用当前 span
+  let span = twEl.lastElementChild;
+  if (!span || span.dataset.cls !== (chunk.cls || '')) {
+    span = document.createElement('span');
+    if (chunk.cls) span.className = chunk.cls;
+    span.dataset.cls = chunk.cls || '';
+    twEl.appendChild(span);
+  }
+  span.textContent += char;
+
+  twChunk++;
+  if (twChunk >= chunk.text.length) { twIndex++; twChunk = 0; }
+
+  // 动态速度
+  const delay = char === '\n' ? 60 : (Math.random() < 0.1 ? 80 : 28);
+  setTimeout(typewriterStep, delay);
+}
+
+/* ── 初始化 ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const progress = initProgress();
+  renderCourseGrid('grid-beginner',     courses.beginner,     progress);
+  renderCourseGrid('grid-intermediate', courses.intermediate, progress);
+  renderCourseGrid('grid-advanced',     courses.advanced,     progress);
+  updateProgressRing(progress);
+  updateStageBadges(progress);
+
+  // 启动打字机
+  twEl = document.getElementById('typewriter-output');
+  setTimeout(typewriterStep, 600);
+
+  // 平滑滚动到 #courses
+  document.querySelectorAll('a[href="#courses"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+});
+</script>
+</body>
+</html>

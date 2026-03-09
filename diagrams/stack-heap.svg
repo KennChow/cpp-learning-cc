@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420" width="700" height="420">
+  <defs>
+    <!-- Arrow marker: down (stack growth) -->
+    <marker id="arrowDown" markerWidth="10" markerHeight="10" refX="5" refY="8" orient="auto">
+      <path d="M2,2 L5,8 L8,2" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+    </marker>
+    <!-- Arrow marker: up (heap growth) -->
+    <marker id="arrowUp" markerWidth="10" markerHeight="10" refX="5" refY="2" orient="auto">
+      <path d="M2,8 L5,2 L8,8" fill="none" stroke="#d97706" stroke-width="1.5"/>
+    </marker>
+    <!-- Arrow marker: green bidirectional end -->
+    <marker id="arrowGreenEnd" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M2,1 L6,4 L2,7" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrowGreenStart" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse">
+      <path d="M6,1 L2,4 L6,7" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="420" fill="#f8fafc" rx="8"/>
+
+  <!-- Title -->
+  <text x="350" y="32" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="18" font-weight="bold" fill="#1e293b">C++ 内存布局模型</text>
+
+  <!-- ===== TOP SEGMENTS (Code / BSS / Data) ===== -->
+  <!-- Code segment -->
+  <rect x="220" y="48" width="260" height="28" rx="4" fill="#334155" stroke="#1e293b" stroke-width="1"/>
+  <text x="350" y="67" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#f1f5f9">代码段 (Code / Text) — 只读，存放程序指令</text>
+
+  <!-- BSS / Data segment -->
+  <rect x="220" y="80" width="260" height="26" rx="4" fill="#475569" stroke="#1e293b" stroke-width="1"/>
+  <text x="350" y="98" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#e2e8f0">BSS / Data 段 — 全局 &amp; 静态变量</text>
+
+  <!-- ===== STACK AREA (left) ===== -->
+  <rect x="30" y="114" width="290" height="260" rx="8" fill="#EBF8FF" stroke="#3b82f6" stroke-width="2"/>
+  <!-- Stack title -->
+  <text x="175" y="136" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="15" font-weight="bold" fill="#1d4ed8">栈 (Stack)</text>
+  <text x="175" y="152" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#2563eb">↑ 高地址</text>
+
+  <!-- Stack frames (top = high address, grows downward visually) -->
+  <!-- Frame: main() -->
+  <rect x="46" y="158" width="258" height="52" rx="4" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="62" y="174" font-family="'Segoe UI', Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e40af">main() 栈帧</text>
+  <text x="62" y="190" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#1d4ed8">int argc = 1</text>
+  <text x="162" y="190" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#1d4ed8">char** argv</text>
+  <text x="62" y="204" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#1d4ed8">返回地址 | 保存的寄存器</text>
+
+  <!-- Frame: foo() -->
+  <rect x="46" y="218" width="258" height="52" rx="4" fill="#93c5fd" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="62" y="234" font-family="'Segoe UI', Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e3a8a">foo(int x) 栈帧</text>
+  <text x="62" y="250" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#1e3a8a">int x = 42  (函数参数)</text>
+  <text x="62" y="264" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#1e3a8a">int local = 7  (局部变量)</text>
+
+  <!-- Frame: bar() -->
+  <rect x="46" y="278" width="258" height="44" rx="4" fill="#60a5fa" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="62" y="294" font-family="'Segoe UI', Arial, sans-serif" font-size="12" font-weight="bold" fill="#eff6ff">bar() 栈帧  ← 当前帧 (栈顶)</text>
+  <text x="62" y="310" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#eff6ff">float val = 3.14  |  char c = 'A'</text>
+
+  <!-- Stack growth arrow (downward) -->
+  <line x1="175" y1="328" x2="175" y2="356" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <text x="175" y="350" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#1d4ed8"> </text>
+  <text x="175" y="368" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#2563eb">栈增长方向（向低地址）</text>
+
+  <!-- Low address label -->
+  <text x="175" y="386" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" font-weight="bold" fill="#1d4ed8">↓ 低地址</text>
+
+  <!-- LIFO label with bidirectional arrow -->
+  <line x1="310" y1="218" x2="310" y2="270" stroke="#16a34a" stroke-width="2"
+        marker-end="url(#arrowGreenEnd)" marker-start="url(#arrowGreenStart)"/>
+  <text x="316" y="246" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#15803d" transform="rotate(-90, 316, 246)"> </text>
+  <text x="324" y="252" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#15803d">LIFO</text>
+  <text x="324" y="264" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#15803d">后进</text>
+  <text x="324" y="276" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#15803d">先出</text>
+
+  <!-- ===== HEAP AREA (right) ===== -->
+  <rect x="380" y="114" width="290" height="260" rx="8" fill="#FFFAF0" stroke="#d97706" stroke-width="2"/>
+  <!-- Heap title -->
+  <text x="525" y="136" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="15" font-weight="bold" fill="#b45309">堆 (Heap)</text>
+  <text x="525" y="152" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#d97706">↓ 低地址</text>
+
+  <!-- Allocated block 1 (new int[100]) -->
+  <rect x="396" y="158" width="140" height="36" rx="4" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="406" y="174" font-family="'Segoe UI', Arial, sans-serif" font-size="11" font-weight="bold" fill="#166534">已分配</text>
+  <text x="406" y="188" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#14532d">new int[100] → 400B</text>
+
+  <!-- Free block -->
+  <rect x="396" y="200" width="80" height="28" rx="4" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="406" y="218" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#64748b">空闲 128B</text>
+
+  <!-- Allocated block 2 (new MyClass) -->
+  <rect x="484" y="200" width="170" height="28" rx="4" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="494" y="212" font-family="'Segoe UI', Arial, sans-serif" font-size="11" font-weight="bold" fill="#166534">已分配</text>
+  <text x="494" y="224" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#14532d">new MyClass() → 64B</text>
+
+  <!-- Free block 2 (fragmented) -->
+  <rect x="396" y="234" width="50" height="24" rx="4" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="401" y="250" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#64748b">空闲</text>
+
+  <!-- Allocated block 3 (malloc) -->
+  <rect x="453" y="234" width="100" height="24" rx="4" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="458" y="250" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="bold" fill="#166534">malloc(256) 已分配</text>
+
+  <!-- Free block 3 -->
+  <rect x="396" y="264" width="257" height="24" rx="4" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="490" y="280" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#64748b">空闲空间（未分配）</text>
+
+  <!-- Fragmentation label -->
+  <text x="525" y="302" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#92400e" font-style="italic">△ 内存碎片化示意</text>
+
+  <!-- Heap growth arrow (upward) -->
+  <line x1="525" y1="355" x2="525" y2="328" stroke="#d97706" stroke-width="2" marker-end="url(#arrowUp)"/>
+  <text x="525" y="368" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#d97706">堆增长方向（向高地址）</text>
+
+  <!-- High address label -->
+  <text x="525" y="386" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="11" font-weight="bold" fill="#b45309">↑ 高地址</text>
+
+  <!-- ===== BOTTOM NOTES ===== -->
+  <rect x="30" y="398" width="640" height="16" rx="3" fill="#e0f2fe" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="350" y="410" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="10" fill="#0369a1">
+    栈：自动管理，速度快，大小有限（通常 8MB）　|　堆：手动管理（new/delete），大小几乎不限，但较慢
+  </text>
+</svg>
