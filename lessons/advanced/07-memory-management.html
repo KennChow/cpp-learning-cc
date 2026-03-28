@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>07. 内存管理深入 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body class="bg-gray-50">
+
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span><span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="../intermediate/01-oop-basics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors">中级</a>
+        <a href="01-move-semantics.html" class="px-3 py-1.5 text-sm text-purple-700 bg-purple-50 rounded-md font-medium">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span><span class="text-purple-600">进阶</span>
+        <span>›</span><span class="text-gray-800 font-medium">07. 内存管理深入</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+    <aside class="sidebar">
+      <div class="sidebar-title">进阶课程</div>
+      <a href="01-move-semantics.html" class="sidebar-item"><span class="lesson-num">1</span>移动语义与右值引用</a>
+      <a href="02-smart-pointers.html" class="sidebar-item"><span class="lesson-num">2</span>智能指针</a>
+      <a href="03-lambda-functional.html" class="sidebar-item"><span class="lesson-num">3</span>Lambda 与函数式编程</a>
+      <a href="04-concurrency.html" class="sidebar-item"><span class="lesson-num">4</span>并发编程</a>
+      <a href="05-template-metaprogramming.html" class="sidebar-item"><span class="lesson-num">5</span>模板元编程</a>
+      <a href="06-design-patterns.html" class="sidebar-item"><span class="lesson-num">6</span>设计模式</a>
+      <a href="07-memory-management.html" class="sidebar-item active"><span class="lesson-num">7</span>内存管理深入</a>
+      <a href="08-cpp17-20-features.html" class="sidebar-item"><span class="lesson-num">8</span>C++17/20 新特性</a>
+    </aside>
+
+    <main class="lesson-content">
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-purple-500">进阶 · 第 7 课</span>
+          <span class="text-xs text-gray-400">· 90分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">内存管理深入</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">堆与栈</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">operator new</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">placement new</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">自定义分配器</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">内存池</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">ASAN</span>
+        </div>
+      </div>
+
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🎯</span> 学习目标</h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解栈与堆的内存布局差异及分配开销</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>掌握 <code>operator new</code> 的工作机制与重载方法</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解 placement new 的原理与应用场景</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>掌握 <code>std::allocator</code> 接口与自定义分配器实现</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>实现简单内存池并理解其性能优势</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 Valgrind 与 AddressSanitizer 检测内存泄漏</li>
+        </ul>
+      </div>
+
+      <!-- 1. 堆与栈 -->
+      <div class="content-section">
+        <h2><span>📐</span> 1. 堆与栈 — 内存布局与开销</h2>
+        <p>程序运行时，内存从高地址到低地址大致分为：代码段、全局/静态数据段、堆（向高地址增长）、未映射区、栈（向低地址增长）。理解二者的差异是性能优化的基础。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>栈与堆分配对比</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;chrono&gt;
+#include &lt;memory&gt;
+
+// ===== 栈分配：极快，自动管理 =====
+void stack_example() {
+    int arr[1024];          // 栈上分配：仅移动栈指针，O(1)
+    arr[0] = 42;            // 无需释放，函数返回时自动回收
+}   // arr 在此销毁
+
+// ===== 堆分配：灵活，但有开销 =====
+void heap_example() {
+    int* arr = new int[1024];  // 堆分配：系统调用 + 内存管理开销
+    arr[0] = 42;
+    delete[] arr;              // 必须手动释放，否则内存泄漏
+}
+
+// ===== 性能测量：栈 vs 堆 =====
+void benchmark() {
+    const int N = 1'000'000;
+    auto t1 = std::chrono::high_resolution_clock::now();
+
+    // 栈分配（在循环外）
+    for (int i = 0; i &lt; N; ++i) {
+        int x = i * i;  // 栈上，极快
+        (void)x;
+    }
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    // 堆分配
+    for (int i = 0; i &lt; N; ++i) {
+        int* p = new int(i * i);  // 堆分配，约 100ns/次
+        delete p;
+    }
+    auto t3 = std::chrono::high_resolution_clock::now();
+
+    using ms = std::chrono::milliseconds;
+    std::cout &lt;&lt; "栈: " &lt;&lt; std::chrono::duration_cast&lt;ms&gt;(t2-t1).count() &lt;&lt; "ms\n";
+    std::cout &lt;&lt; "堆: " &lt;&lt; std::chrono::duration_cast&lt;ms&gt;(t3-t2).count() &lt;&lt; "ms\n";
+    // 典型结果：堆比栈慢 10~100 倍
+}
+
+// ===== 内存布局（典型 x86-64 Linux 进程）=====
+// 0xFFFF...  内核空间
+// 0x7FFF...  栈（向下增长）
+//            ↓ 栈帧
+//            ...
+//            ↑ 堆（向上增长）
+// 0x...      堆
+// 0x...      BSS（未初始化全局变量）
+// 0x...      数据段（已初始化全局变量）
+// 0x...      代码段（只读）
+
+int global_var = 10;          // 数据段
+int uninit_global;            // BSS 段（自动初始化为 0）
+
+int main() {
+    int stack_var = 20;       // 栈
+    int* heap_var = new int(30);  // 堆
+
+    std::cout &lt;&lt; "全局变量地址: " &lt;&lt; &amp;global_var  &lt;&lt; "\n";
+    std::cout &lt;&lt; "栈变量地址:   " &lt;&lt; &amp;stack_var   &lt;&lt; "\n";
+    std::cout &lt;&lt; "堆变量地址:   " &lt;&lt; heap_var     &lt;&lt; "\n";
+    // 典型输出：堆地址 &lt; 栈地址
+
+    delete heap_var;
+    benchmark();
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+          <p class="text-sm text-blue-800"><strong>关键对比：</strong></p>
+          <ul class="text-sm text-blue-700 mt-2 space-y-1 list-disc list-inside">
+            <li><strong>栈</strong>：分配仅移动栈指针，约 1ns；大小受限（默认 1~8 MB）；生命周期与作用域绑定</li>
+            <li><strong>堆</strong>：需要与 OS/分配器交互，约 100ns；大小受限于虚拟内存；生命周期手动管理</li>
+            <li><strong>缓存友好性</strong>：栈内存连续性好，堆内存可能碎片化，影响 CPU cache 命中率</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 2. new/delete 内部机制 -->
+      <div class="content-section">
+        <h2><span>🔧</span> 2. new/delete 内部机制</h2>
+        <p><code>new</code> 表达式分两步：调用 <code>operator new</code> 分配原始内存，然后在该内存上调用构造函数。<code>delete</code> 同样分两步：调用析构函数，再调用 <code>operator delete</code> 释放内存。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>operator new 机制与重载</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;cstdlib&gt;   // malloc/free
+#include &lt;new&gt;       // std::bad_alloc, placement new
+
+// ===== new 表达式的等价展开 =====
+// MyClass* p = new MyClass(args...);
+// 等价于：
+//   void* mem = operator new(sizeof(MyClass));   // 1. 分配内存
+//   MyClass* p = new(mem) MyClass(args...);       // 2. 构造（placement new）
+
+// ===== 全局重载 operator new（调试/统计用）=====
+static size_t total_allocated = 0;
+
+void* operator new(size_t size) {
+    total_allocated += size;
+    std::cout &lt;&lt; "[alloc] " &lt;&lt; size &lt;&lt; " bytes (total: " &lt;&lt; total_allocated &lt;&lt; ")\n";
+    void* p = std::malloc(size);
+    if (!p) throw std::bad_alloc{};
+    return p;
+}
+
+void operator delete(void* p) noexcept {
+    std::cout &lt;&lt; "[free]\n";
+    std::free(p);
+}
+
+void operator delete(void* p, size_t size) noexcept {
+    total_allocated -= size;
+    std::free(p);
+}
+
+// ===== 类级别重载（只影响该类）=====
+class MyClass {
+public:
+    int data;
+    MyClass(int v) : data(v) {}
+
+    // 类级 operator new：优先于全局版本
+    static void* operator new(size_t size) {
+        std::cout &lt;&lt; "MyClass::operator new(" &lt;&lt; size &lt;&lt; ")\n";
+        return ::operator new(size);  // 委托全局版本
+    }
+
+    static void operator delete(void* p, size_t size) noexcept {
+        std::cout &lt;&lt; "MyClass::operator delete\n";
+        ::operator delete(p, size);
+    }
+};
+
+// ===== nothrow new：分配失败返回 nullptr 而非抛异常 =====
+void nothrow_example() {
+    // 请求极大内存，可能失败
+    void* p = operator new(SIZE_MAX, std::nothrow);
+    if (!p) {
+        std::cout &lt;&lt; "内存分配失败（nothrow）\n";
+    }
+}
+
+int main() {
+    // new 分两步：分配 + 构造
+    MyClass* obj = new MyClass(42);
+    std::cout &lt;&lt; "data = " &lt;&lt; obj-&gt;data &lt;&lt; "\n";
+    delete obj;
+
+    // new[] 分配数组
+    int* arr = new int[5]{1, 2, 3, 4, 5};
+    delete[] arr;  // 必须用 delete[]！
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>placement new — 在指定内存上构造对象</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;new&gt;
+#include &lt;iostream&gt;
+#include &lt;memory&gt;    // std::launder (C++17)
+
+struct Widget {
+    int id;
+    double value;
+    Widget(int i, double v) : id(i), value(v) {
+        std::cout &lt;&lt; "Widget(" &lt;&lt; id &lt;&lt; ") 构造\n";
+    }
+    ~Widget() {
+        std::cout &lt;&lt; "Widget(" &lt;&lt; id &lt;&lt; ") 析构\n";
+    }
+};
+
+void placement_new_demo() {
+    // 分配原始内存（alignas 保证对齐）
+    alignas(Widget) unsigned char buf[sizeof(Widget)];
+
+    // placement new：在 buf 上构造 Widget，不分配新内存
+    Widget* w = new(buf) Widget(1, 3.14);
+    std::cout &lt;&lt; "id=" &lt;&lt; w-&gt;id &lt;&lt; ", value=" &lt;&lt; w-&gt;value &lt;&lt; "\n";
+
+    // 必须显式调用析构函数（不能 delete，因为内存不是 new 分配的）
+    w-&gt;~Widget();
+    // 之后 buf 可重复使用
+
+    // 重新在同一内存上构造另一个对象
+    Widget* w2 = new(buf) Widget(2, 2.718);
+    w2-&gt;~Widget();
+}
+
+// placement new 的典型应用：延迟初始化
+template&lt;typename T&gt;
+class LazyInit {
+    alignas(T) unsigned char storage_[sizeof(T)];
+    bool initialized_ = false;
+public:
+    template&lt;typename... Args&gt;
+    void init(Args&amp;&amp;... args) {
+        if (!initialized_) {
+            new(storage_) T(std::forward&lt;Args&gt;(args)...);
+            initialized_ = true;
+        }
+    }
+
+    T&amp; get() {
+        // std::launder：告知编译器指针指向了新对象（C++17）
+        return *std::launder(reinterpret_cast&lt;T*&gt;(storage_));
+    }
+
+    ~LazyInit() {
+        if (initialized_) {
+            get().~T();
+        }
+    }
+};
+
+int main() {
+    placement_new_demo();
+
+    LazyInit&lt;Widget&gt; lazy;
+    // 此时 Widget 尚未构造
+    lazy.init(42, 1.618);
+    std::cout &lt;&lt; "lazy id=" &lt;&lt; lazy.get().id &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 3. 自定义分配器 -->
+      <div class="content-section">
+        <h2><span>⚙️</span> 3. 自定义分配器</h2>
+        <p>C++ 标准库容器通过模板参数接受分配器，允许你替换默认的堆分配策略。<code>std::allocator&lt;T&gt;</code> 是默认实现，自定义分配器需满足其接口约定。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>std::allocator 接口与自定义 Arena 分配器</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;memory&gt;
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+// ===== std::allocator 基本接口 =====
+void std_allocator_demo() {
+    std::allocator&lt;int&gt; alloc;
+
+    // 分配 5 个 int 的空间（不构造）
+    int* p = alloc.allocate(5);
+
+    // 在分配的内存上构造对象（C++20 前用 construct，之后直接 placement new）
+    for (int i = 0; i &lt; 5; ++i) {
+        std::construct_at(p + i, i * 10);  // C++20
+    }
+
+    for (int i = 0; i &lt; 5; ++i) {
+        std::cout &lt;&lt; p[i] &lt;&lt; " ";  // 0 10 20 30 40
+    }
+    std::cout &lt;&lt; "\n";
+
+    // 析构后释放
+    std::destroy_n(p, 5);  // C++17
+    alloc.deallocate(p, 5);
+}
+
+// ===== Arena 分配器：从预分配的大块内存中线性分配 =====
+template&lt;size_t N&gt;
+class ArenaAllocator {
+    alignas(std::max_align_t) char buf_[N];
+    char* ptr_ = buf_;
+public:
+    void* allocate(size_t size, size_t align = alignof(std::max_align_t)) {
+        // 对齐当前指针
+        char* aligned = reinterpret_cast&lt;char*&gt;(
+            (reinterpret_cast&lt;uintptr_t&gt;(ptr_) + align - 1) &amp; ~(align - 1)
+        );
+        if (aligned + size &gt; buf_ + N) return nullptr;  // 容量不足
+        ptr_ = aligned + size;
+        return aligned;
+    }
+
+    void reset() { ptr_ = buf_; }  // O(1) 释放全部内存！
+
+    size_t used() const { return static_cast&lt;size_t&gt;(ptr_ - buf_); }
+    size_t remaining() const { return N - used(); }
+};
+
+// ===== STL 兼容的分配器包装 =====
+template&lt;typename T, size_t N&gt;
+class ArenaSTLAllocator {
+    ArenaAllocator&lt;N&gt;* arena_;
+public:
+    using value_type = T;
+
+    explicit ArenaSTLAllocator(ArenaAllocator&lt;N&gt;&amp; a) : arena_(&amp;a) {}
+
+    template&lt;typename U&gt;
+    ArenaSTLAllocator(const ArenaSTLAllocator&lt;U, N&gt;&amp; other) : arena_(other.arena_) {}
+
+    T* allocate(size_t n) {
+        void* p = arena_-&gt;allocate(n * sizeof(T), alignof(T));
+        if (!p) throw std::bad_alloc{};
+        return static_cast&lt;T*&gt;(p);
+    }
+
+    void deallocate(T*, size_t) noexcept {
+        // Arena 分配器不单独释放，reset() 统一回收
+    }
+
+    template&lt;typename U&gt; friend class ArenaSTLAllocator;
+};
+
+int main() {
+    std_allocator_demo();
+
+    // Arena 分配器：所有分配从同一块栈内存中线性切割
+    ArenaAllocator&lt;4096&gt; arena;
+    ArenaSTLAllocator&lt;int, 4096&gt; alloc(arena);
+
+    std::vector&lt;int, ArenaSTLAllocator&lt;int, 4096&gt;&gt; vec(alloc);
+    for (int i = 0; i &lt; 100; ++i) vec.push_back(i);
+
+    std::cout &lt;&lt; "Arena 已用: " &lt;&lt; arena.used() &lt;&lt; " bytes\n";
+    arena.reset();  // 瞬间释放所有内存
+    std::cout &lt;&lt; "reset 后已用: " &lt;&lt; arena.used() &lt;&lt; " bytes\n";
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 4. 内存池 -->
+      <div class="content-section">
+        <h2><span>🏊</span> 4. 内存池</h2>
+        <p>内存池（Memory Pool）预先分配大块内存，然后切割为固定大小的块供对象使用。相比每次调用 <code>new/delete</code>，它减少了系统调用次数、消除了碎片化，分配和释放接近 O(1)。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>fixed_pool.cpp — 固定大小内存池实现</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;cstdlib&gt;
+#include &lt;cassert&gt;
+#include &lt;chrono&gt;
+
+// ===== 固定大小内存池 =====
+// 原理：将空闲块用链表串起来，分配时从链表头取，回收时插回链表头
+template&lt;size_t BlockSize, size_t BlockCount&gt;
+class FixedMemoryPool {
+    static_assert(BlockSize &gt;= sizeof(void*), "块大小至少为一个指针");
+
+    // 每个空闲块的头部存放下一个空闲块的指针
+    struct FreeBlock { FreeBlock* next; };
+
+    alignas(std::max_align_t) char pool_[BlockSize * BlockCount];
+    FreeBlock* free_list_ = nullptr;
+    size_t allocated_ = 0;
+
+public:
+    FixedMemoryPool() {
+        // 初始化：将所有块串成空闲链表
+        for (size_t i = 0; i &lt; BlockCount; ++i) {
+            auto* blk = reinterpret_cast&lt;FreeBlock*&gt;(pool_ + i * BlockSize);
+            blk-&gt;next = free_list_;
+            free_list_ = blk;
+        }
+    }
+
+    void* allocate() {
+        if (!free_list_) return nullptr;  // 池已满
+        FreeBlock* blk = free_list_;
+        free_list_ = blk-&gt;next;
+        ++allocated_;
+        return blk;
+    }
+
+    void deallocate(void* p) {
+        if (!p) return;
+        auto* blk = static_cast&lt;FreeBlock*&gt;(p);
+        blk-&gt;next = free_list_;  // 插回链表头，O(1)
+        free_list_ = blk;
+        --allocated_;
+    }
+
+    size_t allocated() const { return allocated_; }
+    size_t remaining() const { return BlockCount - allocated_; }
+    bool full() const { return free_list_ == nullptr; }
+};
+
+// ===== 带内存池的对象类 =====
+struct Particle {
+    float x, y, z;
+    float vx, vy, vz;
+    float mass;
+
+    static FixedMemoryPool&lt;sizeof(Particle), 10000&gt; pool;
+
+    static void* operator new(size_t) {
+        void* p = pool.allocate();
+        if (!p) throw std::bad_alloc{};
+        return p;
+    }
+    static void operator delete(void* p) noexcept {
+        pool.deallocate(p);
+    }
+
+    Particle(float x, float y, float z)
+        : x(x), y(y), z(z), vx(0), vy(0), vz(0), mass(1.0f) {}
+};
+
+// 定义静态成员（类外）
+FixedMemoryPool&lt;sizeof(Particle), 10000&gt; Particle::pool;
+
+void benchmark_pool() {
+    const int N = 100000;
+    std::vector&lt;Particle*&gt; particles;
+    particles.reserve(N);
+
+    // 内存池分配
+    auto t1 = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i &lt; N; ++i) {
+        particles.push_back(new Particle(i * 0.1f, i * 0.2f, i * 0.3f));
+    }
+    for (auto* p : particles) delete p;
+    particles.clear();
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    // 普通 new/delete（对比）
+    for (int i = 0; i &lt; N; ++i) {
+        // 临时禁用内存池，直接用 malloc
+        void* mem = std::malloc(sizeof(Particle));
+        new(mem) Particle(i * 0.1f, i * 0.2f, i * 0.3f);
+        particles.push_back(static_cast&lt;Particle*&gt;(mem));
+    }
+    for (auto* p : particles) { p-&gt;~Particle(); std::free(p); }
+    auto t3 = std::chrono::high_resolution_clock::now();
+
+    using us = std::chrono::microseconds;
+    std::cout &lt;&lt; "内存池: " &lt;&lt; std::chrono::duration_cast&lt;us&gt;(t2-t1).count() &lt;&lt; " us\n";
+    std::cout &lt;&lt; "malloc: " &lt;&lt; std::chrono::duration_cast&lt;us&gt;(t3-t2).count() &lt;&lt; " us\n";
+}
+
+int main() {
+    // 演示内存池使用
+    auto* p1 = new Particle(1.0f, 2.0f, 3.0f);
+    auto* p2 = new Particle(4.0f, 5.0f, 6.0f);
+    std::cout &lt;&lt; "已分配: " &lt;&lt; Particle::pool.allocated() &lt;&lt; "\n";
+    delete p1;
+    std::cout &lt;&lt; "释放后: " &lt;&lt; Particle::pool.allocated() &lt;&lt; "\n";
+    delete p2;
+
+    benchmark_pool();
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 5. 内存泄漏检测 -->
+      <div class="content-section">
+        <h2><span>🔍</span> 5. 内存泄漏检测</h2>
+        <p>内存泄漏是 C++ 中最常见的 bug 之一。现代工具链提供了强大的检测手段：Valgrind（运行时检测）和 AddressSanitizer（编译期插桩，更快）是最常用的两种。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>常见内存错误模式</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;memory&gt;
+
+// ===== 常见内存泄漏模式 =====
+
+// 模式1：忘记 delete
+void leak_basic() {
+    int* p = new int(42);
+    // 忘记 delete p;  → 4 bytes 泄漏
+}
+
+// 模式2：异常导致泄漏
+void leak_exception() {
+    int* p = new int[100];
+    // 如果下面抛异常，p 永远不会被释放
+    // throw std::runtime_error("oops");
+    delete[] p;  // 异常路径上永远到不了这里
+}
+
+// 模式3：new[] 与 delete 不匹配（未定义行为）
+void mismatch() {
+    int* arr = new int[10];
+    delete arr;   // 错！应该用 delete[]
+}
+
+// 模式4：双重释放（未定义行为）
+void double_free() {
+    int* p = new int(1);
+    delete p;
+    // delete p;  // 再次 delete：未定义行为，可能崩溃
+}
+
+// 模式5：使用已释放内存（use-after-free）
+void use_after_free() {
+    int* p = new int(99);
+    delete p;
+    // std::cout &lt;&lt; *p;  // 未定义行为！
+}
+
+// ===== 正确做法：RAII + 智能指针 =====
+void correct_raii() {
+    // unique_ptr：自动释放
+    auto p = std::make_unique&lt;int&gt;(42);
+    // 异常安全：任何路径离开作用域都会自动释放
+
+    // 数组
+    auto arr = std::make_unique&lt;int[]&gt;(100);
+    arr[0] = 1;
+
+    // shared_ptr：引用计数
+    auto sp1 = std::make_shared&lt;std::string&gt;("hello");
+    auto sp2 = sp1;  // 引用计数 = 2
+    // 两个都出作用域才释放
+}
+
+// ===== ASAN 能检测的错误类型 =====
+// 1. heap-buffer-overflow：越界访问
+void asan_heap_overflow() {
+    int* p = new int[5];
+    // p[5] = 1;  // ASAN: heap-buffer-overflow
+    delete[] p;
+}
+
+// 2. stack-buffer-overflow
+void asan_stack_overflow() {
+    int arr[5];
+    // arr[5] = 1;  // ASAN: stack-buffer-overflow（运行时）
+}
+
+// 3. memory leak
+void asan_leak() {
+    new int(42);  // ASAN: 程序退出时报告 4 bytes leaked
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>检测工具使用方法（Shell 命令）</span>
+          </div>
+          <pre><code class="language-bash"># ===== Valgrind：全面但慢（约 10~50x 减速）=====
+# 编译：保留调试信息，不优化
+g++ -g -O0 my_program.cpp -o my_program
+
+# 运行泄漏检测
+valgrind --leak-check=full \
+         --show-leak-kinds=all \
+         --track-origins=yes \
+         --verbose \
+         ./my_program
+
+# 典型 Valgrind 输出：
+# ==12345== LEAK SUMMARY:
+# ==12345==    definitely lost: 4 bytes in 1 blocks
+# ==12345==    indirectly lost: 0 bytes in 0 blocks
+# ==12345==      possibly lost: 0 bytes in 0 blocks
+# ==12345==    still reachable: 0 bytes in 0 blocks
+
+
+# ===== AddressSanitizer：快（约 2x 减速），GCC/Clang 内置 =====
+# 编译时开启 ASAN
+g++ -g -fsanitize=address -fno-omit-frame-pointer my_program.cpp -o my_program_asan
+
+# 直接运行，ASAN 自动报告（无需额外命令）
+./my_program_asan
+
+# 典型 ASAN 输出：
+# =================================================================
+# ==12345==ERROR: AddressSanitizer: heap-buffer-overflow
+#  on address 0x602000000014 at ...
+# READ of size 4 at 0x602000000014
+#     #0 0x... in main my_program.cpp:42
+
+# ===== 同时启用 LeakSanitizer（LSAN，通常随 ASAN 自动启用）=====
+ASAN_OPTIONS=detect_leaks=1 ./my_program_asan
+
+# ===== MemorySanitizer：检测未初始化内存读（需 Clang）=====
+clang++ -g -fsanitize=memory -fno-omit-frame-pointer my_program.cpp -o my_program_msan
+./my_program_msan
+
+# ===== UndefinedBehaviorSanitizer：检测 UB =====
+g++ -g -fsanitize=undefined my_program.cpp -o my_program_ubsan
+./my_program_ubsan</code></pre>
+        </div>
+
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+          <p class="text-sm text-yellow-800 font-semibold">工具选择建议：</p>
+          <ul class="text-sm text-yellow-700 mt-2 space-y-1 list-disc list-inside">
+            <li><strong>日常开发</strong>：首选 ASAN（<code>-fsanitize=address</code>），开销小、信息详细</li>
+            <li><strong>深度排查</strong>：Valgrind Memcheck，能检测 ASAN 遗漏的某些问题</li>
+            <li><strong>未初始化内存</strong>：MSan（<code>-fsanitize=memory</code>，需 Clang）</li>
+            <li><strong>根本解决方案</strong>：用智能指针 + RAII，让泄漏不可能发生</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 综合示例 -->
+      <div class="content-section">
+        <h2><span>🧪</span> 综合代码示例：对象池 + RAII 包装</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>object_pool.cpp</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;vector&gt;
+#include &lt;functional&gt;
+
+// ===== 通用对象池（线程不安全版，演示用）=====
+template&lt;typename T&gt;
+class ObjectPool {
+    std::vector&lt;std::unique_ptr&lt;T&gt;&gt; pool_;
+    std::vector&lt;T*&gt; free_list_;
+
+public:
+    explicit ObjectPool(size_t initial = 16) {
+        reserve(initial);
+    }
+
+    void reserve(size_t n) {
+        pool_.reserve(pool_.size() + n);
+        for (size_t i = 0; i &lt; n; ++i) {
+            pool_.push_back(std::make_unique&lt;T&gt;());
+            free_list_.push_back(pool_.back().get());
+        }
+    }
+
+    // 返回 RAII 包装的对象，归还时自动入池
+    struct Handle {
+        T* ptr;
+        ObjectPool* pool;
+
+        T* operator-&gt;() { return ptr; }
+        T& operator*()  { return *ptr; }
+
+        ~Handle() {
+            if (ptr &amp;&amp; pool) {
+                pool-&gt;free_list_.push_back(ptr);
+                ptr = nullptr;
+            }
+        }
+
+        // 移动语义
+        Handle(Handle&amp;&amp; o) noexcept : ptr(o.ptr), pool(o.pool) {
+            o.ptr = nullptr; o.pool = nullptr;
+        }
+        Handle&amp; operator=(Handle&amp;&amp; o) noexcept {
+            if (this != &amp;o) {
+                if (ptr &amp;&amp; pool) pool-&gt;free_list_.push_back(ptr);
+                ptr = o.ptr; pool = o.pool;
+                o.ptr = nullptr; o.pool = nullptr;
+            }
+            return *this;
+        }
+        Handle(const Handle&amp;) = delete;
+        Handle&amp; operator=(const Handle&amp;) = delete;
+    private:
+        friend class ObjectPool;
+        Handle(T* p, ObjectPool* pool) : ptr(p), pool(pool) {}
+    };
+
+    Handle acquire() {
+        if (free_list_.empty()) reserve(pool_.size());  // 自动扩容
+        T* obj = free_list_.back();
+        free_list_.pop_back();
+        return Handle{obj, this};
+    }
+
+    size_t available() const { return free_list_.size(); }
+    size_t total() const     { return pool_.size(); }
+};
+
+// ===== 演示 =====
+struct Connection {
+    int id = 0;
+    bool active = false;
+
+    void open(int conn_id)  { id = conn_id; active = true;  }
+    void close()            { active = false; }
+};
+
+int main() {
+    ObjectPool&lt;Connection&gt; conn_pool(4);
+    std::cout &lt;&lt; "初始可用: " &lt;&lt; conn_pool.available() &lt;&lt; "\n";
+
+    {
+        auto c1 = conn_pool.acquire();
+        c1-&gt;open(1001);
+        auto c2 = conn_pool.acquire();
+        c2-&gt;open(1002);
+
+        std::cout &lt;&lt; "使用中可用: " &lt;&lt; conn_pool.available() &lt;&lt; "\n";
+        std::cout &lt;&lt; "c1 id=" &lt;&lt; c1-&gt;id &lt;&lt; ", active=" &lt;&lt; c1-&gt;active &lt;&lt; "\n";
+        // c1, c2 析构时自动归还池
+    }
+
+    std::cout &lt;&lt; "归还后可用: " &lt;&lt; conn_pool.available() &lt;&lt; "\n";
+    std::cout &lt;&lt; "总对象数:   " &lt;&lt; conn_pool.total() &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>🧠</span> 知识检验</h2>
+
+        <div class="quiz-question">
+          <p>Q1. <code>new</code> 表达式（如 <code>new MyClass(args)</code>）内部发生了哪两个步骤？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. 分配栈内存，然后调用构造函数</label>
+            <label><input type="radio" name="q1" value="B"> B. 调用 <code>operator new</code> 分配原始内存，然后在该内存上通过 placement new 调用构造函数</label>
+            <label><input type="radio" name="q1" value="C"> C. 调用 <code>malloc</code>，然后将返回值强转为目标类型</label>
+            <label><input type="radio" name="q1" value="D"> D. 初始化对象，然后申请内存</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. placement new 的主要作用是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 在指定的已分配内存地址上构造对象，不进行额外的内存分配</label>
+            <label><input type="radio" name="q2" value="B"> B. 将对象放置到更优的内存位置以提升缓存命中</label>
+            <label><input type="radio" name="q2" value="C"> C. 替代 <code>new[]</code> 分配数组</label>
+            <label><input type="radio" name="q2" value="D"> D. 分配对齐内存</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. 内存池（FixedMemoryPool）与普通 <code>new/delete</code> 相比，最主要的性能优势来自哪里？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. 内存池使用更快的 CPU 指令集</label>
+            <label><input type="radio" name="q3" value="B"> B. 内存池不需要垃圾回收</label>
+            <label><input type="radio" name="q3" value="C"> C. 分配和释放通过空闲链表操作实现 O(1)，消除了 OS 系统调用开销和内存碎片，同时改善缓存局部性</label>
+            <label><input type="radio" name="q3" value="D"> D. 内存池在多线程下更安全</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📋</span> 课后作业</h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释为什么 placement new 创建的对象必须<strong>显式调用析构函数</strong>（<code>p-&gt;~T()</code>），而不能用 <code>delete p</code>？若误用 <code>delete</code> 会发生什么？</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">实现一个支持不同大小对象的 <code>VariantPool</code>：内部维护 3 个 FixedMemoryPool（分别服务 ≤16、≤64、≤256 字节的请求），<code>allocate(size)</code> 根据 size 路由到对应的池，超出 256 字节则 fallback 到 <code>operator new</code>。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">用 ASAN 编译以下代码并解读输出：①故意写一个 heap-buffer-overflow（越界 1 个元素写入）；②故意写一个 use-after-free；③故意写一个内存泄漏。记录 ASAN 报告的错误类型、文件名和行号，解释其含义。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🔗</span> 延伸阅读</h2>
+        <a href="https://en.cppreference.com/w/cpp/memory" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">cppreference: Dynamic memory management</div><div class="text-xs text-gray-500 mt-0.5">operator new/delete、allocator 完整参考</div></div>
+        </a>
+        <a href="https://github.com/google/sanitizers/wiki/AddressSanitizer" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div><div class="text-sm font-semibold text-gray-800">AddressSanitizer Wiki</div><div class="text-xs text-gray-500 mt-0.5">ASAN 官方文档，含所有检测类型说明</div></div>
+        </a>
+        <a href="https://valgrind.org/docs/manual/mc-manual.html" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div><div class="text-sm font-semibold text-gray-800">Valgrind Memcheck Manual</div><div class="text-xs text-gray-500 mt-0.5">Valgrind 内存检测工具完整手册</div></div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=LIb3L4vKZ7U" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div><div class="text-sm font-semibold text-gray-800">CppCon: Memory Allocators</div><div class="text-xs text-gray-500 mt-0.5">CppCon 关于高性能内存分配器的演讲</div></div>
+        </a>
+      </div>
+
+      <div class="lesson-nav">
+        <a href="06-design-patterns.html" class="nav-btn nav-btn-secondary">← 上一课：设计模式</a>
+        <a href="08-cpp17-20-features.html" class="nav-btn nav-btn-primary">下一课：C++17/20 新特性 →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！new 表达式分两步：① 调用 operator new(sizeof(T)) 向堆申请原始内存；② 在该内存地址上通过 placement new 调用构造函数。delete 则逆序：先调用析构函数，再调用 operator delete 释放内存。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。new 不是简单的 malloc + 强转，它会确保构造函数被调用；栈内存由编译器自动管理，不需要 new。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'A') {
+        fb.textContent = '✓ 正确！placement new（如 new(ptr) T(args)）在指定地址上构造对象，不分配任何新内存。它是内存池、Arena 分配器、延迟初始化等高性能场景的基石，使用后必须显式调用析构函数而非 delete。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 A。placement new 的核心是"在已有内存上构造"，与内存的来源（栈/堆/静态区）无关。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！内存池的性能优势体现在：① 分配/释放通过链表头操作实现 O(1)，无需系统调用；② 消除了通用 malloc 的碎片化管理开销；③ 预分配的连续内存改善 CPU 缓存局部性，减少 cache miss。典型场景下可比 new/delete 快 5~20 倍。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。内存池的优势不来自指令集或线程安全，而来自减少系统调用、消除碎片和改善缓存局部性。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+</body>
+</html>

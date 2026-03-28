@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>08. C++17/20 新特性 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body class="bg-gray-50">
+
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span><span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="../intermediate/01-oop-basics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors">中级</a>
+        <a href="01-move-semantics.html" class="px-3 py-1.5 text-sm text-purple-700 bg-purple-50 rounded-md font-medium">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span><span class="text-purple-600">进阶</span>
+        <span>›</span><span class="text-gray-800 font-medium">08. C++17/20 新特性</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+    <aside class="sidebar">
+      <div class="sidebar-title">进阶课程</div>
+      <a href="01-move-semantics.html" class="sidebar-item"><span class="lesson-num">1</span>移动语义与右值引用</a>
+      <a href="02-smart-pointers.html" class="sidebar-item"><span class="lesson-num">2</span>智能指针</a>
+      <a href="03-lambda-functional.html" class="sidebar-item"><span class="lesson-num">3</span>Lambda 与函数式编程</a>
+      <a href="04-concurrency.html" class="sidebar-item"><span class="lesson-num">4</span>并发编程</a>
+      <a href="05-template-metaprogramming.html" class="sidebar-item"><span class="lesson-num">5</span>模板元编程</a>
+      <a href="06-design-patterns.html" class="sidebar-item"><span class="lesson-num">6</span>设计模式</a>
+      <a href="07-memory-management.html" class="sidebar-item"><span class="lesson-num">7</span>内存管理深入</a>
+      <a href="08-cpp17-20-features.html" class="sidebar-item active"><span class="lesson-num">8</span>C++17/20 新特性</a>
+    </aside>
+
+    <main class="lesson-content">
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-purple-500">进阶 · 第 8 课</span>
+          <span class="text-xs text-gray-400">· 90分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">C++17/20 新特性</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">结构化绑定</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">std::optional</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">Ranges</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">协程</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">std::format</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">C++17/20</span>
+        </div>
+      </div>
+
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🎯</span> 学习目标</h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用结构化绑定简化元组/结构体的解包</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>掌握 <code>std::optional</code>、<code>std::variant</code>、<code>std::any</code> 的使用场景</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解 <code>if constexpr</code> 编译期分支与 if 初始化语句</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 <code>std::filesystem</code> 进行文件系统操作</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>掌握 C++20 Ranges 库的视图与管道用法</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解 C++20 协程的基本机制（co_await / co_yield / co_return）</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 <code>std::format</code> 进行现代化格式化输出</li>
+        </ul>
+      </div>
+
+      <!-- 1. 结构化绑定 -->
+      <div class="content-section">
+        <h2><span>🔗</span> 1. 结构化绑定</h2>
+        <p>结构化绑定（C++17）允许用 <code>auto [a, b, ...]</code> 语法将元组、pair、数组或聚合结构体的成员一次性绑定到具名变量，彻底替代 <code>std::get&lt;N&gt;</code> 的冗长写法。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>结构化绑定示例</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;tuple&gt;
+#include &lt;map&gt;
+#include &lt;iostream&gt;
+
+// pair 解包
+auto p = std::make_pair(42, "hello");
+auto [num, str] = p;
+std::cout &lt;&lt; num &lt;&lt; " " &lt;&lt; str &lt;&lt; "\n";  // 42 hello
+
+// tuple 解包
+std::tuple&lt;int, double, std::string&gt; t{1, 3.14, "world"};
+auto [i, d, s] = t;
+std::cout &lt;&lt; i &lt;&lt; " " &lt;&lt; d &lt;&lt; " " &lt;&lt; s &lt;&lt; "\n";
+
+// 结构体解包（聚合类型）
+struct Point { int x, y; };
+Point pt{10, 20};
+auto [x, y] = pt;
+std::cout &lt;&lt; "x=" &lt;&lt; x &lt;&lt; " y=" &lt;&lt; y &lt;&lt; "\n";
+
+// map 遍历：最常见的应用场景
+std::map&lt;std::string, int&gt; scores{{"Alice", 95}, {"Bob", 87}};
+for (const auto&amp; [name, score] : scores) {
+    std::cout &lt;&lt; name &lt;&lt; ": " &lt;&lt; score &lt;&lt; "\n";
+}
+
+// 引用绑定：可以修改原值
+auto&amp; [rx, ry] = pt;
+rx = 100;  // pt.x 也变成 100
+
+// 函数返回多值（结合结构化绑定）
+auto divide = [](int a, int b) -&gt; std::pair&lt;int, int&gt; {
+    return {a / b, a % b};
+};
+auto [quotient, remainder] = divide(17, 5);
+std::cout &lt;&lt; "17/5 = " &lt;&lt; quotient &lt;&lt; " 余 " &lt;&lt; remainder &lt;&lt; "\n";
+
+// 数组解包
+int arr[3] = {1, 2, 3};
+auto [a1, a2, a3] = arr;
+std::cout &lt;&lt; a1 &lt;&lt; " " &lt;&lt; a2 &lt;&lt; " " &lt;&lt; a3 &lt;&lt; "\n";</code></pre>
+        </div>
+      </div>
+
+      <!-- 2. std::optional / std::variant / std::any -->
+      <div class="content-section">
+        <h2><span>📦</span> 2. std::optional / std::variant / std::any</h2>
+        <p>C++17 引入三个"词汇类型"（vocabulary types），用类型系统表达"可能没有值"、"多种类型之一"、"任意类型"的语义，比裸指针和 void* 更安全。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>std::optional — 可能为空的值</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;optional&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+// 函数返回"可能失败"的结果，不用异常也不用哨兵值
+std::optional&lt;int&gt; parse_int(const std::string&amp; s) {
+    try {
+        return std::stoi(s);
+    } catch (...) {
+        return std::nullopt;  // 表示"没有值"
+    }
+}
+
+int main() {
+    auto r1 = parse_int("42");
+    auto r2 = parse_int("abc");
+
+    // 检查是否有值
+    if (r1.has_value()) {
+        std::cout &lt;&lt; "解析成功: " &lt;&lt; r1.value() &lt;&lt; "\n";
+    }
+
+    // 提供默认值
+    int val = r2.value_or(-1);  // r2 为空，返回 -1
+    std::cout &lt;&lt; "解析结果: " &lt;&lt; val &lt;&lt; "\n";
+
+    // 使用 operator* 访问（需确认有值）
+    if (r1) {
+        std::cout &lt;&lt; *r1 * 2 &lt;&lt; "\n";  // 84
+    }
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>std::variant — 类型安全的联合体</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;variant&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+// variant 持有"多种类型之一"
+using Value = std::variant&lt;int, double, std::string&gt;;
+
+void print_value(const Value&amp; v) {
+    // std::visit 对当前活跃类型调用对应重载
+    std::visit([](const auto&amp; val) {
+        std::cout &lt;&lt; val &lt;&lt; "\n";
+    }, v);
+}
+
+int main() {
+    Value v = 42;
+    print_value(v);        // 42
+
+    v = 3.14;
+    print_value(v);        // 3.14
+
+    v = std::string("hello");
+    print_value(v);        // hello
+
+    // 安全访问：类型不对抛 std::bad_variant_access
+    try {
+        int x = std::get&lt;int&gt;(v);  // v 现在是 string，抛异常
+    } catch (const std::bad_variant_access&amp; e) {
+        std::cout &lt;&lt; "类型错误: " &lt;&lt; e.what() &lt;&lt; "\n";
+    }
+
+    // 使用索引访问
+    if (std::holds_alternative&lt;std::string&gt;(v)) {
+        std::cout &lt;&lt; "是字符串: " &lt;&lt; std::get&lt;std::string&gt;(v) &lt;&lt; "\n";
+    }
+
+    // overloaded 技巧：为每种类型提供不同处理
+    auto handler = [](auto&amp;&amp; arg) {
+        using T = std::decay_t&lt;decltype(arg)&gt;;
+        if constexpr (std::is_same_v&lt;T, int&gt;)         std::cout &lt;&lt; "int: " &lt;&lt; arg &lt;&lt; "\n";
+        else if constexpr (std::is_same_v&lt;T, double&gt;) std::cout &lt;&lt; "double: " &lt;&lt; arg &lt;&lt; "\n";
+        else                                            std::cout &lt;&lt; "string: " &lt;&lt; arg &lt;&lt; "\n";
+    };
+    v = 100;
+    std::visit(handler, v);  // int: 100
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>std::any — 任意类型容器</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;any&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+std::any a = 42;
+std::cout &lt;&lt; std::any_cast&lt;int&gt;(a) &lt;&lt; "\n";  // 42
+
+a = std::string("hello");
+std::cout &lt;&lt; std::any_cast&lt;std::string&gt;(a) &lt;&lt; "\n";  // hello
+
+a = 3.14;
+// 类型不对抛 std::bad_any_cast
+try {
+    std::any_cast&lt;int&gt;(a);
+} catch (const std::bad_any_cast&amp; e) {
+    std::cout &lt;&lt; "类型错误\n";
+}
+
+// 检查是否有值
+if (a.has_value()) {
+    std::cout &lt;&lt; "类型: " &lt;&lt; a.type().name() &lt;&lt; "\n";
+}
+a.reset();  // 清空
+
+// 注意：std::any 有类型擦除开销，优先用 variant 当类型集合已知</code></pre>
+        </div>
+      </div>
+
+      <!-- 3. if constexpr 与 if init -->
+      <div class="content-section">
+        <h2><span>⚙️</span> 3. if constexpr 与 if 初始化语句</h2>
+        <p>C++17 带来两项 if 语句增强：<code>if constexpr</code> 在编译期选择分支（未选中的分支不实例化）；if/switch 初始化语句允许在条件判断前声明局部变量。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>if constexpr — 编译期分支</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;type_traits&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+// 根据类型在编译期选择不同实现
+template&lt;typename T&gt;
+std::string to_str(T val) {
+    if constexpr (std::is_same_v&lt;T, std::string&gt;) {
+        return val;  // 直接返回
+    } else if constexpr (std::is_arithmetic_v&lt;T&gt;) {
+        return std::to_string(val);
+    } else {
+        return "?";  // 其他类型
+    }
+    // 未选中的分支即使对 T 无效（如对 string 调用 to_string）也不会报错
+}
+
+int main() {
+    std::cout &lt;&lt; to_str(42)          &lt;&lt; "\n";  // "42"
+    std::cout &lt;&lt; to_str(3.14)        &lt;&lt; "\n";  // "3.140000"
+    std::cout &lt;&lt; to_str(std::string("hi")) &lt;&lt; "\n";  // "hi"
+}
+
+// 可变参模板中的终止条件（替代旧式偏特化）
+template&lt;typename T, typename... Args&gt;
+void print_all(T first, Args... rest) {
+    std::cout &lt;&lt; first;
+    if constexpr (sizeof...(rest) &gt; 0) {
+        std::cout &lt;&lt; ", ";
+        print_all(rest...);
+    } else {
+        std::cout &lt;&lt; "\n";
+    }
+}
+// print_all(1, 2.5, "hello") → "1, 2.5, hello"</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>if/switch 初始化语句</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;map&gt;
+#include &lt;mutex&gt;
+#include &lt;optional&gt;
+#include &lt;iostream&gt;
+
+std::map&lt;std::string, int&gt; m{{"a", 1}, {"b", 2}};
+
+// C++17：在 if 条件中声明并初始化变量（作用域限于 if/else 块内）
+if (auto it = m.find("a"); it != m.end()) {
+    std::cout &lt;&lt; "找到: " &lt;&lt; it-&gt;second &lt;&lt; "\n";
+} else {
+    std::cout &lt;&lt; "未找到\n";
+}
+// it 在这里不可访问，避免变量逃逸作用域
+
+// 结合 optional
+std::optional&lt;int&gt; maybe_val = 42;
+if (auto val = maybe_val; val.has_value()) {
+    std::cout &lt;&lt; *val &lt;&lt; "\n";
+}
+
+// switch 初始化语句
+switch (int status = compute_status(); status) {
+    case 0: std::cout &lt;&lt; "OK\n"; break;
+    case 1: std::cout &lt;&lt; "Warning\n"; break;
+    default: std::cout &lt;&lt; "Error: " &lt;&lt; status &lt;&lt; "\n";
+}
+
+// 锁保护临界区（RAII）
+std::mutex mtx;
+if (std::lock_guard lock(mtx); shared_ready) {
+    // 仅在 shared_ready 时访问共享数据
+    process_shared();
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 4. std::filesystem -->
+      <div class="content-section">
+        <h2><span>📁</span> 4. std::filesystem — 文件系统操作</h2>
+        <p>C++17 将 Boost.Filesystem 标准化为 <code>&lt;filesystem&gt;</code>，提供跨平台的路径处理、目录遍历、文件状态查询等功能。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>文件系统基础操作</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;filesystem&gt;
+#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+namespace fs = std::filesystem;  // 常用别名
+
+int main() {
+    // 路径操作
+    fs::path p = "/home/user/data/file.txt";
+    std::cout &lt;&lt; p.filename()  &lt;&lt; "\n";  // file.txt
+    std::cout &lt;&lt; p.stem()      &lt;&lt; "\n";  // file
+    std::cout &lt;&lt; p.extension() &lt;&lt; "\n";  // .txt
+    std::cout &lt;&lt; p.parent_path() &lt;&lt; "\n"; // /home/user/data
+
+    // 路径拼接（/ 运算符）
+    fs::path dir = "/tmp";
+    fs::path full = dir / "subdir" / "output.csv";
+    std::cout &lt;&lt; full &lt;&lt; "\n";  // /tmp/subdir/output.csv
+
+    // 文件/目录状态查询
+    fs::path target = "/etc/hosts";
+    if (fs::exists(target)) {
+        std::cout &lt;&lt; "存在\n";
+        std::cout &lt;&lt; "大小: " &lt;&lt; fs::file_size(target) &lt;&lt; " 字节\n";
+        std::cout &lt;&lt; "是文件: " &lt;&lt; fs::is_regular_file(target) &lt;&lt; "\n";
+    }
+
+    // 创建目录（含中间目录）
+    fs::create_directories("/tmp/myapp/logs");
+
+    // 复制/删除
+    fs::copy("/etc/hosts", "/tmp/hosts_backup");
+    fs::remove("/tmp/hosts_backup");
+
+    // 递归遍历目录
+    for (const auto&amp; entry : fs::recursive_directory_iterator("/tmp/myapp")) {
+        std::cout &lt;&lt; (entry.is_directory() ? "[DIR] " : "[FILE]")
+                  &lt;&lt; " " &lt;&lt; entry.path() &lt;&lt; "\n";
+    }
+
+    // 当前工作目录
+    std::cout &lt;&lt; "CWD: " &lt;&lt; fs::current_path() &lt;&lt; "\n";
+
+    // 错误处理（不抛异常版本）
+    std::error_code ec;
+    auto sz = fs::file_size("/nonexistent", ec);
+    if (ec) {
+        std::cout &lt;&lt; "错误: " &lt;&lt; ec.message() &lt;&lt; "\n";
+    }
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 5. C++20 Ranges -->
+      <div class="content-section">
+        <h2><span>🔄</span> 5. C++20: Ranges — 范围库</h2>
+        <p>C++20 Ranges 库将算法从迭代器对升级为范围感知，并引入懒惰求值的"视图"（views）和可链式组合的"管道"（|）语法，让数据变换代码更声明式、更可读。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>Ranges 基础与视图管道</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;ranges&gt;
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+namespace views = std::views;  // 别名
+
+int main() {
+    std::vector&lt;int&gt; v{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    // 旧写法：需要显式迭代器对
+    // std::copy_if(v.begin(), v.end(), out, pred);
+
+    // 新写法：直接传范围
+    std::ranges::sort(v);  // 无需 v.begin(), v.end()
+
+    // 视图：懒惰求值，不复制数据
+    auto even_squares = v
+        | views::filter([](int x) { return x % 2 == 0; })  // 过滤偶数
+        | views::transform([](int x) { return x * x; });    // 平方
+
+    for (int n : even_squares) {
+        std::cout &lt;&lt; n &lt;&lt; " ";  // 4 16 36 64 100
+    }
+    std::cout &lt;&lt; "\n";
+
+    // 其他常用视图
+    for (int n : v | views::take(3)) {      // 前 3 个：1 2 3
+        std::cout &lt;&lt; n &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; "\n";
+
+    for (int n : v | views::drop(7)) {      // 跳过前 7 个：8 9 10
+        std::cout &lt;&lt; n &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; "\n";
+
+    // views::iota：生成连续整数（懒惰，无需容器）
+    for (int n : views::iota(1, 6)) {       // 1 2 3 4 5
+        std::cout &lt;&lt; n &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; "\n";
+
+    // views::reverse：反转视图
+    for (int n : v | views::reverse | views::take(4)) {  // 10 9 8 7
+        std::cout &lt;&lt; n &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; "\n";
+
+    // 将视图结果收集到容器（C++23 ranges::to；C++20 用 std::ranges::copy）
+    std::vector&lt;int&gt; result;
+    std::ranges::copy(even_squares, std::back_inserter(result));
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 6. C++20 协程基础 -->
+      <div class="content-section">
+        <h2><span>⏸️</span> 6. C++20: 协程基础</h2>
+        <p>C++20 协程是可以暂停和恢复的函数，通过三个关键字驱动：<code>co_await</code>（等待异步操作）、<code>co_yield</code>（生成一个值并暂停）、<code>co_return</code>（结束协程并返回值）。标准库只提供基础支持，完整框架通常由库（如 cppcoro、libunifex）提供。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>co_yield — 生成器模式</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;coroutine&gt;
+#include &lt;optional&gt;
+#include &lt;iostream&gt;
+
+// 最小生成器实现（简化版，仅用于演示概念）
+template&lt;typename T&gt;
+struct Generator {
+    struct promise_type {
+        T current_value;
+
+        Generator get_return_object() {
+            return Generator{std::coroutine_handle&lt;promise_type&gt;::from_promise(*this)};
+        }
+        std::suspend_always initial_suspend() { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        std::suspend_always yield_value(T v) {
+            current_value = v;
+            return {};
+        }
+        void return_void() {}
+        void unhandled_exception() { std::terminate(); }
+    };
+
+    std::coroutine_handle&lt;promise_type&gt; handle;
+    explicit Generator(std::coroutine_handle&lt;promise_type&gt; h) : handle(h) {}
+    ~Generator() { if (handle) handle.destroy(); }
+
+    std::optional&lt;T&gt; next() {
+        handle.resume();
+        if (handle.done()) return std::nullopt;
+        return handle.promise().current_value;
+    }
+};
+
+// 使用 co_yield 定义生成器函数
+Generator&lt;int&gt; range(int from, int to) {
+    for (int i = from; i &lt; to; ++i) {
+        co_yield i;  // 每次产出一个值，暂停执行
+    }
+}
+
+Generator&lt;int&gt; fibonacci_gen() {
+    int a = 0, b = 1;
+    while (true) {
+        co_yield a;
+        auto next = a + b;
+        a = b;
+        b = next;
+    }
+}
+
+int main() {
+    // range 生成器
+    auto gen = range(1, 6);
+    while (auto val = gen.next()) {
+        std::cout &lt;&lt; *val &lt;&lt; " ";  // 1 2 3 4 5
+    }
+    std::cout &lt;&lt; "\n";
+
+    // Fibonacci 生成器（无限序列，按需取值）
+    auto fib = fibonacci_gen();
+    for (int i = 0; i &lt; 8; ++i) {
+        std::cout &lt;&lt; *fib.next() &lt;&lt; " ";  // 0 1 1 2 3 5 8 13
+    }
+    std::cout &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>协程关键字语义说明</span>
+          </div>
+          <pre><code class="language-cpp">// co_await：等待一个可等待对象，期间暂停让出控制权
+//   协程暂停 → 调度器继续其他工作 → 等待完成后恢复协程
+//   典型场景：异步 I/O、网络请求
+//   auto result = co_await async_read(socket, buffer);
+
+// co_yield：生成一个值并暂停协程
+//   协程保留完整状态（局部变量、栈帧），等待下次 resume()
+//   典型场景：生成器、流式数据处理
+//   co_yield computed_value;
+
+// co_return：结束协程并可选返回最终值
+//   协程不再可被恢复
+//   co_return final_result;
+
+// 协程的三个组成部分
+// 1. promise_type：控制协程行为（如何挂起、恢复、返回值）
+// 2. coroutine_handle：协程的句柄，用于 resume/destroy
+// 3. 可等待对象（Awaitable）：实现 await_ready/await_suspend/await_resume
+
+// 编译选项（GCC/Clang 需要）
+// g++ -std=c++20 -fcoroutines main.cpp
+// clang++ -std=c++20 main.cpp</code></pre>
+        </div>
+      </div>
+
+      <!-- 7. std::format -->
+      <div class="content-section">
+        <h2><span>🖨️</span> 7. std::format — 现代格式化</h2>
+        <p><code>std::format</code>（C++20）借鉴 Python 的 <code>{}</code> 占位符语法，提供类型安全、无缓冲区溢出风险的格式化，是 <code>printf</code> 和 <code>ostringstream</code> 的现代替代。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>std::format 用法大全</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;format&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+int main() {
+    // 基础用法
+    std::string s = std::format("Hello, {}!", "world");
+    std::cout &lt;&lt; s &lt;&lt; "\n";  // Hello, world!
+
+    // 多个参数（按顺序替换）
+    auto msg = std::format("{} + {} = {}", 1, 2, 3);
+    std::cout &lt;&lt; msg &lt;&lt; "\n";  // 1 + 2 = 3
+
+    // 位置索引（可重复引用）
+    std::cout &lt;&lt; std::format("{0} {1} {0}", "ping", "pong") &lt;&lt; "\n";
+    // ping pong ping
+
+    // 格式规范：[[填充]对齐][宽度][.精度][类型]
+    // 整数
+    std::cout &lt;&lt; std::format("{:6d}",   42)   &lt;&lt; "\n";  // "    42" (右对齐)
+    std::cout &lt;&lt; std::format("{:&lt;6d}",  42)   &lt;&lt; "\n";  // "42    " (左对齐)
+    std::cout &lt;&lt; std::format("{:^6d}",  42)   &lt;&lt; "\n";  // "  42  " (居中)
+    std::cout &lt;&lt; std::format("{:06d}",  42)   &lt;&lt; "\n";  // "000042" (补零)
+    std::cout &lt;&lt; std::format("{:+d}",   42)   &lt;&lt; "\n";  // "+42"    (强制符号)
+    std::cout &lt;&lt; std::format("{:#x}",   255)  &lt;&lt; "\n";  // "0xff"   (十六进制)
+    std::cout &lt;&lt; std::format("{:#b}",   10)   &lt;&lt; "\n";  // "0b1010" (二进制)
+
+    // 浮点数
+    std::cout &lt;&lt; std::format("{:.3f}", 3.14159) &lt;&lt; "\n";   // "3.142"
+    std::cout &lt;&lt; std::format("{:.2e}", 12345.0) &lt;&lt; "\n";   // "1.23e+04"
+    std::cout &lt;&lt; std::format("{:10.3f}", 3.14)  &lt;&lt; "\n";   // "     3.140"
+
+    // 字符串
+    std::cout &lt;&lt; std::format("{:&gt;10}", "hi")   &lt;&lt; "\n";  // "        hi"
+    std::cout &lt;&lt; std::format("{:*^10}", "hi")  &lt;&lt; "\n";  // "****hi****"
+
+    // 直接输出到流（C++23 std::print；C++20 可用 std::format + cout）
+    std::cout &lt;&lt; std::format("π ≈ {:.5f}\n", 3.14159265);
+
+    // 自定义类型（实现 std::formatter 特化）
+    // 略：需定义 parse() 和 format() 方法
+
+    return 0;
+}
+// 编译：g++ -std=c++20 main.cpp（GCC 13+，Clang 16+，MSVC 2019+）</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>🧠</span> 知识检验</h2>
+
+        <div class="quiz-question">
+          <p>Q1. 以下哪个说法关于 <code>std::optional</code> 是正确的？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. <code>std::optional&lt;T&gt;</code> 总是在堆上分配 T</label>
+            <label><input type="radio" name="q1" value="B"> B. <code>value_or(default)</code> 在 optional 为空时返回默认值，无需手动检查</label>
+            <label><input type="radio" name="q1" value="C"> C. <code>std::optional</code> 等价于 <code>T*</code>，性能完全相同</label>
+            <label><input type="radio" name="q1" value="D"> D. 对空 optional 调用 <code>value()</code> 返回默认构造的 T</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. C++20 Ranges 视图（views）的核心特点是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 视图会立即计算并将结果复制到新容器</label>
+            <label><input type="radio" name="q2" value="B"> B. 视图是懒惰求值的，只在迭代时按需计算，不复制数据</label>
+            <label><input type="radio" name="q2" value="C"> C. 视图只能用于 std::vector</label>
+            <label><input type="radio" name="q2" value="D"> D. 视图不支持链式组合（管道 |）</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. 协程中 <code>co_yield</code> 和 <code>co_return</code> 的区别是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. 两者完全相同，可以互换使用</label>
+            <label><input type="radio" name="q3" value="B"> B. <code>co_yield</code> 只能用于异步等待，<code>co_return</code> 用于生成值</label>
+            <label><input type="radio" name="q3" value="C"> C. <code>co_yield</code> 产出一个值后暂停协程（可再次恢复）；<code>co_return</code> 结束协程并返回最终值（不可再恢复）</label>
+            <label><input type="radio" name="q3" value="D"> D. <code>co_return</code> 是 C++23 才引入的</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📋</span> 课后作业</h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">对比 <code>std::variant</code> 与 C 的 <code>union</code>：各自的内存布局、类型安全保证、访问方式有何不同？在什么场景下应优先选择 <code>std::variant</code>？</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">使用 <code>std::filesystem</code> 实现一个函数 <code>list_cpp_files(path)</code>，递归找出指定目录下所有 <code>.cpp</code> 和 <code>.h</code> 文件，按文件大小降序排列，并用 <code>std::format</code> 格式化输出文件名、大小（KB，保留 2 位小数）和最后修改时间。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">使用 C++20 Ranges 实现以下数据管道：从一个 <code>std::vector&lt;std::string&gt;</code> 出发，过滤长度 &gt; 3 的字符串，转换为大写，取前 5 个，最后用 <code>std::format</code> 将结果格式化为 <code>"[A, B, C]"</code> 形式的字符串。（提示：<code>views::filter</code> + <code>views::transform</code> + <code>views::take</code>）</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🔗</span> 延伸阅读</h2>
+        <a href="https://en.cppreference.com/w/cpp/17" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">cppreference: C++17 新特性一览</div><div class="text-xs text-gray-500 mt-0.5">结构化绑定、optional、variant、filesystem 完整文档</div></div>
+        </a>
+        <a href="https://en.cppreference.com/w/cpp/ranges" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">cppreference: Ranges library (C++20)</div><div class="text-xs text-gray-500 mt-0.5">所有 views、algorithms 和 range adaptors 文档</div></div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-coroutines/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div><div class="text-sm font-semibold text-gray-800">LearnCpp: Introduction to Coroutines</div><div class="text-xs text-gray-500 mt-0.5">协程概念与 promise_type 机制详细教程</div></div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=8sEe-4tig_A" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div><div class="text-sm font-semibold text-gray-800">CppCon: C++20 Ranges in Practice</div><div class="text-xs text-gray-500 mt-0.5">Ranges 库的实际应用与最佳实践</div></div>
+        </a>
+      </div>
+
+      <div class="lesson-nav">
+        <a href="07-memory-management.html" class="nav-btn nav-btn-secondary">← 上一课：内存管理深入</a>
+        <a href="../../index.html" class="nav-btn nav-btn-primary">返回首页 →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！std::optional 在栈上内联存储值（不堆分配），value_or() 是安全获取值的惯用写法。对空 optional 调用 value() 会抛 std::bad_optional_access，而非返回默认值。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。optional 在栈上存储，value() 对空值抛异常，value_or() 才是安全的默认值返回方式。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！Ranges 视图是懒惰（lazy）的：filter/transform 等不立即执行，只在迭代时按需计算每个元素，且不创建中间容器，内存效率高。管道 | 可以任意组合视图。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。视图的核心优势就是懒惰求值和零拷贝，可适用于任何满足 range 概念的容器，并支持 | 管道组合。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！co_yield 让协程"暂停并产出一个值"，保留所有局部状态，等待下次 resume() 继续执行；co_return 终止协程生命周期并可返回最终值，之后不可再恢复。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。co_yield 用于生成器场景（可多次暂停/恢复），co_return 用于协程的最终退出。两者都是 C++20 引入的。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+</body>
+</html>

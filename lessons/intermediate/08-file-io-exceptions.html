@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>08. 文件 I/O 与异常 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <style>    .sidebar-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.25rem; color: #94a3b8; font-size: 0.85rem; border-left: 3px solid transparent; transition: all 0.15s; text-decoration: none; white-space: nowrap; overflow: hidden; }
+    .sidebar-item:hover { color: #e2e8f0; background: rgba(255,255,255,.05); border-left-color: #475569; }
+    .sidebar-item.active { color: #6ee7b7; background: rgba(16,185,129,.12); border-left-color: #10b981; font-weight: 600; }
+    .sidebar-item.completed { color: #6ee7b7; }
+    .lesson-num { width: 20px; height: 20px; border-radius: 4px; background: #334155; color: #94a3b8; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sidebar-item.active .lesson-num { background: #064e3b; color: #6ee7b7; }
+    .sidebar-item.completed .lesson-num { background: #064e3b; color: #6ee7b7; }
+    .lesson-content { flex: 1; padding: 2rem 2.5rem; max-width: 900px; min-width: 0; }
+    .lesson-header { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; }
+    .objectives-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+    .content-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .content-section h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .content-section p { color: #475569; line-height: 1.75; margin-bottom: 0.75rem; font-size: 0.95rem; }
+    .content-section ul { color: #475569; font-size: 0.95rem; line-height: 1.75; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .content-section li { margin-bottom: 0.25rem; }
+    .code-block { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; margin: 1rem 0; font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.875rem; }
+    .code-block-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: #161b22; border-bottom: 1px solid #30363d; }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .code-block pre { margin: 0; padding: 1.25rem 1.5rem; overflow-x: auto; }
+    .info-box { display: flex; gap: 0.75rem; padding: 0.875rem 1.25rem; border-radius: 8px; margin: 0.75rem 0; }
+    .info-box.tip { background: #f0f9ff; border: 1px solid #bae6fd; }
+    .info-box.warning { background: #fffbeb; border: 1px solid #fde68a; }
+    .info-box.danger { background: #fff1f2; border: 1px solid #fecdd3; }
+    .info-box.info { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .info-box-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .info-box-content { font-size: 0.875rem; color: #475569; line-height: 1.65; }
+    .info-box-content p { margin-bottom: 0.25rem; }
+    .info-box-content p:last-child { margin-bottom: 0; }
+    .quiz-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .quiz-question { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; }
+    .quiz-question p { font-size: 0.92rem; font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; }
+    .quiz-options label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: #475569; cursor: pointer; padding: 0.3rem 0; }
+    .quiz-options input[type="radio"] { margin-top: 0.2rem; flex-shrink: 0; }
+    .quiz-feedback { margin-top: 0.6rem; padding: 0.6rem 0.875rem; border-radius: 6px; font-size: 0.85rem; display: none; }
+    .quiz-feedback.correct { display: block; background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .quiz-feedback.wrong { display: block; background: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; }
+    .assignment-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .assignment-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.25rem; }
+    .assignment-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 0.4rem; }
+    .badge-understand { background: #dbeafe; color: #1d4ed8; }
+    .badge-code { background: #dcfce7; color: #15803d; }
+    .badge-challenge { background: #fef9c3; color: #92400e; }
+    .resources-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .resource-card { display: flex; align-items: center; gap: 0.875rem; padding: 0.875rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.15s; text-decoration: none; }
+    .resource-card:hover { border-color: #6ee7b7; background: #f0fdf4; transform: translateX(4px); }
+    .resource-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .icon-docs { background: #dbeafe; }
+    .icon-tutorial { background: #f0fdf4; }
+    .icon-video { background: #fef3c7; }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+    .nav-btn { padding: 0.625rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; text-decoration: none; border: 1.5px solid #e2e8f0; color: #475569; transition: all 0.15s; }
+    .nav-btn:hover { border-color: #94a3b8; color: #1e293b; background: #f8fafc; }
+    .nav-btn-primary { background: #10b981; border-color: #10b981; color: #fff; }
+    .nav-btn-primary:hover { background: #059669; border-color: #059669; color: #fff; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- 顶部导航 -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span>
+        <span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="01-oop-basics.html" class="px-3 py-1.5 text-sm text-green-700 bg-green-50 rounded-md font-medium">中级</a>
+        <a href="../advanced/01-move-semantics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span>
+        <span class="text-green-600">中级</span>
+        <span>›</span>
+        <span class="text-gray-800 font-medium">08. 文件 I/O 与异常</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-title">中级课程</div>
+      <a href="01-oop-basics.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>面向对象基础
+      </a>
+      <a href="02-constructors-destructors.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>构造与析构
+      </a>
+      <a href="03-inheritance.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>继承
+      </a>
+      <a href="04-polymorphism.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>多态与虚函数
+      </a>
+      <a href="05-templates-basics.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>模板基础
+      </a>
+      <a href="06-stl-containers.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>STL 容器
+      </a>
+      <a href="07-stl-algorithms.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>STL 算法
+      </a>
+      <a href="08-file-io-exceptions.html" class="sidebar-item active">
+        <span class="lesson-num">→</span>文件 I/O 与异常
+      </a>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="lesson-content">
+
+      <!-- 课程头部 -->
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-green-600">中级 · 第 8 课</span>
+          <span class="text-xs text-gray-400">· 70分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">文件 I/O 与异常</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">ofstream</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">ifstream</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">try/catch</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">throw</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">RAII</span>
+        </div>
+      </div>
+
+      <!-- 学习目标 -->
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🎯</span> 学习目标</h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 <code>ofstream</code> 写入文本与二进制文件</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 <code>ifstream</code> 按行读取文本文件</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解文件流状态标志（good/bad/fail/eof）并正确检查错误</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>掌握 <code>try/catch/throw</code> 异常处理机制</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>设计自定义异常类并利用异常层次结构</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解 RAII 与异常安全保证</li>
+        </ul>
+      </div>
+
+      <!-- 1. 文件输出 -->
+      <div class="content-section">
+        <h2><span>📝</span> 1. 文件输出 — ofstream</h2>
+        <p><code>std::ofstream</code>（output file stream）用于向文件写入数据。它是 <code>std::ostream</code> 的子类，支持所有熟悉的 <code>&lt;&lt;</code> 操作符。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>写入文本文件</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // 打开文件（若不存在则创建，若存在则截断）
+    std::ofstream ofs("output.txt");
+
+    if (!ofs) {  // 检查是否成功打开
+        std::cerr &lt;&lt; "无法打开文件！\n";
+        return 1;
+    }
+
+    // 像 cout 一样写入
+    ofs &lt;&lt; "Hello, File I/O!\n";
+    ofs &lt;&lt; "第二行：" &lt;&lt; 42 &lt;&lt; "\n";
+
+    // 追加模式（不截断原有内容）
+    std::ofstream ofs_append("log.txt", std::ios::app);
+    ofs_append &lt;&lt; "[INFO] 程序已启动\n";
+
+    // 文件会在 ofstream 析构时自动关闭
+    return 0;
+}
+// 也可以手动关闭
+// ofs.close();</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>写入二进制文件</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;fstream&gt;
+#include &lt;vector&gt;
+
+struct Record {
+    int id;
+    double value;
+    char name[32];
+};
+
+int main() {
+    // std::ios::binary 以二进制模式打开
+    std::ofstream ofs("data.bin", std::ios::binary);
+
+    Record r{1, 3.14, "sensor_A"};
+    // write(指针, 字节数)：以原始字节写入
+    ofs.write(reinterpret_cast&lt;const char*&gt;(&amp;r), sizeof(r));
+
+    // 写入整数数组
+    std::vector&lt;int&gt; nums = {10, 20, 30, 40, 50};
+    ofs.write(reinterpret_cast&lt;const char*&gt;(nums.data()),
+              nums.size() * sizeof(int));
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <div class="info-box-icon">💡</div>
+          <div class="info-box-content">
+            <p><strong>常用打开模式标志：</strong><br>
+            <code>std::ios::out</code> — 写入（默认）；<code>std::ios::app</code> — 追加；<code>std::ios::binary</code> — 二进制；<code>std::ios::trunc</code> — 截断（默认与 out 同用）。可用 <code>|</code> 组合：<code>std::ios::out | std::ios::binary</code>。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 文件输入 -->
+      <div class="content-section">
+        <h2><span>📖</span> 2. 文件输入 — ifstream</h2>
+        <p><code>std::ifstream</code>（input file stream）用于从文件读取数据，是 <code>std::istream</code> 的子类。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>逐行读取文本文件</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main() {
+    std::ifstream ifs("output.txt");
+
+    if (!ifs) {
+        std::cerr &lt;&lt; "文件不存在或无权限读取\n";
+        return 1;
+    }
+
+    // 方式1：getline 逐行读取（最常用）
+    std::string line;
+    int lineNo = 0;
+    while (std::getline(ifs, line)) {
+        ++lineNo;
+        std::cout &lt;&lt; lineNo &lt;&lt; ": " &lt;&lt; line &lt;&lt; "\n";
+    }
+
+    // 方式2：逐词读取（以空白分隔）
+    ifs.clear();          // 清除 eof 标志
+    ifs.seekg(0);         // 回到文件开头
+    std::string word;
+    std::vector&lt;std::string&gt; words;
+    while (ifs &gt;&gt; word) {
+        words.push_back(word);
+    }
+
+    // 方式3：一次读入整个文件
+    ifs.clear();
+    ifs.seekg(0);
+    std::string content(
+        (std::istreambuf_iterator&lt;char&gt;(ifs)),
+        std::istreambuf_iterator&lt;char&gt;()
+    );
+    std::cout &lt;&lt; "文件内容：\n" &lt;&lt; content;
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>读取二进制文件</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;fstream&gt;
+
+struct Record {
+    int id;
+    double value;
+    char name[32];
+};
+
+int main() {
+    std::ifstream ifs("data.bin", std::ios::binary);
+
+    Record r;
+    // read(指针, 字节数)：从文件读取原始字节
+    if (ifs.read(reinterpret_cast&lt;char*&gt;(&amp;r), sizeof(r))) {
+        std::cout &lt;&lt; "id=" &lt;&lt; r.id
+                  &lt;&lt; " value=" &lt;&lt; r.value
+                  &lt;&lt; " name=" &lt;&lt; r.name &lt;&lt; "\n";
+    }
+
+    // 读取整数数组
+    int nums[5];
+    ifs.read(reinterpret_cast&lt;char*&gt;(nums), sizeof(nums));
+    for (int n : nums) std::cout &lt;&lt; n &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 3. 文件流状态 -->
+      <div class="content-section">
+        <h2><span>🔍</span> 3. 文件流状态标志</h2>
+        <p>每个流对象内部维护一组状态标志，用于反映当前操作是否成功。正确检查状态是健壮 I/O 代码的基础。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>流状态标志与错误检查</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+
+void printState(const std::ifstream&amp; ifs) {
+    std::cout &lt;&lt; "good=" &lt;&lt; ifs.good()   // 一切正常（所有位均清除）
+              &lt;&lt; " eof="  &lt;&lt; ifs.eof()    // 已到达文件末尾
+              &lt;&lt; " fail=" &lt;&lt; ifs.fail()   // 操作失败（格式错误/eof）
+              &lt;&lt; " bad="  &lt;&lt; ifs.bad()    // 底层 I/O 错误（硬件/OS）
+              &lt;&lt; "\n";
+}
+
+int main() {
+    std::ifstream ifs("numbers.txt");  // 文件内容："10 20 abc"
+
+    int n;
+    while (ifs &gt;&gt; n) {                 // 读成功时返回 true
+        std::cout &lt;&lt; "读到: " &lt;&lt; n &lt;&lt; "\n";
+    }
+    // 读取 "abc" 失败后：fail=1, eof=0, bad=0
+
+    printState(ifs);
+
+    // 清除错误标志以继续使用流
+    ifs.clear();
+
+    // 重新定位到文件开头
+    ifs.seekg(0, std::ios::beg);
+
+    // 推荐做法：先检查 !ifs 而非依赖 eof()
+    // 常见错误：while (!ifs.eof()) 在最后一行会多循环一次
+    // 正确做法：while (std::getline(ifs, line))
+
+    // 获取文件大小
+    ifs.seekg(0, std::ios::end);
+    std::streamsize size = ifs.tellg();
+    std::cout &lt;&lt; "文件大小: " &lt;&lt; size &lt;&lt; " 字节\n";
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box warning">
+          <div class="info-box-icon">⚠️</div>
+          <div class="info-box-content">
+            <p><strong>常见陷阱：</strong>避免用 <code>while (!ifs.eof())</code> 作为循环条件。<code>eof</code> 标志只有在尝试读取超过文件末尾后才设置，这会导致最后一次读取被处理两次。始终把读取操作本身放在条件中：<code>while (std::getline(ifs, line))</code>。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 异常处理 -->
+      <div class="content-section">
+        <h2><span>🚨</span> 4. 异常处理 — try/catch/throw</h2>
+        <p>C++ 异常机制提供了将错误检测与错误处理解耦的方式。<code>throw</code> 抛出异常，<code>try</code> 块标记可能出错的代码，<code>catch</code> 处理异常。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>基本 try/catch/throw</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;stdexcept&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+double divide(double a, double b) {
+    if (b == 0.0)
+        throw std::invalid_argument("除数不能为零");
+    return a / b;
+}
+
+std::string readLine(const std::string&amp; path) {
+    std::ifstream ifs(path);
+    if (!ifs)
+        throw std::runtime_error("无法打开文件: " + path);
+    std::string line;
+    std::getline(ifs, line);
+    return line;
+}
+
+int main() {
+    // 单个 catch
+    try {
+        double result = divide(10.0, 0.0);
+        std::cout &lt;&lt; result &lt;&lt; "\n";
+    } catch (const std::invalid_argument&amp; e) {
+        std::cerr &lt;&lt; "参数错误: " &lt;&lt; e.what() &lt;&lt; "\n";
+    }
+
+    // 多个 catch（从具体到通用排列）
+    try {
+        std::string line = readLine("nonexistent.txt");
+        int n = std::stoi(line);   // 若非数字抛出 invalid_argument
+        std::cout &lt;&lt; "读到数字: " &lt;&lt; n &lt;&lt; "\n";
+    } catch (const std::runtime_error&amp; e) {
+        std::cerr &lt;&lt; "运行时错误: " &lt;&lt; e.what() &lt;&lt; "\n";
+    } catch (const std::invalid_argument&amp; e) {
+        std::cerr &lt;&lt; "格式错误: " &lt;&lt; e.what() &lt;&lt; "\n";
+    } catch (const std::exception&amp; e) {
+        // 捕获所有标准异常的兜底处理
+        std::cerr &lt;&lt; "未知标准异常: " &lt;&lt; e.what() &lt;&lt; "\n";
+    } catch (...) {
+        // 捕获任何类型的异常（包括非标准异常）
+        std::cerr &lt;&lt; "完全未知的异常\n";
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <p>标准库的异常继承层次：</p>
+        <ul>
+          <li><code>std::exception</code>（根基类，提供 <code>what()</code>）</li>
+          <li>├── <code>std::logic_error</code>：程序逻辑错误（可预防）</li>
+          <li>│　　├── <code>std::invalid_argument</code>、<code>std::out_of_range</code>、<code>std::length_error</code></li>
+          <li>└── <code>std::runtime_error</code>：运行时错误（不可预防）</li>
+          <li>　　　├── <code>std::range_error</code>、<code>std::overflow_error</code>、<code>std::underflow_error</code></li>
+        </ul>
+
+        <div class="info-box tip">
+          <div class="info-box-icon">💡</div>
+          <div class="info-box-content">
+            <p><strong>catch 顺序规则：</strong>始终先捕获更具体的子类，再捕获基类。若先写 <code>catch (std::exception&amp;)</code>，后续的子类 catch 永远不会被触发。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 自定义异常类 -->
+      <div class="content-section">
+        <h2><span>🏗️</span> 5. 自定义异常类</h2>
+        <p>从 <code>std::exception</code> 或其子类派生，可以创建携带更丰富上下文信息的自定义异常。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>自定义异常类设计</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+// 应用级基类：继承自 std::runtime_error
+class AppError : public std::runtime_error {
+public:
+    explicit AppError(const std::string&amp; msg)
+        : std::runtime_error("[AppError] " + msg) {}
+};
+
+// 文件相关错误：携带路径信息
+class FileError : public AppError {
+    std::string path_;
+public:
+    FileError(const std::string&amp; path, const std::string&amp; detail)
+        : AppError("文件操作失败 '" + path + "': " + detail)
+        , path_(path) {}
+
+    const std::string&amp; path() const noexcept { return path_; }
+};
+
+// 解析错误：携带行号信息
+class ParseError : public AppError {
+    int lineNo_;
+public:
+    ParseError(int lineNo, const std::string&amp; detail)
+        : AppError("第 " + std::to_string(lineNo) + " 行解析失败: " + detail)
+        , lineNo_(lineNo) {}
+
+    int lineNo() const noexcept { return lineNo_; }
+};
+
+// 使用示例
+void processFile(const std::string&amp; path) {
+    std::ifstream ifs(path);
+    if (!ifs) throw FileError(path, "文件不存在或无权限");
+
+    std::string line;
+    int lineNo = 0;
+    while (std::getline(ifs, line)) {
+        ++lineNo;
+        if (line.empty()) throw ParseError(lineNo, "不允许空行");
+        // ... 处理 line
+    }
+}
+
+int main() {
+    try {
+        processFile("config.txt");
+    } catch (const FileError&amp; e) {
+        std::cerr &lt;&lt; "路径: " &lt;&lt; e.path() &lt;&lt; "\n";
+        std::cerr &lt;&lt; "错误: " &lt;&lt; e.what() &lt;&lt; "\n";
+    } catch (const ParseError&amp; e) {
+        std::cerr &lt;&lt; "行号: " &lt;&lt; e.lineNo() &lt;&lt; "\n";
+        std::cerr &lt;&lt; "错误: " &lt;&lt; e.what() &lt;&lt; "\n";
+    } catch (const AppError&amp; e) {
+        std::cerr &lt;&lt; "应用错误: " &lt;&lt; e.what() &lt;&lt; "\n";
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box info">
+          <div class="info-box-icon">ℹ️</div>
+          <div class="info-box-content">
+            <p><strong>设计建议：</strong>自定义异常类应标记析构函数和 <code>what()</code> 为 <code>noexcept</code>（继承自 <code>std::exception</code> 时已自动满足）。不要从 <code>std::exception</code> 直接派生并手动存储字符串——优先继承 <code>std::runtime_error</code> 或 <code>std::logic_error</code>，由基类管理字符串存储。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. RAII 与异常安全 -->
+      <div class="content-section">
+        <h2><span>🛡️</span> 6. RAII 与异常安全</h2>
+        <p><strong>RAII</strong>（Resource Acquisition Is Initialization）：在构造函数中获取资源，在析构函数中释放资源。当异常发生时，栈展开（stack unwinding）会自动调用已构造对象的析构函数，从而保证资源不泄漏。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>RAII 文件资源管理</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;fstream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;iostream&gt;
+
+// 不好的做法：手动管理，异常时可能泄漏
+void badWrite(const std::string&amp; path) {
+    FILE* fp = fopen(path.c_str(), "w");
+    // 如果下面抛出异常，fclose 永远不会被调用！
+    if (someCondition) throw std::runtime_error("操作失败");
+    fprintf(fp, "hello");
+    fclose(fp);  // 可能跳过
+}
+
+// 好的做法：ofstream 是 RAII 对象
+void goodWrite(const std::string&amp; path) {
+    std::ofstream ofs(path);          // 构造时打开文件
+    if (!ofs) throw std::runtime_error("无法打开: " + path);
+    ofs &lt;&lt; "hello\n";
+    // 即使下面抛出异常，ofs 析构时也会自动关闭文件
+    if (someCondition) throw std::runtime_error("操作失败");
+    // ofs 在作用域结束时析构，文件被关闭
+}
+
+// 异常安全保证等级（从弱到强）
+class DataStore {
+    std::vector&lt;int&gt; data_;
+    std::string filename_;
+public:
+    DataStore(const std::string&amp; file) : filename_(file) {}
+
+    // 基本保证：异常后对象仍处于有效（但可能变化的）状态
+    void appendBasic(int val) {
+        data_.push_back(val);      // push_back 可能抛出 bad_alloc
+        save();                    // save 可能抛出，此时 data_ 已改变
+    }
+
+    // 强保证（commit-or-rollback）：异常后状态完全不变
+    void appendStrong(int val) {
+        auto backup = data_;       // 先备份（copy-and-swap 惯用法）
+        backup.push_back(val);
+        saveToTemp();              // 先写临时文件
+        std::swap(data_, backup);  // 操作成功后才交换（不抛）
+        renameTemp();              // 原子替换（接近不抛）
+    }
+
+    // noexcept 保证：承诺绝不抛出
+    void clear() noexcept {
+        data_.clear();             // vector::clear 不抛
+    }
+
+private:
+    void save() { /* 写文件 */ }
+    void saveToTemp() { /* 写临时文件 */ }
+    void renameTemp() { /* 重命名 */ }
+    bool someCondition = false;
+};</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <div class="info-box-icon">💡</div>
+          <div class="info-box-content">
+            <p><strong>三种异常安全保证：</strong><br>
+            1. <strong>基本保证</strong>：异常后对象仍可析构和赋值，无资源泄漏，但状态可能改变。<br>
+            2. <strong>强保证</strong>（commit-or-rollback）：异常后状态与调用前完全相同。<br>
+            3. <strong>noexcept 保证</strong>：该操作绝不抛出异常（移动构造、swap 等应尽量满足）。</p>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>综合示例：异常安全的文件处理</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;fstream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+
+// 异常安全地读取 CSV 中的整数列
+std::vector&lt;int&gt; readIntegers(const std::string&amp; path) {
+    std::ifstream ifs(path);
+    if (!ifs)
+        throw std::runtime_error("无法打开文件: " + path);
+
+    std::vector&lt;int&gt; result;
+    std::string line;
+    int lineNo = 0;
+
+    while (std::getline(ifs, line)) {
+        ++lineNo;
+        try {
+            result.push_back(std::stoi(line));
+        } catch (const std::invalid_argument&amp;) {
+            throw std::runtime_error(
+                "第 " + std::to_string(lineNo) +
+                " 行格式错误: '" + line + "' 不是整数");
+        } catch (const std::out_of_range&amp;) {
+            throw std::runtime_error(
+                "第 " + std::to_string(lineNo) +
+                " 行数值超出 int 范围");
+        }
+    }
+
+    if (!ifs.eof())  // 非 eof 结束说明读取中途出错
+        throw std::runtime_error("读取文件时发生 I/O 错误");
+
+    return result;  // NRVO，无额外拷贝
+}
+
+int main() {
+    try {
+        auto nums = readIntegers("numbers.csv");
+        std::cout &lt;&lt; "共读取 " &lt;&lt; nums.size() &lt;&lt; " 个整数\n";
+        for (int n : nums) std::cout &lt;&lt; n &lt;&lt; " ";
+        std::cout &lt;&lt; "\n";
+    } catch (const std::exception&amp; e) {
+        std::cerr &lt;&lt; "错误: " &lt;&lt; e.what() &lt;&lt; "\n";
+        return 1;
+    }
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>🧠</span> 知识检验</h2>
+
+        <div class="quiz-question">
+          <p>Q1. 以下哪种循环方式正确地逐行读取文件？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. <code>while (!ifs.eof()) { getline(ifs, line); ... }</code></label>
+            <label><input type="radio" name="q1" value="B"> B. <code>while (std::getline(ifs, line)) { ... }</code></label>
+            <label><input type="radio" name="q1" value="C"> C. <code>while (ifs.good()) { ifs &gt;&gt; line; ... }</code></label>
+            <label><input type="radio" name="q1" value="D"> D. <code>for (int i = 0; i &lt; 100; i++) { getline(ifs, line); }</code></label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. 下列关于 catch 块顺序的说法，哪个是正确的？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 顺序无所谓，编译器会自动选择最匹配的 catch</label>
+            <label><input type="radio" name="q2" value="B"> B. 应将 <code>catch (std::exception&amp;)</code> 放在最前面以捕获所有异常</label>
+            <label><input type="radio" name="q2" value="C"> C. 应从最具体的子类到最通用的基类排列，否则子类 catch 可能永远不会被触发</label>
+            <label><input type="radio" name="q2" value="D"> D. <code>catch (...)</code> 必须放在第一位</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. RAII 是如何在异常发生时防止资源泄漏的？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. 通过在每个 catch 块中手动释放资源</label>
+            <label><input type="radio" name="q3" value="B"> B. 通过栈展开（stack unwinding）自动调用局部对象的析构函数，析构函数负责释放资源</label>
+            <label><input type="radio" name="q3" value="C"> C. 通过垃圾回收器在异常后自动清理</label>
+            <label><input type="radio" name="q3" value="D"> D. 通过 <code>finally</code> 块保证执行清理代码</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📋</span> 课后作业</h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释 <code>ifs.fail()</code> 与 <code>ifs.bad()</code> 的区别。在什么情况下两者都会为 <code>true</code>？<code>ifs.clear()</code> 会清除哪些状态标志？它是否会重置文件位置？</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">实现一个函数 <code>copyFile(src, dst)</code>，以二进制方式将源文件复制到目标文件。若源文件不存在，抛出自定义 <code>FileNotFoundError</code>；若目标文件无法写入，抛出 <code>FileWriteError</code>。两者均继承自 <code>std::runtime_error</code>，并携带文件路径信息。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">实现一个具有强异常安全保证的 <code>appendToCSV(path, row)</code> 函数，<code>row</code> 是 <code>std::vector&lt;std::string&gt;</code>。要求：若写入过程中发生任何异常，原文件内容必须保持不变（使用先写临时文件再重命名的 commit-or-rollback 策略）。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🔗</span> 延伸阅读</h2>
+        <a href="https://en.cppreference.com/w/cpp/io/basic_fstream" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">cppreference: fstream</div><div class="text-xs text-gray-500 mt-0.5">文件流完整 API 参考</div></div>
+        </a>
+        <a href="https://en.cppreference.com/w/cpp/error/exception" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">cppreference: std::exception 层次</div><div class="text-xs text-gray-500 mt-0.5">标准异常类完整继承体系</div></div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/basic-file-io/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div><div class="text-sm font-semibold text-gray-800">LearnCpp: Basic file I/O</div><div class="text-xs text-gray-500 mt-0.5">文件 I/O 入门教程，含丰富示例</div></div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=EAR7De6Gkj4" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div><div class="text-sm font-semibold text-gray-800">CppCon: Exception Safety</div><div class="text-xs text-gray-500 mt-0.5">异常安全保证的深度讲解</div></div>
+        </a>
+      </div>
+
+      <!-- 课程导航 -->
+      <div class="lesson-nav">
+        <a href="07-stl-algorithms.html" class="nav-btn nav-btn-secondary">← 上一课：STL 算法</a>
+        <a href="../advanced/01-move-semantics.html" class="nav-btn nav-btn-primary">进阶第1课：移动语义 →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！while (std::getline(ifs, line)) 将读取操作放在条件中：getline 成功时返回流引用（转换为 true），失败（eof 或错误）时返回 false。这避免了 !eof() 方式最后多处理一次的问题。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。while (!ifs.eof()) 在到达文件末尾时会多循环一次（eof 在读取失败后才设置）；while (std::getline(...)) 才是正确惯用法。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！C++ 按顺序匹配 catch 块，一旦找到可以处理的类型就停止。由于子类可以隐式转换为基类，若先写基类 catch，子类异常也会被基类 catch 捕获，后续的子类 catch 将永远不会执行。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。编译器按顺序查找 catch，不做最优匹配。基类 catch 必须放在子类 catch 之后。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！当异常从某个作用域传播出去时，该作用域内已构造的局部对象会按构造顺序的逆序被析构（栈展开）。RAII 对象（如 fstream、unique_ptr）在析构函数中释放资源，因此即使发生异常，资源也会被正确释放，无需手动 try/finally。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。C++ 没有 finally 块和垃圾回收器；RAII 依赖栈展开自动调用析构函数来清理资源，这是 C++ 资源管理的核心机制。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+</body>
+</html>

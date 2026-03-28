@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>07. STL 算法 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <style>    .sidebar-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1.25rem; color: #94a3b8; font-size: 0.85rem;
+      border-left: 3px solid transparent; transition: all 0.15s;
+      text-decoration: none; white-space: nowrap; overflow: hidden;
+    }
+    .sidebar-item:hover { color: #e2e8f0; background: rgba(255,255,255,.05); border-left-color: #475569; }
+    .sidebar-item.active { color: #86efac; background: rgba(34,197,94,.12); border-left-color: #22c55e; font-weight: 600; }
+    .sidebar-item.completed { color: #6ee7b7; }
+    .lesson-num {
+      width: 20px; height: 20px; border-radius: 4px;
+      background: #334155; color: #94a3b8; font-size: 0.65rem;
+      font-weight: 700; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sidebar-item.active .lesson-num { background: #14532d; color: #86efac; }
+    .sidebar-item.completed .lesson-num { background: #064e3b; color: #6ee7b7; }
+    .lesson-content { flex: 1; padding: 2rem 2.5rem; max-width: 900px; min-width: 0; }
+    .lesson-header { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; }
+    .objectives-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+    .content-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .content-section h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .content-section p { color: #475569; line-height: 1.75; margin-bottom: 0.75rem; font-size: 0.95rem; }
+    .content-section ul { color: #475569; font-size: 0.95rem; line-height: 1.75; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .content-section li { margin-bottom: 0.25rem; }
+    .code-block { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; margin: 1rem 0; font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.875rem; }
+    .code-block-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: #161b22; border-bottom: 1px solid #30363d; }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .code-block pre { margin: 0; padding: 1.25rem 1.5rem; overflow-x: auto; }
+    .code-block code { font-size: 0.875rem; }
+    .info-box { display: flex; gap: 0.75rem; padding: 0.875rem 1.25rem; border-radius: 8px; margin: 0.75rem 0; }
+    .info-box.tip { background: #f0f9ff; border: 1px solid #bae6fd; }
+    .info-box.warning { background: #fffbeb; border: 1px solid #fde68a; }
+    .info-box.danger { background: #fff1f2; border: 1px solid #fecdd3; }
+    .info-box.info { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .info-box-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .info-box-content { font-size: 0.875rem; color: #475569; line-height: 1.65; }
+    .info-box-content p { margin-bottom: 0.25rem; }
+    .info-box-content p:last-child { margin-bottom: 0; }
+    .diagram-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.5rem; text-align: center; margin: 1rem 0; overflow-x: auto; }
+    .diagram-caption { font-size: 0.78rem; color: #64748b; margin-top: 0.75rem; }
+    .quiz-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .quiz-question { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; }
+    .quiz-question p { font-size: 0.92rem; font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; }
+    .quiz-options label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: #475569; cursor: pointer; padding: 0.3rem 0; }
+    .quiz-options input[type="radio"] { margin-top: 0.2rem; flex-shrink: 0; }
+    .quiz-feedback { margin-top: 0.6rem; padding: 0.6rem 0.875rem; border-radius: 6px; font-size: 0.85rem; display: none; }
+    .quiz-feedback.correct { display: block; background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .quiz-feedback.wrong { display: block; background: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; }
+    .assignment-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .assignment-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.25rem; }
+    .assignment-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 0.4rem; }
+    .badge-understand { background: #dbeafe; color: #1d4ed8; }
+    .badge-code { background: #dcfce7; color: #15803d; }
+    .badge-challenge { background: #fef9c3; color: #92400e; }
+    .resources-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .resource-card { display: flex; align-items: center; gap: 0.875rem; padding: 0.875rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.15s; text-decoration: none; }
+    .resource-card:hover { border-color: #86efac; background: #f0fdf4; transform: translateX(4px); }
+    .resource-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .icon-docs { background: #dbeafe; }
+    .icon-tutorial { background: #f0fdf4; }
+    .icon-video { background: #fef3c7; }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+    .nav-btn { padding: 0.625rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; text-decoration: none; border: 1.5px solid #e2e8f0; color: #475569; transition: all 0.15s; }
+    .nav-btn:hover { border-color: #94a3b8; color: #1e293b; background: #f8fafc; }
+    .nav-btn-primary { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .nav-btn-primary:hover { background: #15803d; border-color: #15803d; color: #fff; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- 顶部导航 -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span>
+        <span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="01-oop-basics.html" class="px-3 py-1.5 text-sm text-green-700 bg-green-50 rounded-md font-medium">中级</a>
+        <a href="../advanced/01-move-semantics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span>
+        <span class="text-green-600">中级</span>
+        <span>›</span>
+        <span class="text-gray-800 font-medium">07. STL 算法</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+    <aside class="sidebar">
+      <div class="sidebar-title">中级课程</div>
+      <a href="01-oop-basics.html" class="sidebar-item"><span class="lesson-num">1</span>面向对象基础</a>
+      <a href="02-inheritance-polymorphism.html" class="sidebar-item"><span class="lesson-num">2</span>继承与多态</a>
+      <a href="03-operator-overloading.html" class="sidebar-item"><span class="lesson-num">3</span>运算符重载</a>
+      <a href="04-templates.html" class="sidebar-item"><span class="lesson-num">4</span>模板编程</a>
+      <a href="05-exception-handling.html" class="sidebar-item"><span class="lesson-num">5</span>异常处理</a>
+      <a href="06-stl-containers.html" class="sidebar-item"><span class="lesson-num">6</span>STL 容器</a>
+      <a href="07-stl-algorithms.html" class="sidebar-item active"><span class="lesson-num">7</span>STL 算法</a>
+      <a href="08-file-io-exceptions.html" class="sidebar-item"><span class="lesson-num">8</span>文件 IO 与异常</a>
+    </aside>
+
+    <main class="lesson-content">
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-green-600">中级 · 第 7 课</span>
+          <span class="text-xs text-gray-400">· 55分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">STL 算法</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">sort</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">find</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">transform</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">accumulate</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">Lambda 比较器</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">C++17</span>
+        </div>
+      </div>
+
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🎯</span> 学习目标</h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解迭代器分类及其对算法的影响</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>掌握 <code>sort</code>、<code>stable_sort</code>、<code>find</code>、<code>find_if</code>、<code>binary_search</code> 的使用</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 <code>transform</code>、<code>accumulate</code>、<code>for_each</code> 进行变换与累积</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解 erase-remove 惯用法及去重操作</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>使用 Lambda 和函数对象作为自定义比较器</li>
+        </ul>
+      </div>
+
+      <!-- 1. 迭代器基础 -->
+      <div class="content-section">
+        <h2><span>🔄</span> 1. 迭代器基础</h2>
+        <p>STL 算法通过迭代器操作容器，迭代器的分类决定了算法的能力与复杂度。理解迭代器类别是正确使用算法的前提。</p>
+
+        <ul>
+          <li><strong>输入迭代器（Input）</strong>：只读、单次遍历，如 <code>istream_iterator</code></li>
+          <li><strong>输出迭代器（Output）</strong>：只写、单次遍历，如 <code>ostream_iterator</code></li>
+          <li><strong>前向迭代器（Forward）</strong>：可读写、多次遍历，如 <code>forward_list</code></li>
+          <li><strong>双向迭代器（Bidirectional）</strong>：支持 <code>--</code>，如 <code>list</code>、<code>set</code></li>
+          <li><strong>随机访问迭代器（Random Access）</strong>：支持 <code>+n</code>、<code>[]</code>，如 <code>vector</code>、<code>deque</code></li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>迭代器基本用法</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+#include &lt;list&gt;
+#include &lt;iterator&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    std::vector&lt;int&gt; v = {3, 1, 4, 1, 5, 9, 2, 6};
+
+    // begin/end 返回迭代器
+    auto first = v.begin();  // 指向第一个元素
+    auto last  = v.end();    // 指向最后一个元素的下一位（past-the-end）
+
+    // 迭代器运算（随机访问迭代器专有）
+    auto mid = v.begin() + v.size() / 2;
+    std::cout &lt;&lt; "中间元素: " &lt;&lt; *mid &lt;&lt; "\n";
+
+    // std::distance：两个迭代器之间的距离（对前向迭代器为 O(n)）
+    std::cout &lt;&lt; "元素数量: " &lt;&lt; std::distance(first, last) &lt;&lt; "\n";
+
+    // std::advance：迭代器前进 n 步
+    auto it = v.begin();
+    std::advance(it, 3);
+    std::cout &lt;&lt; "第 4 个元素: " &lt;&lt; *it &lt;&lt; "\n";
+
+    // 反向迭代器
+    for (auto rit = v.rbegin(); rit != v.rend(); ++rit)
+        std::cout &lt;&lt; *rit &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";
+
+    // 范围 for（本质上使用 begin/end）
+    for (int x : v)
+        std::cout &lt;&lt; x &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>头文件约定</strong>：几乎所有 STL 算法都在 <code>&lt;algorithm&gt;</code> 中，数值算法（<code>accumulate</code>、<code>iota</code> 等）在 <code>&lt;numeric&gt;</code> 中。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 排序与查找 -->
+      <div class="content-section">
+        <h2><span>📊</span> 2. 排序与查找</h2>
+        <p><code>sort</code> 是最常用的算法，要求随机访问迭代器，平均复杂度 O(n log n)。<code>binary_search</code> 等二分算法要求序列已排序。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>sort / stable_sort / find / binary_search</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    std::vector&lt;int&gt; v = {5, 3, 8, 1, 9, 2, 7, 4, 6};
+
+    // sort：不稳定排序，O(n log n)
+    std::sort(v.begin(), v.end());
+    // v = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+    // stable_sort：保留相等元素的原始相对顺序（对象排序常用）
+    struct Student { std::string name; int score; };
+    std::vector&lt;Student&gt; students = {{"Alice",90},{"Bob",85},{"Cara",90},{"Dan",85}};
+    std::stable_sort(students.begin(), students.end(),
+        [](const Student&amp; a, const Student&amp; b){ return a.score &gt; b.score; });
+    // score 相同时，Alice 仍在 Cara 前，Bob 仍在 Dan 前
+
+    // find：线性查找，返回指向第一个匹配元素的迭代器
+    auto it = std::find(v.begin(), v.end(), 5);
+    if (it != v.end())
+        std::cout &lt;&lt; "找到 5，位于下标 " &lt;&lt; std::distance(v.begin(), it) &lt;&lt; "\n";
+
+    // find_if：条件查找
+    auto even_it = std::find_if(v.begin(), v.end(),
+        [](int x){ return x % 2 == 0; });
+    if (even_it != v.end())
+        std::cout &lt;&lt; "第一个偶数: " &lt;&lt; *even_it &lt;&lt; "\n";
+
+    // find_if_not：查找第一个不满足条件的元素
+    auto odd_it = std::find_if_not(v.begin(), v.end(),
+        [](int x){ return x % 2 == 0; });
+    std::cout &lt;&lt; "第一个奇数: " &lt;&lt; *odd_it &lt;&lt; "\n";
+
+    // binary_search：有序序列的二分查找，返回 bool（O(log n)）
+    bool found = std::binary_search(v.begin(), v.end(), 7);
+    std::cout &lt;&lt; "binary_search(7): " &lt;&lt; std::boolalpha &lt;&lt; found &lt;&lt; "\n";
+
+    // lower_bound / upper_bound：返回插入位置的迭代器
+    auto lb = std::lower_bound(v.begin(), v.end(), 5);  // >= 5 的第一个
+    auto ub = std::upper_bound(v.begin(), v.end(), 5);  // > 5 的第一个
+    std::cout &lt;&lt; "lower_bound(5) = " &lt;&lt; *lb &lt;&lt; ", upper_bound(5) = " &lt;&lt; *ub &lt;&lt; "\n";
+
+    // equal_range：同时返回 lower/upper_bound（常用于关联容器）
+    auto [lo, hi] = std::equal_range(v.begin(), v.end(), 5);
+    std::cout &lt;&lt; "5 的个数: " &lt;&lt; std::distance(lo, hi) &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box warning">
+          <span class="info-box-icon">⚠️</span>
+          <div class="info-box-content">
+            <p><strong>注意</strong>：<code>binary_search</code>、<code>lower_bound</code>、<code>upper_bound</code> 必须在有序范围上使用，否则结果未定义。先 <code>sort</code> 再调用。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 变换与累积 -->
+      <div class="content-section">
+        <h2><span>⚙️</span> 3. 变换与累积</h2>
+        <p><code>transform</code>、<code>accumulate</code>、<code>for_each</code> 是函数式风格编程的核心工具，配合 Lambda 表达式威力倍增。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>transform / accumulate / for_each</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;algorithm&gt;
+#include &lt;numeric&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    std::vector&lt;int&gt; v = {1, 2, 3, 4, 5};
+
+    // transform：对每个元素应用函数，结果写入目标范围
+    std::vector&lt;int&gt; squares(v.size());
+    std::transform(v.begin(), v.end(), squares.begin(),
+        [](int x){ return x * x; });
+    // squares = {1, 4, 9, 16, 25}
+
+    // transform 双范围版本：对两个序列逐元素操作
+    std::vector&lt;int&gt; a = {1, 2, 3}, b = {10, 20, 30};
+    std::vector&lt;int&gt; sums(3);
+    std::transform(a.begin(), a.end(), b.begin(), sums.begin(),
+        [](int x, int y){ return x + y; });
+    // sums = {11, 22, 33}
+
+    // accumulate：累积/折叠（在 &lt;numeric&gt; 中）
+    int total = std::accumulate(v.begin(), v.end(), 0);
+    std::cout &lt;&lt; "sum = " &lt;&lt; total &lt;&lt; "\n";  // 15
+
+    int product = std::accumulate(v.begin(), v.end(), 1,
+        [](int acc, int x){ return acc * x; });
+    std::cout &lt;&lt; "product = " &lt;&lt; product &lt;&lt; "\n";  // 120
+
+    // 用 accumulate 拼接字符串
+    std::vector&lt;std::string&gt; words = {"Hello", " ", "STL", " ", "World"};
+    std::string sentence = std::accumulate(words.begin(), words.end(), std::string{});
+    std::cout &lt;&lt; sentence &lt;&lt; "\n";  // "Hello STL World"
+
+    // for_each：对每个元素执行操作（不返回新序列）
+    int count_even = 0;
+    std::for_each(v.begin(), v.end(), [&amp;count_even](int x){
+        if (x % 2 == 0) ++count_even;
+    });
+    std::cout &lt;&lt; "偶数个数: " &lt;&lt; count_even &lt;&lt; "\n";  // 2
+
+    // C++17 执行策略（并行 for_each）
+    // #include &lt;execution&gt;
+    // std::for_each(std::execution::par, v.begin(), v.end(), [](int&amp; x){ x *= 2; });
+
+    // count / count_if：统计满足条件的元素数量
+    int evens = std::count_if(v.begin(), v.end(), [](int x){ return x % 2 == 0; });
+    std::cout &lt;&lt; "count_if(偶数) = " &lt;&lt; evens &lt;&lt; "\n";
+
+    // any_of / all_of / none_of：条件检查
+    bool any_neg  = std::any_of(v.begin(), v.end(),  [](int x){ return x &lt; 0; });
+    bool all_pos  = std::all_of(v.begin(), v.end(),  [](int x){ return x &gt; 0; });
+    bool none_neg = std::none_of(v.begin(), v.end(), [](int x){ return x &lt; 0; });
+    std::cout &lt;&lt; any_neg &lt;&lt; " " &lt;&lt; all_pos &lt;&lt; " " &lt;&lt; none_neg &lt;&lt; "\n"; // 0 1 1
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 4. 删除与去重 -->
+      <div class="content-section">
+        <h2><span>🗑️</span> 4. 删除与去重</h2>
+        <p>STL 算法不直接修改容器大小，<code>std::remove</code> 和 <code>std::unique</code> 将"无用"元素移到末尾并返回新的逻辑末端迭代器，需配合容器的 <code>erase</code> 才能真正删除。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>remove / remove_if / unique — erase-remove 惯用法</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    std::vector&lt;int&gt; v = {1, 2, 3, 2, 4, 2, 5};
+
+    // ❌ 常见误区：remove 不改变容器大小！
+    // 它将非目标元素移到前面，返回新的"逻辑末端"迭代器
+    auto new_end = std::remove(v.begin(), v.end(), 2);
+    // v = {1, 3, 4, 5, ?, ?, ?}  （? 为不确定值）
+    // new_end 指向第 5 个位置
+
+    // ✓ erase-remove 惯用法：彻底删除
+    v.erase(new_end, v.end());
+    // v = {1, 3, 4, 5}
+
+    // 更常见的一行写法
+    std::vector&lt;int&gt; u = {1, 2, 3, 2, 4, 2, 5};
+    u.erase(std::remove(u.begin(), u.end(), 2), u.end());
+    // u = {1, 3, 4, 5}
+
+    // remove_if：按条件删除
+    std::vector&lt;int&gt; w = {1, 2, 3, 4, 5, 6, 7, 8};
+    w.erase(std::remove_if(w.begin(), w.end(),
+        [](int x){ return x % 2 == 0; }),  // 删除所有偶数
+        w.end());
+    // w = {1, 3, 5, 7}
+
+    // unique：去除连续重复元素（先排序再去重）
+    std::vector&lt;int&gt; dup = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3};
+    std::sort(dup.begin(), dup.end());
+    // dup = {1, 1, 2, 3, 3, 4, 5, 5, 6, 9}
+    dup.erase(std::unique(dup.begin(), dup.end()), dup.end());
+    // dup = {1, 2, 3, 4, 5, 6, 9}
+
+    for (int x : dup) std::cout &lt;&lt; x &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";
+
+    // unique_copy：不修改原序列，去重后输出到新序列
+    std::vector&lt;int&gt; src = {1, 1, 2, 3, 3, 3, 4};
+    std::vector&lt;int&gt; dst;
+    std::unique_copy(src.begin(), src.end(), std::back_inserter(dst));
+    // dst = {1, 2, 3, 4}
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box danger">
+          <span class="info-box-icon">🚨</span>
+          <div class="info-box-content">
+            <p><strong>关键点</strong>：<code>std::remove</code> / <code>std::unique</code> 不改变容器的 <code>size()</code>，必须配合 <code>erase</code> 才能真正缩减容器。忘记 <code>erase</code> 是最常见的错误之一。</p>
+          </div>
+        </div>
+
+        <div class="info-box info">
+          <span class="info-box-icon">ℹ️</span>
+          <div class="info-box-content">
+            <p><strong>C++20 新方式</strong>：<code>std::erase(container, value)</code> 和 <code>std::erase_if(container, pred)</code> 将 erase-remove 合并为一步，代码更简洁。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 自定义比较器 -->
+      <div class="content-section">
+        <h2><span>🔧</span> 5. 自定义比较器</h2>
+        <p>STL 算法的比较器参数接受任何可调用对象（函数指针、函数对象、Lambda），这让算法能适应复杂的排序和查找逻辑。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>Lambda 与函数对象作比较器</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;functional&gt;
+#include &lt;iostream&gt;
+
+// 方式一：函数指针
+bool by_length(const std::string&amp; a, const std::string&amp; b) {
+    return a.size() &lt; b.size();
+}
+
+// 方式二：函数对象（仿函数）
+struct CaseInsensitiveLess {
+    bool operator()(const std::string&amp; a, const std::string&amp; b) const {
+        return std::lexicographical_compare(
+            a.begin(), a.end(), b.begin(), b.end(),
+            [](char c1, char c2){ return std::tolower(c1) &lt; std::tolower(c2); });
+    }
+};
+
+int main() {
+    std::vector&lt;std::string&gt; words = {"banana", "apple", "kiwi", "cherry", "fig"};
+
+    // 方式一：函数指针
+    std::sort(words.begin(), words.end(), by_length);
+    // {"fig", "kiwi", "apple", "banana", "cherry"}
+
+    // 方式二：函数对象
+    std::sort(words.begin(), words.end(), CaseInsensitiveLess{});
+
+    // 方式三：Lambda（最常用，可捕获外部变量）
+    std::sort(words.begin(), words.end(),
+        [](const std::string&amp; a, const std::string&amp; b){ return a &gt; b; });  // 降序
+
+    // 多键排序：先按长度，再按字典序
+    std::sort(words.begin(), words.end(),
+        [](const std::string&amp; a, const std::string&amp; b){
+            if (a.size() != b.size()) return a.size() &lt; b.size();
+            return a &lt; b;
+        });
+
+    // std::greater / std::less（标准库函数对象）
+    std::sort(words.begin(), words.end(), std::greater&lt;std::string&gt;{});  // 降序
+
+    // 结构体排序示例
+    struct Point { int x, y; };
+    std::vector&lt;Point&gt; pts = {{3,4},{1,2},{3,1},{2,5}};
+
+    // 先按 x 升序，x 相同按 y 升序
+    std::sort(pts.begin(), pts.end(), [](const Point&amp; a, const Point&amp; b){
+        return a.x != b.x ? a.x &lt; b.x : a.y &lt; b.y;
+    });
+
+    // min_element / max_element 使用自定义比较器
+    auto longest = std::max_element(words.begin(), words.end(),
+        [](const std::string&amp; a, const std::string&amp; b){ return a.size() &lt; b.size(); });
+    std::cout &lt;&lt; "最长单词: " &lt;&lt; *longest &lt;&lt; "\n";
+
+    // nth_element：将第 n 小的元素放到第 n 位（部分排序，O(n)）
+    std::vector&lt;int&gt; nums = {5, 2, 8, 1, 9, 3};
+    std::nth_element(nums.begin(), nums.begin() + 2, nums.end());
+    std::cout &lt;&lt; "第 3 小的元素: " &lt;&lt; nums[2] &lt;&lt; "\n";  // 3
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-box-icon">💡</span>
+          <div class="info-box-content">
+            <p><strong>严格弱序要求</strong>：自定义比较器必须满足严格弱序（Strict Weak Ordering）：不自反（<code>comp(a,a)</code> 为 false）、反对称、传递。违反此规则会导致未定义行为（通常是崩溃）。</p>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>综合示例：成绩排行榜</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;algorithm&gt;
+#include &lt;numeric&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+
+struct Student {
+    std::string name;
+    int math, english, science;
+    int total() const { return math + english + science; }
+};
+
+int main() {
+    std::vector&lt;Student&gt; students = {
+        {"Alice", 95, 88, 92},
+        {"Bob",   72, 95, 78},
+        {"Cara",  88, 76, 95},
+        {"Dan",   95, 88, 80},
+    };
+
+    // 按总分降序，总分相同按姓名升序
+    std::stable_sort(students.begin(), students.end(),
+        [](const Student&amp; a, const Student&amp; b){
+            return a.total() != b.total()
+                ? a.total() &gt; b.total()
+                : a.name &lt; b.name;
+        });
+
+    // 用 transform + accumulate 计算各科平均分
+    auto avg = [&amp;](auto member_fn) {
+        int sum = std::accumulate(students.begin(), students.end(), 0,
+            [&amp;](int acc, const Student&amp; s){ return acc + member_fn(s); });
+        return static_cast&lt;double&gt;(sum) / students.size();
+    };
+
+    std::cout &lt;&lt; "排名  姓名    总分\n";
+    std::cout &lt;&lt; "----  ------  ----\n";
+    int rank = 1;
+    std::for_each(students.begin(), students.end(), [&amp;rank](const Student&amp; s){
+        std::cout &lt;&lt; std::setw(4) &lt;&lt; rank++ &lt;&lt; "  "
+                  &lt;&lt; std::setw(6) &lt;&lt; std::left &lt;&lt; s.name
+                  &lt;&lt; std::setw(4) &lt;&lt; std::right &lt;&lt; s.total() &lt;&lt; "\n";
+    });
+
+    // 找出数学最高分的学生
+    auto top_math = std::max_element(students.begin(), students.end(),
+        [](const Student&amp; a, const Student&amp; b){ return a.math &lt; b.math; });
+    std::cout &lt;&lt; "\n数学最高分: " &lt;&lt; top_math-&gt;name &lt;&lt; " (" &lt;&lt; top_math-&gt;math &lt;&lt; ")\n";
+
+    // 找出是否有人三科都超过 85 分
+    bool all_excellent = std::any_of(students.begin(), students.end(),
+        [](const Student&amp; s){ return s.math&gt;85 &amp;&amp; s.english&gt;85 &amp;&amp; s.science&gt;85; });
+    std::cout &lt;&lt; "三科全优: " &lt;&lt; std::boolalpha &lt;&lt; all_excellent &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>🧠</span> 知识检验</h2>
+
+        <div class="quiz-question">
+          <p>Q1. 以下代码执行后，<code>v.size()</code> 的值是多少？</p>
+          <pre style="background:#f1f5f9;padding:0.75rem 1rem;border-radius:6px;font-size:0.82rem;margin-bottom:0.75rem;overflow-x:auto;"><code>std::vector&lt;int&gt; v = {1, 2, 3, 2, 4, 2};
+std::remove(v.begin(), v.end(), 2);</code></pre>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. 3（已删除三个 2）</label>
+            <label><input type="radio" name="q1" value="B"> B. 4（逻辑上有 4 个非 2 元素）</label>
+            <label><input type="radio" name="q1" value="C"> C. 6（<code>remove</code> 不改变 <code>size()</code>）</label>
+            <label><input type="radio" name="q1" value="D"> D. 编译错误</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. 使用 <code>binary_search</code> 前必须满足什么前提？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 序列必须是 <code>std::vector</code></label>
+            <label><input type="radio" name="q2" value="B"> B. 序列必须已按相同比较准则排好序</label>
+            <label><input type="radio" name="q2" value="C"> C. 序列元素必须是整数</label>
+            <label><input type="radio" name="q2" value="D"> D. 序列长度必须大于 10</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. <code>std::stable_sort</code> 与 <code>std::sort</code> 的主要区别是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. <code>stable_sort</code> 更快</label>
+            <label><input type="radio" name="q3" value="B"> B. <code>stable_sort</code> 保留相等元素之间的原始相对顺序</label>
+            <label><input type="radio" name="q3" value="C"> C. <code>stable_sort</code> 只能用于整数</label>
+            <label><input type="radio" name="q3" value="D"> D. <code>stable_sort</code> 不需要随机访问迭代器</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📋</span> 课后作业</h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释 erase-remove 惯用法：为什么 <code>std::remove</code> 不直接删除元素？它在内部做了什么？画出 <code>v = {1,2,3,2,4,2}</code> 执行 <code>std::remove(v.begin(), v.end(), 2)</code> 后的内存布局。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">给定一个 <code>std::vector&lt;std::string&gt;</code>，使用 STL 算法完成以下操作：(1) 过滤掉长度小于 4 的字符串；(2) 将剩余字符串转为大写（参考 <code>std::toupper</code>）；(3) 按长度降序排列；(4) 去除重复项。全程不使用手写循环。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">实现一个函数 <code>top_k(vector&lt;int&gt; v, int k)</code>，返回 <code>v</code> 中前 <code>k</code> 大的元素（已排序）。要求：(1) 使用 <code>std::nth_element</code> 达到 O(n) 的期望复杂度；(2) 使用 <code>std::partial_sort</code> 实现另一版本；(3) 比较两者在 n=1000000、k=100 时的性能差异。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🔗</span> 延伸阅读</h2>
+        <a href="https://en.cppreference.com/w/cpp/algorithm" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">cppreference: Algorithm library</div><div class="text-xs text-gray-500 mt-0.5">完整的 STL 算法参考文档</div></div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-standard-library-algorithms/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div><div class="text-sm font-semibold text-gray-800">LearnCpp: STL Algorithms</div><div class="text-xs text-gray-500 mt-0.5">系统讲解 STL 算法的教程</div></div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=2olsGf6JIkU" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div><div class="text-sm font-semibold text-gray-800">CppCon: 105 STL Algorithms in Less Than an Hour</div><div class="text-xs text-gray-500 mt-0.5">全面快速概览 STL 算法库</div></div>
+        </a>
+      </div>
+
+      <div class="lesson-nav">
+        <a href="06-stl-containers.html" class="nav-btn nav-btn-secondary">← 上一课：STL 容器</a>
+        <a href="08-file-io-exceptions.html" class="nav-btn nav-btn-primary">下一课：文件 IO 与异常 →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！std::remove 只是将非目标元素移到序列前面，返回新的逻辑末端迭代器，容器的 size() 保持不变（仍为 6）。必须配合 erase 才能真正删除元素。这就是 erase-remove 惯用法存在的原因。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。std::remove 是算法，不是容器成员函数，它无法改变容器的大小，只能重排元素。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！binary_search（以及 lower_bound、upper_bound、equal_range）要求范围已按同一比较准则排好序，否则结果是未定义行为。通常先调用 std::sort，再使用这些二分算法。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。binary_search 对容器类型和元素类型没有限制，只要求序列已排序，且使用与 sort 相同的比较准则。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！stable_sort 是稳定排序：当两个元素比较相等时，原始序列中靠前的元素在排序后仍然靠前。这在按多个键排序（如先按分数排，已经按名字排好）时很重要。代价是额外的内存开销，复杂度为 O(n log² n) 或有额外内存时 O(n log n)。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。stable_sort 通常比 sort 略慢（需要更多内存或更多比较），两者都需要随机访问迭代器，都支持自定义比较器。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+</body>
+</html>

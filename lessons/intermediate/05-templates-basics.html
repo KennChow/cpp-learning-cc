@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>05. 模板基础 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <style>    .sidebar-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.25rem; color: #94a3b8; font-size: 0.85rem; border-left: 3px solid transparent; transition: all 0.15s; text-decoration: none; white-space: nowrap; overflow: hidden; }
+    .sidebar-item:hover { color: #e2e8f0; background: rgba(255,255,255,.05); border-left-color: #475569; }
+    .sidebar-item.active { color: #6ee7b7; background: rgba(16,185,129,.12); border-left-color: #10b981; font-weight: 600; }
+    .sidebar-item.completed { color: #6ee7b7; }
+    .lesson-num { width: 20px; height: 20px; border-radius: 4px; background: #334155; color: #94a3b8; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sidebar-item.active .lesson-num { background: #065f46; color: #6ee7b7; }
+    .sidebar-item.completed .lesson-num { background: #064e3b; color: #6ee7b7; }
+    .lesson-content { flex: 1; padding: 2rem 2.5rem; max-width: 900px; min-width: 0; }
+    .lesson-header { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; }
+    .objectives-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+    .content-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .content-section h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .content-section p { color: #475569; line-height: 1.75; margin-bottom: 0.75rem; font-size: 0.95rem; }
+    .content-section ul { color: #475569; font-size: 0.95rem; line-height: 1.75; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .content-section li { margin-bottom: 0.25rem; }
+    .code-block { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; margin: 1rem 0; font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.875rem; }
+    .code-block-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: #161b22; border-bottom: 1px solid #30363d; }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .code-block pre { margin: 0; padding: 1.25rem 1.5rem; overflow-x: auto; }
+    .info-box { display: flex; gap: 0.75rem; padding: 0.875rem 1.25rem; border-radius: 8px; margin: 0.75rem 0; }
+    .info-box.tip { background: #f0f9ff; border: 1px solid #bae6fd; }
+    .info-box.warning { background: #fffbeb; border: 1px solid #fde68a; }
+    .info-box.danger { background: #fff1f2; border: 1px solid #fecdd3; }
+    .info-box.info { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .info-box-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .info-box-content { font-size: 0.875rem; color: #475569; line-height: 1.65; }
+    .info-box-content p { margin-bottom: 0.25rem; }
+    .info-box-content p:last-child { margin-bottom: 0; }
+    .diagram-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.5rem; text-align: center; margin: 1rem 0; overflow-x: auto; }
+    .diagram-caption { font-size: 0.78rem; color: #64748b; margin-top: 0.75rem; }
+    .quiz-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .quiz-question { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; }
+    .quiz-question p { font-size: 0.92rem; font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; }
+    .quiz-options label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: #475569; cursor: pointer; padding: 0.3rem 0; }
+    .quiz-options input[type="radio"] { margin-top: 0.2rem; flex-shrink: 0; }
+    .quiz-feedback { margin-top: 0.6rem; padding: 0.6rem 0.875rem; border-radius: 6px; font-size: 0.85rem; display: none; }
+    .quiz-feedback.correct { display: block; background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .quiz-feedback.wrong { display: block; background: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; }
+    .assignment-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .assignment-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.25rem; }
+    .assignment-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 0.4rem; }
+    .badge-understand { background: #dbeafe; color: #1d4ed8; }
+    .badge-code { background: #dcfce7; color: #15803d; }
+    .badge-challenge { background: #fef9c3; color: #92400e; }
+    .resources-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.25rem; }
+    .resource-card { display: flex; align-items: center; gap: 0.875rem; padding: 0.875rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.15s; text-decoration: none; }
+    .resource-card:hover { border-color: #6ee7b7; background: #f0fdf4; transform: translateX(4px); }
+    .resource-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .icon-docs { background: #dbeafe; }
+    .icon-tutorial { background: #f0fdf4; }
+    .icon-video { background: #fef3c7; }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+    .nav-btn { padding: 0.625rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; text-decoration: none; border: 1.5px solid #e2e8f0; color: #475569; transition: all 0.15s; }
+    .nav-btn:hover { border-color: #94a3b8; color: #1e293b; background: #f8fafc; }
+    .nav-btn-primary { background: #10b981; border-color: #10b981; color: #fff; }
+    .nav-btn-primary:hover { background: #059669; border-color: #059669; color: #fff; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- 顶部导航 -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span>
+        <span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="01-oop-basics.html" class="px-3 py-1.5 text-sm text-green-700 bg-green-50 rounded-md font-medium">中级</a>
+        <a href="../advanced/01-move-semantics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span>
+        <span class="text-green-600">中级</span>
+        <span>›</span>
+        <span class="text-gray-800 font-medium">05. 模板基础</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-title">中级课程</div>
+      <a href="01-oop-basics.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>面向对象基础
+      </a>
+      <a href="02-constructors-destructors.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>构造与析构
+      </a>
+      <a href="03-inheritance.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>继承
+      </a>
+      <a href="04-polymorphism.html" class="sidebar-item completed">
+        <span class="lesson-num">✓</span>多态与虚函数
+      </a>
+      <a href="05-templates-basics.html" class="sidebar-item active">
+        <span class="lesson-num">→</span>模板基础
+      </a>
+      <a href="06-stl-containers.html" class="sidebar-item">
+        <span class="lesson-num">6</span>STL 容器
+      </a>
+      <a href="07-stl-algorithms.html" class="sidebar-item">
+        <span class="lesson-num">7</span>STL 算法
+      </a>
+      <a href="08-file-io-exceptions.html" class="sidebar-item">
+        <span class="lesson-num">8</span>文件 I/O 与异常
+      </a>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="lesson-content">
+
+      <!-- 课程头部 -->
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-green-600">中级 · 第 5 课</span>
+          <span class="text-xs text-gray-400">· 60分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">模板基础</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">函数模板</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">类模板</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">参数推导</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">模板特化</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">非类型参数</span>
+        </div>
+      </div>
+
+      <!-- 学习目标 -->
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🎯</span> 学习目标
+        </h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解模板的作用：用一套代码适配多种类型
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握函数模板的定义与调用方式
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            掌握类模板的定义，实现泛型容器（如 Stack&lt;T&gt;）
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            理解编译器的模板参数推导规则
+          </li>
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <span class="text-green-500 mt-0.5">✓</span>
+            了解全特化与非类型模板参数的用法
+          </li>
+        </ul>
+      </div>
+
+      <!-- 1. 函数模板 -->
+      <div class="content-section">
+        <h2><span>⚙️</span> 1. 函数模板</h2>
+        <p>模板让我们用一份代码处理多种类型，避免为每个类型重复编写相同逻辑。函数模板以 <code>template&lt;typename T&gt;</code> 开头，<code>T</code> 是占位类型，由编译器在调用时自动推导或显式指定。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>基本函数模板</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+// 函数模板：返回两个值中的较大者
+template&lt;typename T&gt;
+T myMax(T a, T b) {
+    return (a &gt; b) ? a : b;
+}
+
+// 多类型参数模板
+template&lt;typename T, typename U&gt;
+void printPair(T first, U second) {
+    std::cout &lt;&lt; "(" &lt;&lt; first &lt;&lt; ", " &lt;&lt; second &lt;&lt; ")\n";
+}
+
+// 模板函数：交换两个变量
+template&lt;typename T&gt;
+void mySwap(T&amp; a, T&amp; b) {
+    T temp = a;
+    a = b;
+    b = temp;
+}
+
+int main() {
+    // 编译器自动推导类型
+    std::cout &lt;&lt; myMax(3, 7) &lt;&lt; "\n";          // T = int，输出 7
+    std::cout &lt;&lt; myMax(3.14, 2.72) &lt;&lt; "\n";    // T = double，输出 3.14
+    std::cout &lt;&lt; myMax('a', 'z') &lt;&lt; "\n";      // T = char，输出 z
+
+    // 显式指定模板参数
+    std::cout &lt;&lt; myMax&lt;double&gt;(3, 4.5) &lt;&lt; "\n"; // 强制 T = double
+
+    printPair(42, "hello");     // T=int, U=const char*
+    printPair(3.14, true);      // T=double, U=bool
+
+    int x = 10, y = 20;
+    mySwap(x, y);
+    std::cout &lt;&lt; "x=" &lt;&lt; x &lt;&lt; ", y=" &lt;&lt; y &lt;&lt; "\n"; // x=20, y=10
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <div class="info-box-icon">💡</div>
+          <div class="info-box-content">
+            <p><strong>模板实例化：</strong>每次用不同类型调用模板函数时，编译器会生成一份对应的具体函数代码，这个过程称为<strong>实例化</strong>。<code>myMax(3, 7)</code> 和 <code>myMax(3.14, 2.72)</code> 会生成两份独立的函数。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 类模板 -->
+      <div class="content-section">
+        <h2><span>📦</span> 2. 类模板</h2>
+        <p>类模板用于创建泛型容器和数据结构。标准库中的 <code>std::vector&lt;T&gt;</code>、<code>std::stack&lt;T&gt;</code> 等都是类模板。下面我们手动实现一个简单的 <code>Stack&lt;T&gt;</code>。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>stack.hpp — 泛型栈</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;stdexcept&gt;
+
+// 类模板：泛型栈
+template&lt;typename T&gt;
+class Stack {
+private:
+    std::vector&lt;T&gt; data_;   // 用 vector 存储元素
+
+public:
+    // 压栈
+    void push(const T&amp; val) {
+        data_.push_back(val);
+    }
+
+    // 弹栈（返回并移除栈顶元素）
+    T pop() {
+        if (empty()) throw std::underflow_error("Stack is empty");
+        T top = data_.back();
+        data_.pop_back();
+        return top;
+    }
+
+    // 查看栈顶（不移除）
+    const T&amp; top() const {
+        if (empty()) throw std::underflow_error("Stack is empty");
+        return data_.back();
+    }
+
+    bool empty() const { return data_.empty(); }
+    size_t size() const { return data_.size(); }
+};
+
+int main() {
+    Stack&lt;int&gt; intStack;
+    intStack.push(1);
+    intStack.push(2);
+    intStack.push(3);
+    std::cout &lt;&lt; "栈顶: " &lt;&lt; intStack.top() &lt;&lt; "\n";   // 3
+    std::cout &lt;&lt; "弹出: " &lt;&lt; intStack.pop() &lt;&lt; "\n";   // 3
+    std::cout &lt;&lt; "大小: " &lt;&lt; intStack.size() &lt;&lt; "\n";  // 2
+
+    Stack&lt;std::string&gt; strStack;
+    strStack.push("hello");
+    strStack.push("world");
+    std::cout &lt;&lt; strStack.pop() &lt;&lt; "\n";  // world
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box info">
+          <div class="info-box-icon">📌</div>
+          <div class="info-box-content">
+            <p><strong>类模板成员函数的定义：</strong>如果在类外定义成员函数，需要重复写 <code>template&lt;typename T&gt;</code>，并用 <code>Stack&lt;T&gt;::</code> 限定作用域。通常将类模板的实现直接放在 <code>.hpp</code> 头文件中，因为编译器需要看到完整定义才能实例化。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 模板参数推导 -->
+      <div class="content-section">
+        <h2><span>🔍</span> 3. 模板参数推导</h2>
+        <p>编译器通常能从函数调用的实参类型自动推导模板参数，无需手动指定。理解推导规则有助于避免常见错误。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>参数推导规则示例</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;type_traits&gt;
+
+template&lt;typename T&gt;
+void show_type(T val) {
+    if constexpr (std::is_integral_v&lt;T&gt;)
+        std::cout &lt;&lt; val &lt;&lt; " 是整数类型\n";
+    else if constexpr (std::is_floating_point_v&lt;T&gt;)
+        std::cout &lt;&lt; val &lt;&lt; " 是浮点类型\n";
+    else
+        std::cout &lt;&lt; val &lt;&lt; " 是其他类型\n";
+}
+
+// 引用参数推导：T 不包含引用修饰
+template&lt;typename T&gt;
+void ref_demo(T&amp; val) {
+    // T 推导为去掉引用后的类型
+    std::cout &lt;&lt; "sizeof(T) = " &lt;&lt; sizeof(T) &lt;&lt; "\n";
+}
+
+// 常见陷阱：混合类型无法自动推导
+template&lt;typename T&gt;
+T add(T a, T b) { return a + b; }
+
+int main() {
+    show_type(42);       // T = int
+    show_type(3.14);     // T = double
+    show_type('A');      // T = char
+
+    // add(1, 2.0);   // 错误！1 推导 T=int，2.0 推导 T=double，冲突
+    add(1, 2);         // OK: T = int
+    add(1.0, 2.0);     // OK: T = double
+    add&lt;double&gt;(1, 2.0); // OK: 显式指定 T=double，int 隐式转换
+
+    // C++17 类模板参数推导（CTAD）
+    // std::pair p{1, 3.14};   // 自动推导为 pair&lt;int, double&gt;
+    // std::vector v{1, 2, 3}; // 自动推导为 vector&lt;int&gt;
+
+    int x = 10;
+    ref_demo(x);   // T = int（不是 int&amp;）
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box warning">
+          <div class="info-box-icon">⚠️</div>
+          <div class="info-box-content">
+            <p><strong>推导失败的常见场景：</strong>当实参类型不一致（如 <code>add(1, 2.0)</code>），或参数出现在非推导上下文（如返回类型、默认参数）时，编译器无法自动推导，需显式指定模板参数。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 模板特化基础 -->
+      <div class="content-section">
+        <h2><span>🔧</span> 4. 模板特化基础</h2>
+        <p>有时通用模板对某些特定类型需要不同的实现。<strong>全特化</strong>为特定类型提供专门的版本，编译器在实例化时优先选择特化版本。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>全特化示例</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+#include &lt;string&gt;
+
+// 主模板：通用比较
+template&lt;typename T&gt;
+bool isEqual(T a, T b) {
+    return a == b;
+}
+
+// 全特化：对 const char* 使用字符串比较
+template&lt;&gt;
+bool isEqual&lt;const char*&gt;(const char* a, const char* b) {
+    return std::strcmp(a, b) == 0;
+}
+
+// 类模板全特化示例
+template&lt;typename T&gt;
+struct Printer {
+    static void print(T val) {
+        std::cout &lt;&lt; val &lt;&lt; "\n";
+    }
+};
+
+// 对 bool 类型特化：输出 "true"/"false" 而不是 1/0
+template&lt;&gt;
+struct Printer&lt;bool&gt; {
+    static void print(bool val) {
+        std::cout &lt;&lt; (val ? "true" : "false") &lt;&lt; "\n";
+    }
+};
+
+int main() {
+    std::cout &lt;&lt; isEqual(42, 42) &lt;&lt; "\n";          // true（通用版本）
+    std::cout &lt;&lt; isEqual(3.14, 3.15) &lt;&lt; "\n";      // false
+
+    const char* s1 = "hello";
+    const char* s2 = "hello";
+    // 指针比较地址，结果不确定；特化版本比较内容
+    std::cout &lt;&lt; isEqual(s1, s2) &lt;&lt; "\n";          // true（特化版本）
+
+    Printer&lt;int&gt;::print(42);        // 42
+    Printer&lt;double&gt;::print(3.14);   // 3.14
+    Printer&lt;bool&gt;::print(true);     // true（特化版本）
+    Printer&lt;bool&gt;::print(false);    // false
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box tip">
+          <div class="info-box-icon">💡</div>
+          <div class="info-box-content">
+            <p><strong>全特化 vs 偏特化：</strong>全特化（<code>template&lt;&gt;</code>）指定了所有模板参数的具体类型；偏特化只指定部分参数或参数模式（如所有指针类型 <code>T*</code>），是进阶主题，将在模板元编程中深入介绍。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 非类型模板参数 -->
+      <div class="content-section">
+        <h2><span>🔢</span> 5. 非类型模板参数</h2>
+        <p>模板参数不仅可以是类型，还可以是<strong>编译期常量值</strong>（整数、枚举、指针等）。标准库的 <code>std::array&lt;T, N&gt;</code> 就用非类型参数指定数组大小。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>非类型模板参数示例</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+
+// N 是编译期常量，作为数组大小
+template&lt;typename T, size_t N&gt;
+class FixedArray {
+private:
+    T data_[N];  // 栈上固定大小数组，无堆分配开销
+
+public:
+    FixedArray() = default;
+
+    T&amp; operator[](size_t idx) {
+        if (idx &gt;= N) throw std::out_of_range("Index out of range");
+        return data_[idx];
+    }
+
+    const T&amp; operator[](size_t idx) const {
+        if (idx &gt;= N) throw std::out_of_range("Index out of range");
+        return data_[idx];
+    }
+
+    constexpr size_t size() const { return N; }
+
+    void fill(const T&amp; val) {
+        for (size_t i = 0; i &lt; N; ++i) data_[i] = val;
+    }
+};
+
+// 编译期计算：阶乘模板
+template&lt;int N&gt;
+struct Factorial {
+    static constexpr int value = N * Factorial&lt;N - 1&gt;::value;
+};
+
+template&lt;&gt;
+struct Factorial&lt;0&gt; {
+    static constexpr int value = 1;
+};
+
+// 非类型参数与类型参数混合
+template&lt;typename T, int Rows, int Cols&gt;
+class Matrix {
+private:
+    T data_[Rows][Cols]{};
+public:
+    T&amp; at(int r, int c) { return data_[r][c]; }
+    constexpr int rows() const { return Rows; }
+    constexpr int cols() const { return Cols; }
+};
+
+int main() {
+    FixedArray&lt;int, 5&gt; arr;
+    arr.fill(0);
+    arr[0] = 10; arr[2] = 30; arr[4] = 50;
+    for (size_t i = 0; i &lt; arr.size(); ++i)
+        std::cout &lt;&lt; arr[i] &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";  // 10 0 30 0 50
+
+    // 不同 N 是不同类型
+    FixedArray&lt;int, 3&gt; small;
+    // small = arr;  // 错误！FixedArray&lt;int,3&gt; 和 FixedArray&lt;int,5&gt; 是不同类型
+
+    // 编译期计算
+    static_assert(Factorial&lt;5&gt;::value == 120);
+    std::cout &lt;&lt; "5! = " &lt;&lt; Factorial&lt;5&gt;::value &lt;&lt; "\n";  // 120
+    std::cout &lt;&lt; "8! = " &lt;&lt; Factorial&lt;8&gt;::value &lt;&lt; "\n";  // 40320
+
+    // 3x3 矩阵
+    Matrix&lt;double, 3, 3&gt; mat;
+    mat.at(0, 0) = 1.0; mat.at(1, 1) = 2.0; mat.at(2, 2) = 3.0;
+    std::cout &lt;&lt; "对角元素: "
+              &lt;&lt; mat.at(0,0) &lt;&lt; ", "
+              &lt;&lt; mat.at(1,1) &lt;&lt; ", "
+              &lt;&lt; mat.at(2,2) &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="info-box info">
+          <div class="info-box-icon">📌</div>
+          <div class="info-box-content">
+            <p><strong>与 std::array 对比：</strong><code>std::array&lt;T, N&gt;</code> 本质上就是对固定大小 C 数组的封装，<code>N</code> 是非类型模板参数。相比 <code>std::vector</code>，它无堆分配，大小在编译期确定，适合性能敏感场景。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 综合代码示例 -->
+      <div class="content-section">
+        <h2><span>🧪</span> 综合示例：泛型排序与打印</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>templates_demo.cpp</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+#include &lt;string&gt;
+
+// 泛型打印数组
+template&lt;typename T, size_t N&gt;
+void printArray(const T (&amp;arr)[N], const char* label = "") {
+    std::cout &lt;&lt; label &lt;&lt; "[";
+    for (size_t i = 0; i &lt; N; ++i) {
+        std::cout &lt;&lt; arr[i];
+        if (i + 1 &lt; N) std::cout &lt;&lt; ", ";
+    }
+    std::cout &lt;&lt; "]\n";
+}
+
+// 泛型冒泡排序（要求 T 支持 operator&lt;）
+template&lt;typename T&gt;
+void bubbleSort(T* arr, size_t n) {
+    for (size_t i = 0; i &lt; n - 1; ++i)
+        for (size_t j = 0; j &lt; n - 1 - i; ++j)
+            if (arr[j] &gt; arr[j + 1])
+                std::swap(arr[j], arr[j + 1]);
+}
+
+// 泛型查找：返回第一个满足条件的元素索引，-1 表示未找到
+template&lt;typename T, typename Pred&gt;
+int findIf(const T* arr, size_t n, Pred pred) {
+    for (size_t i = 0; i &lt; n; ++i)
+        if (pred(arr[i])) return static_cast&lt;int&gt;(i);
+    return -1;
+}
+
+int main() {
+    int nums[] = {5, 2, 8, 1, 9, 3, 7};
+    printArray(nums, "排序前: ");
+
+    bubbleSort(nums, 7);
+    printArray(nums, "排序后: ");
+
+    // 查找第一个大于 5 的元素
+    int idx = findIf(nums, 7, [](int x){ return x &gt; 5; });
+    if (idx &gt;= 0)
+        std::cout &lt;&lt; "第一个 &gt;5 的元素: " &lt;&lt; nums[idx]
+                  &lt;&lt; "（索引 " &lt;&lt; idx &lt;&lt; "）\n";
+
+    // 同样的模板用于字符串数组
+    std::string words[] = {"banana", "apple", "cherry", "date"};
+    printArray(words, "原始: ");
+    bubbleSort(words, 4);
+    printArray(words, "字典序: ");
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>🧠</span> 知识检验</h2>
+
+        <div class="quiz-question">
+          <p>Q1. 以下代码中，编译器能否自动推导模板参数？</p>
+          <pre style="background:#f1f5f9;padding:0.75rem 1rem;border-radius:6px;font-size:0.85rem;margin-bottom:0.75rem;"><code>template&lt;typename T&gt;
+T add(T a, T b) { return a + b; }
+
+auto result = add(1, 2.0);</code></pre>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. 可以，T 推导为 double</label>
+            <label><input type="radio" name="q1" value="B"> B. 可以，T 推导为 int</label>
+            <label><input type="radio" name="q1" value="C"> C. 不能，两个实参推导出不同的 T（int 和 double），产生冲突导致编译错误</label>
+            <label><input type="radio" name="q1" value="D"> D. 可以，编译器自动选择精度更高的类型</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. 模板全特化 <code>template&lt;&gt; bool isEqual&lt;const char*&gt;(...)</code> 的作用是？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 禁止对 <code>const char*</code> 使用 <code>isEqual</code></label>
+            <label><input type="radio" name="q2" value="B"> B. 为 <code>const char*</code> 类型提供专门实现，编译器在该类型时优先选择此版本</label>
+            <label><input type="radio" name="q2" value="C"> C. 将 <code>const char*</code> 转换为 <code>std::string</code> 再比较</label>
+            <label><input type="radio" name="q2" value="D"> D. 与通用模板完全等价，没有区别</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. <code>FixedArray&lt;int, 3&gt;</code> 和 <code>FixedArray&lt;int, 5&gt;</code> 是同一个类型吗？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. 是，它们都是 <code>FixedArray&lt;int&gt;</code>，只是大小不同</label>
+            <label><input type="radio" name="q3" value="B"> B. 不是，非类型参数 N 不同，编译器生成的是完全不同的类型，不能互相赋值</label>
+            <label><input type="radio" name="q3" value="C"> C. 是，只要元素类型 T 相同就是同一类型</label>
+            <label><input type="radio" name="q3" value="D"> D. 取决于编译器实现</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📋</span> 课后作业</h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释为什么类模板的实现（成员函数定义）通常必须放在头文件中，而普通类可以将声明和实现分开放在 <code>.h</code> 和 <code>.cpp</code> 中。提示：与编译器的实例化时机有关。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">实现一个类模板 <code>Pair&lt;T1, T2&gt;</code>，包含两个成员 <code>first</code> 和 <code>second</code>，支持构造函数初始化和 <code>swap()</code> 方法。再实现一个辅助函数模板 <code>makePair(a, b)</code>，让编译器自动推导类型并返回 <code>Pair&lt;T1, T2&gt;</code> 对象。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">实现一个函数模板 <code>minElement</code> 和 <code>maxElement</code>，接受 C 风格数组（使用非类型模板参数推导大小），返回数组中最小/最大值的引用。再为 <code>const char*</code> 类型的比较提供全特化版本，使其按字典序而非地址比较。用 <code>int</code>、<code>double</code>、<code>std::string</code> 三种类型验证。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🔗</span> 延伸阅读</h2>
+        <a href="https://en.cppreference.com/w/cpp/language/templates" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">cppreference: Templates</div><div class="text-xs text-gray-500 mt-0.5">C++ 模板完整参考文档</div></div>
+        </a>
+        <a href="https://www.learncpp.com/cpp-tutorial/function-templates/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div><div class="text-sm font-semibold text-gray-800">LearnCpp: Function Templates</div><div class="text-xs text-gray-500 mt-0.5">函数模板入门教程，含大量示例</div></div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=I-hZkUa9mIs" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div><div class="text-sm font-semibold text-gray-800">The Cherno: Templates in C++</div><div class="text-xs text-gray-500 mt-0.5">直观易懂的 C++ 模板视频讲解</div></div>
+        </a>
+      </div>
+
+      <!-- 导航 -->
+      <div class="lesson-nav">
+        <a href="04-polymorphism.html" class="nav-btn nav-btn-secondary">← 上一课：多态与虚函数</a>
+        <a href="06-stl-containers.html" class="nav-btn nav-btn-primary">下一课：STL 容器 →</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！编译器对每个参数独立推导 T：第一个参数 1 推导 T=int，第二个参数 2.0 推导 T=double，两者冲突导致推导失败，编译报错。解决方法：显式指定 add<double>(1, 2.0) 或将参数强制转换为同类型。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。模板参数推导要求所有实参对同一个 T 的推导结果一致，出现冲突时编译器报错，不会自动选择"兼容"类型。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！全特化为特定类型提供专门实现。当实例化类型与特化完全匹配时，编译器优先选择特化版本而非主模板。这里专为 const char* 使用 strcmp 比较字符串内容，而非比较指针地址。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。全特化不是禁止或替换类型，而是在主模板之外提供一个针对特定类型的优先版本。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！非类型模板参数是类型的一部分。FixedArray<int, 3> 和 FixedArray<int, 5> 是两个完全不同的类型，就像 int 和 double 一样不能互相赋值。这是非类型参数的关键特性，也是 std::array<T,N> 的工作原理。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。模板参数（包括非类型参数）是类型标识的一部分，不同参数值实例化出完全不同的类型。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+</body>
+</html>

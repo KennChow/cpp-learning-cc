@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>06. 设计模式 | C++ 学院</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body class="bg-gray-50">
+
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="../../index.html" class="flex items-center gap-2.5 text-gray-900 font-bold text-lg no-underline">
+        <span class="text-2xl">⚡</span><span>C++ 学院</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="../../index.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">首页</a>
+        <a href="../beginner/01-hello-world.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">初级</a>
+        <a href="../intermediate/01-oop-basics.html" class="px-3 py-1.5 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors">中级</a>
+        <a href="01-move-semantics.html" class="px-3 py-1.5 text-sm text-purple-700 bg-purple-50 rounded-md font-medium">进阶</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="bg-white border-b border-gray-100 px-4 py-2">
+    <div class="max-w-screen-xl mx-auto">
+      <nav class="flex items-center gap-2 text-sm text-gray-500">
+        <a href="../../index.html" class="hover:text-blue-600">首页</a>
+        <span>›</span><span class="text-purple-600">进阶</span>
+        <span>›</span><span class="text-gray-800 font-medium">06. 设计模式</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="lesson-layout max-w-screen-xl mx-auto">
+    <aside class="sidebar">
+      <div class="sidebar-title">进阶课程</div>
+      <a href="01-move-semantics.html" class="sidebar-item"><span class="lesson-num">1</span>移动语义与右值引用</a>
+      <a href="02-smart-pointers.html" class="sidebar-item"><span class="lesson-num">2</span>智能指针</a>
+      <a href="03-lambda-functional.html" class="sidebar-item"><span class="lesson-num">3</span>Lambda 与函数式编程</a>
+      <a href="04-concurrency.html" class="sidebar-item"><span class="lesson-num">4</span>并发编程</a>
+      <a href="05-template-metaprogramming.html" class="sidebar-item"><span class="lesson-num">5</span>模板元编程</a>
+      <a href="06-design-patterns.html" class="sidebar-item active"><span class="lesson-num">6</span>设计模式</a>
+      <a href="07-memory-management.html" class="sidebar-item"><span class="lesson-num">7</span>内存管理深入</a>
+      <a href="08-cpp17-20-features.html" class="sidebar-item"><span class="lesson-num">8</span>C++17/20 新特性</a>
+    </aside>
+
+    <main class="lesson-content">
+      <div class="lesson-header">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-purple-500">进阶 · 第 6 课</span>
+          <span class="text-xs text-gray-400">· 90分钟</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">设计模式</h1>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">Singleton</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">Factory</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">Observer</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">Strategy</span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">CRTP</span>
+        </div>
+      </div>
+
+      <div class="objectives-card">
+        <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🎯</span> 学习目标</h3>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>掌握线程安全的单例模式（Meyers' Singleton）</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解工厂方法模式与抽象工厂模式的区别与用法</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>用 <code>std::function</code> 实现现代 C++ 风格的观察者模式</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>用模板和 Lambda 实现零开销策略模式</li>
+          <li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>理解 CRTP（奇异递归模板模式）的原理与静态多态应用</li>
+        </ul>
+      </div>
+
+      <!-- 1. 单例模式 -->
+      <div class="content-section">
+        <h2><span>🔒</span> 1. 单例模式 — Singleton</h2>
+        <p>单例模式保证一个类只有一个实例，并提供全局访问点。现代 C++ 中最简洁且线程安全的实现是 <strong>Meyers' Singleton</strong>，利用局部静态变量的线程安全初始化（C++11 保证）。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>singleton.cpp — Meyers' Singleton（线程安全）</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;mutex&gt;
+
+// Meyers' Singleton：最简洁的线程安全实现
+// C++11 保证局部静态变量只初始化一次，且是线程安全的
+class Logger {
+public:
+    // 获取唯一实例
+    static Logger&amp; instance() {
+        static Logger logger;   // 首次调用时初始化，线程安全
+        return logger;
+    }
+
+    void log(const std::string&amp; msg) {
+        std::lock_guard&lt;std::mutex&gt; lock(mutex_);
+        std::cout &lt;&lt; "[LOG] " &lt;&lt; msg &lt;&lt; "\n";
+    }
+
+    void setLevel(int level) {
+        std::lock_guard&lt;std::mutex&gt; lock(mutex_);
+        level_ = level;
+    }
+
+    int level() const { return level_; }
+
+    // 禁止拷贝和赋值
+    Logger(const Logger&amp;) = delete;
+    Logger&amp; operator=(const Logger&amp;) = delete;
+
+private:
+    Logger() : level_(0) {}   // 私有构造函数
+    ~Logger() = default;
+    std::mutex mutex_;
+    int level_;
+};
+
+// 使用
+int main() {
+    Logger::instance().setLevel(2);
+    Logger::instance().log("程序启动");
+    Logger::instance().log("加载配置完成");
+
+    // 验证是同一个实例
+    Logger&amp; a = Logger::instance();
+    Logger&amp; b = Logger::instance();
+    std::cout &lt;&lt; "同一实例？" &lt;&lt; (&amp;a == &amp;b ? "是" : "否") &lt;&lt; "\n";  // 是
+    return 0;
+}
+
+// ---- 扩展：模板化单例基类（CRTP 复用） ----
+template&lt;typename Derived&gt;
+class Singleton {
+public:
+    static Derived&amp; instance() {
+        static Derived inst;
+        return inst;
+    }
+    Singleton(const Singleton&amp;) = delete;
+    Singleton&amp; operator=(const Singleton&amp;) = delete;
+protected:
+    Singleton() = default;
+};
+
+class AppConfig : public Singleton&lt;AppConfig&gt; {
+    friend class Singleton&lt;AppConfig&gt;;
+public:
+    std::string dbUrl = "localhost:5432";
+    int maxConnections = 10;
+private:
+    AppConfig() = default;
+};
+
+// AppConfig::instance().dbUrl = "prod-db:5432";</code></pre>
+        </div>
+
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4 text-sm text-yellow-800">
+          <strong>注意：</strong>单例模式会引入全局状态，增加代码耦合度，难以进行单元测试。在设计时需权衡，仅对真正的全局唯一资源（日志、配置、线程池）使用。
+        </div>
+      </div>
+
+      <!-- 2. 工厂模式 -->
+      <div class="content-section">
+        <h2><span>🏭</span> 2. 工厂模式 — Factory Method &amp; Abstract Factory</h2>
+        <p><strong>工厂方法</strong>：将对象的创建延迟到子类，调用者无需知道具体类型。<strong>抽象工厂</strong>：提供创建一族相关对象的接口，保证对象间的兼容性。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>factory.cpp — 工厂方法模式</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;string&gt;
+#include &lt;unordered_map&gt;
+#include &lt;functional&gt;
+
+// 产品接口
+struct Shape {
+    virtual ~Shape() = default;
+    virtual double area() const = 0;
+    virtual std::string name() const = 0;
+};
+
+// 具体产品
+struct Circle : Shape {
+    explicit Circle(double r) : radius(r) {}
+    double area() const override { return 3.14159 * radius * radius; }
+    std::string name() const override { return "Circle(r=" + std::to_string(radius) + ")"; }
+    double radius;
+};
+
+struct Rectangle : Shape {
+    Rectangle(double w, double h) : width(w), height(h) {}
+    double area() const override { return width * height; }
+    std::string name() const override { return "Rectangle(" + std::to_string(width) + "x" + std::to_string(height) + ")"; }
+    double width, height;
+};
+
+// 方法1：简单工厂函数（现代 C++ 风格）
+std::unique_ptr&lt;Shape&gt; createCircle(double r) {
+    return std::make_unique&lt;Circle&gt;(r);
+}
+std::unique_ptr&lt;Shape&gt; createRectangle(double w, double h) {
+    return std::make_unique&lt;Rectangle&gt;(w, h);
+}
+
+// 方法2：注册式工厂（可扩展，无需修改工厂代码）
+class ShapeFactory {
+public:
+    using Creator = std::function&lt;std::unique_ptr&lt;Shape&gt;()&gt;;
+
+    static ShapeFactory&amp; instance() {
+        static ShapeFactory inst;
+        return inst;
+    }
+
+    void registerShape(const std::string&amp; type, Creator creator) {
+        registry_[type] = std::move(creator);
+    }
+
+    std::unique_ptr&lt;Shape&gt; create(const std::string&amp; type) const {
+        auto it = registry_.find(type);
+        if (it == registry_.end())
+            throw std::runtime_error("Unknown shape: " + type);
+        return it-&gt;second();
+    }
+
+private:
+    std::unordered_map&lt;std::string, Creator&gt; registry_;
+};
+
+int main() {
+    auto&amp; factory = ShapeFactory::instance();
+    factory.registerShape("circle",    [] { return std::make_unique&lt;Circle&gt;(5.0); });
+    factory.registerShape("rectangle", [] { return std::make_unique&lt;Rectangle&gt;(3.0, 4.0); });
+
+    for (const std::string&amp; type : {"circle", "rectangle"}) {
+        auto shape = factory.create(type);
+        std::cout &lt;&lt; shape-&gt;name() &lt;&lt; " 面积=" &lt;&lt; shape-&gt;area() &lt;&lt; "\n";
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>abstract_factory.cpp — 抽象工厂模式（UI 主题示例）</span>
+          </div>
+          <pre><code class="language-cpp">// 抽象产品族
+struct Button {
+    virtual ~Button() = default;
+    virtual void render() const = 0;
+};
+struct Checkbox {
+    virtual ~Checkbox() = default;
+    virtual void render() const = 0;
+};
+
+// 具体产品：深色主题
+struct DarkButton : Button {
+    void render() const override { std::cout &lt;&lt; "[Dark Button]\n"; }
+};
+struct DarkCheckbox : Checkbox {
+    void render() const override { std::cout &lt;&lt; "[Dark Checkbox]\n"; }
+};
+
+// 具体产品：浅色主题
+struct LightButton : Button {
+    void render() const override { std::cout &lt;&lt; "[Light Button]\n"; }
+};
+struct LightCheckbox : Checkbox {
+    void render() const override { std::cout &lt;&lt; "[Light Checkbox]\n"; }
+};
+
+// 抽象工厂接口
+struct UIFactory {
+    virtual ~UIFactory() = default;
+    virtual std::unique_ptr&lt;Button&gt;   createButton()   const = 0;
+    virtual std::unique_ptr&lt;Checkbox&gt; createCheckbox() const = 0;
+};
+
+// 具体工厂
+struct DarkThemeFactory : UIFactory {
+    std::unique_ptr&lt;Button&gt;   createButton()   const override { return std::make_unique&lt;DarkButton&gt;(); }
+    std::unique_ptr&lt;Checkbox&gt; createCheckbox() const override { return std::make_unique&lt;DarkCheckbox&gt;(); }
+};
+
+struct LightThemeFactory : UIFactory {
+    std::unique_ptr&lt;Button&gt;   createButton()   const override { return std::make_unique&lt;LightButton&gt;(); }
+    std::unique_ptr&lt;Checkbox&gt; createCheckbox() const override { return std::make_unique&lt;LightCheckbox&gt;(); }
+};
+
+// 客户端代码：只依赖抽象接口
+void renderUI(const UIFactory&amp; factory) {
+    auto btn = factory.createButton();
+    auto chk = factory.createCheckbox();
+    btn-&gt;render();
+    chk-&gt;render();
+}
+
+// renderUI(DarkThemeFactory{});   // 渲染深色主题
+// renderUI(LightThemeFactory{});  // 渲染浅色主题</code></pre>
+        </div>
+      </div>
+
+      <!-- 3. 观察者模式 -->
+      <div class="content-section">
+        <h2><span>👁️</span> 3. 观察者模式 — Observer</h2>
+        <p>观察者模式定义对象间的一对多依赖：当主题（Subject）状态变化时，所有观察者（Observer）自动收到通知。现代 C++ 用 <code>std::function</code> 实现更灵活的事件系统，无需继承体系。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>observer.cpp — 基于 std::function 的事件系统</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;functional&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+
+// 通用事件总线：支持任意回调签名
+template&lt;typename... Args&gt;
+class Event {
+public:
+    using Handler = std::function&lt;void(Args...)&gt;;
+    using HandlerId = size_t;
+
+    // 订阅：返回订阅 ID，供取消订阅使用
+    HandlerId subscribe(Handler handler) {
+        handlers_.push_back({++nextId_, std::move(handler)});
+        return nextId_;
+    }
+
+    // 取消订阅
+    void unsubscribe(HandlerId id) {
+        handlers_.erase(
+            std::remove_if(handlers_.begin(), handlers_.end(),
+                [id](const auto&amp; h) { return h.id == id; }),
+            handlers_.end()
+        );
+    }
+
+    // 触发事件
+    void emit(Args... args) const {
+        for (const auto&amp; h : handlers_)
+            h.handler(args...);
+    }
+
+private:
+    struct HandlerEntry {
+        HandlerId id;
+        Handler handler;
+    };
+    std::vector&lt;HandlerEntry&gt; handlers_;
+    HandlerId nextId_ = 0;
+};
+
+// 具体主题：股票价格
+class Stock {
+public:
+    explicit Stock(std::string ticker) : ticker_(std::move(ticker)), price_(0.0) {}
+
+    // 事件：价格变化时触发，传递 (ticker, newPrice, delta)
+    Event&lt;std::string, double, double&gt; onPriceChanged;
+
+    void setPrice(double newPrice) {
+        double delta = newPrice - price_;
+        price_ = newPrice;
+        onPriceChanged.emit(ticker_, price_, delta);
+    }
+
+    double price() const { return price_; }
+    const std::string&amp; ticker() const { return ticker_; }
+
+private:
+    std::string ticker_;
+    double price_;
+};
+
+int main() {
+    Stock apple("AAPL");
+
+    // 订阅1：价格显示
+    auto id1 = apple.onPriceChanged.subscribe(
+        [](const std::string&amp; t, double p, double d) {
+            std::cout &lt;&lt; t &lt;&lt; " 新价格: $" &lt;&lt; p
+                      &lt;&lt; " (变化: " &lt;&lt; (d &gt;= 0 ? "+" : "") &lt;&lt; d &lt;&lt; ")\n";
+        });
+
+    // 订阅2：涨跌报警
+    auto id2 = apple.onPriceChanged.subscribe(
+        [](const std::string&amp; t, double p, double d) {
+            if (d &gt; 5.0)  std::cout &lt;&lt; "[警报] " &lt;&lt; t &lt;&lt; " 大幅上涨！\n";
+            if (d &lt; -5.0) std::cout &lt;&lt; "[警报] " &lt;&lt; t &lt;&lt; " 大幅下跌！\n";
+        });
+
+    apple.setPrice(150.0);   // 触发两个观察者
+    apple.setPrice(158.0);   // 触发涨幅报警
+    apple.setPrice(152.0);   // 正常变化
+
+    // 取消订阅报警
+    apple.onPriceChanged.unsubscribe(id2);
+    apple.setPrice(145.0);   // 只有价格显示触发
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- 4. 策略模式 -->
+      <div class="content-section">
+        <h2><span>⚔️</span> 4. 策略模式 — Strategy</h2>
+        <p>策略模式将算法封装为独立对象，使其可以互换。C++ 中有两种实现：<strong>运行时策略</strong>（虚函数 / <code>std::function</code>，灵活）和<strong>编译期策略</strong>（模板参数，零开销）。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>strategy.cpp — 运行时策略（std::function）</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;functional&gt;
+#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;numeric&gt;
+
+// 运行时策略：用 std::function 持有算法
+class DataProcessor {
+public:
+    using SortStrategy   = std::function&lt;void(std::vector&lt;int&gt;&amp;)&gt;;
+    using FilterStrategy = std::function&lt;bool(int)&gt;;
+
+    void setSortStrategy(SortStrategy s)   { sortStrategy_   = std::move(s); }
+    void setFilterStrategy(FilterStrategy f) { filterStrategy_ = std::move(f); }
+
+    std::vector&lt;int&gt; process(std::vector&lt;int&gt; data) const {
+        // 应用过滤策略
+        if (filterStrategy_) {
+            data.erase(std::remove_if(data.begin(), data.end(),
+                [this](int x) { return !filterStrategy_(x); }), data.end());
+        }
+        // 应用排序策略
+        if (sortStrategy_) sortStrategy_(data);
+        return data;
+    }
+
+private:
+    SortStrategy   sortStrategy_;
+    FilterStrategy filterStrategy_;
+};
+
+int main() {
+    DataProcessor proc;
+
+    // 策略1：升序 + 只保留偶数
+    proc.setSortStrategy([](std::vector&lt;int&gt;&amp; v) { std::sort(v.begin(), v.end()); });
+    proc.setFilterStrategy([](int x) { return x % 2 == 0; });
+
+    std::vector&lt;int&gt; data = {5, 3, 8, 1, 6, 2, 9, 4};
+    auto result = proc.process(data);
+    std::cout &lt;&lt; "升序偶数: ";
+    for (int x : result) std::cout &lt;&lt; x &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";  // 2 4 6 8
+
+    // 策略2：降序 + 只保留大于 4 的值
+    proc.setSortStrategy([](std::vector&lt;int&gt;&amp; v) {
+        std::sort(v.begin(), v.end(), std::greater&lt;int&gt;{});
+    });
+    proc.setFilterStrategy([](int x) { return x &gt; 4; });
+
+    result = proc.process(data);
+    std::cout &lt;&lt; "降序>4: ";
+    for (int x : result) std::cout &lt;&lt; x &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";  // 9 8 6 5
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>strategy_template.cpp — 编译期策略（模板参数，零开销）</span>
+          </div>
+          <pre><code class="language-cpp">// 编译期策略：算法作为模板参数，无虚函数开销
+struct AscendingSort {
+    template&lt;typename It&gt;
+    void operator()(It begin, It end) const {
+        std::sort(begin, end);
+    }
+};
+
+struct DescendingSort {
+    template&lt;typename It&gt;
+    void operator()(It begin, It end) const {
+        std::sort(begin, end, std::greater&lt;&gt;{});
+    }
+};
+
+// Sorter 的策略在编译期确定，内联优化，零额外开销
+template&lt;typename SortPolicy = AscendingSort&gt;
+class Sorter {
+public:
+    template&lt;typename Container&gt;
+    Container sort(Container data) const {
+        policy_(data.begin(), data.end());
+        return data;
+    }
+private:
+    SortPolicy policy_;
+};
+
+// 使用示例（编译期确定策略）
+// Sorter&lt;AscendingSort&gt;{}.sort(data);
+// Sorter&lt;DescendingSort&gt;{}.sort(data);
+
+// 也可以用 Lambda 作为策略（C++20 Lambda 可作模板参数）
+// auto customSort = [](auto b, auto e) { std::sort(b, e, myComp); };
+// Sorter&lt;decltype(customSort)&gt; s{customSort};</code></pre>
+        </div>
+      </div>
+
+      <!-- 5. CRTP -->
+      <div class="content-section">
+        <h2><span>🔄</span> 5. CRTP — 奇异递归模板模式</h2>
+        <p><strong>CRTP</strong>（Curiously Recurring Template Pattern）是一种 C++ 惯用法：派生类将<em>自身</em>作为基类的模板参数。这样基类可以在编译期调用派生类的方法，实现<strong>静态多态</strong>（无虚函数开销）。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>crtp.cpp — 静态多态与接口复用</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cmath&gt;
+
+// CRTP 基类：提供通用接口，派生类提供实现
+template&lt;typename Derived&gt;
+class Shape {
+public:
+    // 通过 CRTP 调用派生类的实现（编译期分发，无虚函数）
+    double area() const {
+        return static_cast&lt;const Derived*&gt;(this)-&gt;areaImpl();
+    }
+
+    double perimeter() const {
+        return static_cast&lt;const Derived*&gt;(this)-&gt;perimeterImpl();
+    }
+
+    // 基类提供通用方法，复用派生类接口
+    void describe() const {
+        std::cout &lt;&lt; static_cast&lt;const Derived*&gt;(this)-&gt;name()
+                  &lt;&lt; ": 面积=" &lt;&lt; area()
+                  &lt;&lt; " 周长=" &lt;&lt; perimeter() &lt;&lt; "\n";
+    }
+
+    bool largerThan(const Shape&amp; other) const {
+        return area() &gt; other.area();
+    }
+};
+
+// 派生类：提供具体实现
+class Circle : public Shape&lt;Circle&gt; {
+public:
+    explicit Circle(double r) : radius(r) {}
+    double areaImpl()      const { return M_PI * radius * radius; }
+    double perimeterImpl() const { return 2 * M_PI * radius; }
+    std::string name()     const { return "Circle(r=" + std::to_string(radius) + ")"; }
+    double radius;
+};
+
+class Rectangle : public Shape&lt;Rectangle&gt; {
+public:
+    Rectangle(double w, double h) : width(w), height(h) {}
+    double areaImpl()      const { return width * height; }
+    double perimeterImpl() const { return 2 * (width + height); }
+    std::string name()     const { return "Rect(" + std::to_string(width) + "x" + std::to_string(height) + ")"; }
+    double width, height;
+};
+
+// CRTP 应用2：Mixin 模式 — 为类添加通用能力
+template&lt;typename Derived&gt;
+class Comparable {
+public:
+    bool operator!=(const Derived&amp; rhs) const {
+        return !(static_cast&lt;const Derived&amp;&gt;(*this) == rhs);
+    }
+    bool operator&gt;(const Derived&amp; rhs) const  { return rhs &lt; static_cast&lt;const Derived&amp;&gt;(*this); }
+    bool operator&lt;=(const Derived&amp; rhs) const { return !(static_cast&lt;const Derived&amp;&gt;(*this) &gt; rhs); }
+    bool operator&gt;=(const Derived&amp; rhs) const { return !(static_cast&lt;const Derived&amp;&gt;(*this) &lt; rhs); }
+};
+
+// 只需实现 == 和 &lt;，其余运算符由 Comparable 自动提供
+class Version : public Comparable&lt;Version&gt; {
+public:
+    Version(int major, int minor) : major_(major), minor_(minor) {}
+    bool operator==(const Version&amp; rhs) const { return major_ == rhs.major_ &amp;&amp; minor_ == rhs.minor_; }
+    bool operator&lt;(const Version&amp; rhs)  const { return major_ &lt; rhs.major_ || (major_ == rhs.major_ &amp;&amp; minor_ &lt; rhs.minor_); }
+private:
+    int major_, minor_;
+};
+
+int main() {
+    Circle c(5.0);
+    Rectangle r(4.0, 6.0);
+
+    c.describe();   // Circle: 面积=78.54 周长=31.42
+    r.describe();   // Rect: 面积=24.00 周长=20.00
+
+    // 编译期分发：无虚函数表查找
+    std::cout &lt;&lt; "圆比矩形大？" &lt;&lt; (c.largerThan(r) ? "是" : "否") &lt;&lt; "\n";
+
+    // Comparable Mixin
+    Version v1(1, 2), v2(1, 5), v3(2, 0);
+    std::cout &lt;&lt; "v1 &lt; v2? " &lt;&lt; (v1 &lt; v2) &lt;&lt; "\n";   // 1
+    std::cout &lt;&lt; "v2 &gt; v3? " &lt;&lt; (v2 &gt; v3) &lt;&lt; "\n";   // 0
+    std::cout &lt;&lt; "v1 != v2? " &lt;&lt; (v1 != v2) &lt;&lt; "\n"; // 1
+    return 0;
+}
+
+// 对比 CRTP vs 虚函数：
+// 虚函数：运行时分发，每次调用一次间接寻址（~1ns 额外开销）
+// CRTP：编译期分发，可以内联，零额外开销
+// 代价：CRTP 类型不能放入同一容器（Circle 和 Rectangle 是不同基类实例）</code></pre>
+        </div>
+      </div>
+
+      <!-- 综合示例 -->
+      <div class="content-section">
+        <h2><span>🧪</span> 综合代码示例：插件系统</h2>
+        <p>综合运用工厂模式 + 观察者模式构建一个可扩展的插件系统。</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="dots"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+            <span>plugin_system.cpp</span>
+          </div>
+          <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;functional&gt;
+#include &lt;unordered_map&gt;
+
+// 插件接口
+struct IPlugin {
+    virtual ~IPlugin() = default;
+    virtual std::string name() const = 0;
+    virtual void execute(const std::string&amp; input) = 0;
+};
+
+// 具体插件
+struct UpperCasePlugin : IPlugin {
+    std::string name() const override { return "UpperCase"; }
+    void execute(const std::string&amp; input) override {
+        std::string out = input;
+        for (char&amp; c : out) c = std::toupper(c);
+        std::cout &lt;&lt; "[UpperCase] " &lt;&lt; out &lt;&lt; "\n";
+    }
+};
+
+struct ReversePlugin : IPlugin {
+    std::string name() const override { return "Reverse"; }
+    void execute(const std::string&amp; input) override {
+        std::string out(input.rbegin(), input.rend());
+        std::cout &lt;&lt; "[Reverse] " &lt;&lt; out &lt;&lt; "\n";
+    }
+};
+
+// 插件管理器：工厂注册 + 观察者通知
+class PluginManager {
+public:
+    using Factory = std::function&lt;std::unique_ptr&lt;IPlugin&gt;()&gt;;
+
+    // 注册工厂
+    void registerPlugin(const std::string&amp; name, Factory factory) {
+        factories_[name] = std::move(factory);
+        for (auto&amp; cb : onRegistered_) cb(name);
+    }
+
+    // 订阅注册事件
+    void onPluginRegistered(std::function&lt;void(std::string)&gt; cb) {
+        onRegistered_.push_back(std::move(cb));
+    }
+
+    // 运行所有插件
+    void runAll(const std::string&amp; input) const {
+        for (auto&amp; [name, factory] : factories_) {
+            auto plugin = factory();
+            plugin-&gt;execute(input);
+        }
+    }
+
+private:
+    std::unordered_map&lt;std::string, Factory&gt; factories_;
+    std::vector&lt;std::function&lt;void(std::string)&gt;&gt; onRegistered_;
+};
+
+int main() {
+    PluginManager manager;
+
+    // 观察者：监控插件注册
+    manager.onPluginRegistered([](const std::string&amp; name) {
+        std::cout &lt;&lt; "[系统] 插件已注册: " &lt;&lt; name &lt;&lt; "\n";
+    });
+
+    // 工厂注册
+    manager.registerPlugin("UpperCase", [] { return std::make_unique&lt;UpperCasePlugin&gt;(); });
+    manager.registerPlugin("Reverse",   [] { return std::make_unique&lt;ReversePlugin&gt;();   });
+
+    std::cout &lt;&lt; "\n--- 运行所有插件 ---\n";
+    manager.runAll("hello world");
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>🧠</span> 知识检验</h2>
+
+        <div class="quiz-question">
+          <p>Q1. 为什么 Meyers' Singleton 是线程安全的？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q1" value="A"> A. 因为使用了 <code>std::mutex</code> 保护静态变量的初始化</label>
+            <label><input type="radio" name="q1" value="B"> B. C++11 标准保证局部静态变量的初始化只发生一次，且是线程安全的，无需手动加锁</label>
+            <label><input type="radio" name="q1" value="C"> C. 局部静态变量存储在栈上，每个线程有独立的栈</label>
+            <label><input type="radio" name="q1" value="D"> D. 单例对象是只读的，不存在竞争条件</label>
+          </div>
+          <div id="q1-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ1()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q2. CRTP 相比虚函数多态的主要优势是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q2" value="A"> A. 代码更简洁，更容易理解</label>
+            <label><input type="radio" name="q2" value="B"> B. 支持将不同派生类对象存入同一个容器</label>
+            <label><input type="radio" name="q2" value="C"> C. 编译期静态分发，可以内联，无虚函数表查找开销，但代价是无法放入同类型容器</label>
+            <label><input type="radio" name="q2" value="D"> D. 可以在运行时动态切换派生类实现</label>
+          </div>
+          <div id="q2-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ2()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+
+        <div class="quiz-question mt-5">
+          <p>Q3. 在观察者模式中，使用 <code>std::function</code> 相比传统虚函数 Observer 接口的优势是什么？</p>
+          <div class="quiz-options space-y-1">
+            <label><input type="radio" name="q3" value="A"> A. <code>std::function</code> 执行速度更快</label>
+            <label><input type="radio" name="q3" value="B"> B. 观察者无需继承特定接口，可以是 Lambda、成员函数或任意可调用对象，更灵活且降低耦合</label>
+            <label><input type="radio" name="q3" value="C"> C. 可以避免内存泄漏</label>
+            <label><input type="radio" name="q3" value="D"> D. 只有 <code>std::function</code> 支持取消订阅</label>
+          </div>
+          <div id="q3-feedback" class="quiz-feedback"></div>
+          <button onclick="checkQ3()" class="mt-2 px-4 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 作业 -->
+      <div class="assignment-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📋</span> 课后作业</h2>
+        <div class="space-y-3">
+          <div class="assignment-item">
+            <span class="assignment-badge badge-understand">理解题</span>
+            <p class="text-sm text-gray-700">解释工厂方法模式和抽象工厂模式的区别。在什么场景下选择工厂方法，什么场景下选择抽象工厂？举出各自在实际项目中的使用案例。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-code">编程题</span>
+            <p class="text-sm text-gray-700">用 CRTP 实现一个 <code>Printable</code> Mixin 基类，为任意派生类自动提供 <code>print()</code> 方法（调用派生类的 <code>toString()</code>）和 <code>println()</code> 方法（末尾自动换行）。用 <code>Point</code>、<code>Color</code> 两个类验证。</p>
+          </div>
+          <div class="assignment-item">
+            <span class="assignment-badge badge-challenge">挑战题</span>
+            <p class="text-sm text-gray-700">实现一个线程安全的事件总线（EventBus）单例，支持：1) 按事件类型（字符串 key）注册/注销处理器；2) 发布事件时异步通知（使用 <code>std::async</code> 或线程池）；3) 用 <code>std::mutex</code> 保护订阅者列表的并发修改。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 外部资源 -->
+      <div class="resources-section">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><span>🔗</span> 延伸阅读</h2>
+        <a href="https://refactoring.guru/design-patterns/cpp" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-docs">📄</div>
+          <div><div class="text-sm font-semibold text-gray-800">Refactoring.Guru: C++ 设计模式</div><div class="text-xs text-gray-500 mt-0.5">图文并茂的设计模式教程，含 C++ 示例</div></div>
+        </a>
+        <a href="https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-tutorial">📖</div>
+          <div><div class="text-sm font-semibold text-gray-800">FluentCpp: CRTP 深度解析</div><div class="text-xs text-gray-500 mt-0.5">CRTP 的原理、用法与常见 Mixin 模式</div></div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=2BtqSYxMKsY" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-icon icon-video">🎬</div>
+          <div><div class="text-sm font-semibold text-gray-800">CppCon: Back to Basics: Design Patterns</div><div class="text-xs text-gray-500 mt-0.5">CppCon 设计模式专题演讲</div></div>
+        </a>
+      </div>
+
+      <div class="lesson-nav">
+        <a href="05-template-metaprogramming.html" class="nav-btn nav-btn-secondary">← 上一课：模板元编程</a>
+        <a href="07-memory-management.html" class="nav-btn nav-btn-primary">下一课：内存管理深入 →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    function checkQ1() {
+      const sel = document.querySelector('input[name="q1"]:checked');
+      const fb = document.getElementById('q1-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！C++11 标准（[stmt.dcl] 6.7节）明确规定：局部静态变量的初始化是线程安全的，若多个线程同时首次进入，只有一个线程执行初始化，其余线程阻塞等待。这正是 Meyers\' Singleton 优雅的原因。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。C++11 起，编译器会为局部静态变量的初始化自动插入同步原语，无需手动加锁。注意：访问成员函数仍可能需要 mutex 保护（例如 log() 方法）。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ2() {
+      const sel = document.querySelector('input[name="q2"]:checked');
+      const fb = document.getElementById('q2-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'C') {
+        fb.textContent = '✓ 正确！CRTP 在编译期确定类型，方法调用可以内联，避免了虚函数表（vtable）查找的开销。代价是每个派生类对应不同的基类实例（Shape<Circle> 与 Shape<Rectangle> 是不同类型），因此不能存入同一个 vector<Shape*>。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 C。CRTP 的核心优势是静态分发与内联优化，但失去了运行时多态的灵活性。若需要异质容器，仍需虚函数。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+    function checkQ3() {
+      const sel = document.querySelector('input[name="q3"]:checked');
+      const fb = document.getElementById('q3-feedback');
+      if (!sel) { fb.textContent = '请先选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+      if (sel.value === 'B') {
+        fb.textContent = '✓ 正确！传统 Observer 接口要求观察者继承特定基类并实现 update() 方法，耦合度高。std::function 可以接受任意可调用对象（Lambda、成员函数指针、仿函数），观察者无需修改自身结构，灵活性大幅提升。';
+        fb.className = 'quiz-feedback correct';
+      } else {
+        fb.textContent = '✗ 错误。正确答案是 B。std::function 有少量类型擦除开销（通常可忽略），优势在于灵活性和低耦合，而非性能。取消订阅功能与使用虚函数还是 std::function 无关。';
+        fb.className = 'quiz-feedback wrong';
+      }
+    }
+  </script>
+</body>
+</html>
