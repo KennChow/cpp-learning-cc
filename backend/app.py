@@ -8,16 +8,31 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # ── 配置 ──
 DB_PATH = Path(__file__).parent / "data" / "progress.db"
 STATIC_DIR = Path(__file__).parent.parent  # 项目根目录
 
 app = FastAPI(title="C++ 学院 API")
+
+
+# ── 自动补 .html 后缀 ──
+class HtmlSuffixMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if not path.startswith("/api/") and "." not in path.split("/")[-1] and path != "/":
+            html_file = STATIC_DIR / path.lstrip("/")
+            if not html_file.exists() and html_file.with_suffix(".html").exists():
+                return RedirectResponse(url=path + ".html", status_code=301)
+        return await call_next(request)
+
+
+app.add_middleware(HtmlSuffixMiddleware)
 
 
 # ── 数据库 ──
