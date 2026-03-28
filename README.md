@@ -16,9 +16,18 @@
 - PrismJS 语法高亮
 - Wandbox API 在线编译
 
-## 本地部署
+## 部署
 
-任意静态文件服务器均可，例如：
+### Docker（推荐）
+
+```bash
+docker build -t cpp-academy .
+docker run -d -p 8080:80 cpp-academy
+```
+
+打开 `http://127.0.0.1:8080/` 即可访问。
+
+### 本地静态服务器
 
 ```bash
 # Python
