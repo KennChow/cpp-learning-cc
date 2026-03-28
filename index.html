@@ -633,7 +633,17 @@ const courses = {
   ]
 };
 
-/* ── 从 localStorage 读取进度 ── */
+/* ── 用户标识 ── */
+function getUserId() {
+  let uid = localStorage.getItem('cpp_academy_uid');
+  if (!uid) {
+    uid = 'u_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('cpp_academy_uid', uid);
+  }
+  return uid;
+}
+
+/* ── 进度管理（localStorage 缓存 + API 同步） ── */
 function getProgress() {
   try {
     return JSON.parse(localStorage.getItem('cpp_academy_progress') || '{}');
@@ -642,19 +652,55 @@ function getProgress() {
 
 function saveProgress(data) {
   localStorage.setItem('cpp_academy_progress', JSON.stringify(data));
+  // 异步同步到后端
+  syncToServer(data);
 }
 
-/* 若无数据，写入示例进度 */
-function initProgress() {
-  const p = getProgress();
-  if (Object.keys(p).length === 0) {
+async function syncToServer(data) {
+  try {
+    await fetch('/api/progress/batch', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: getUserId(), items: data })
+    });
+  } catch (e) { /* 离线时静默失败，localStorage 已保存 */ }
+}
+
+async function fetchServerProgress() {
+  try {
+    const resp = await fetch('/api/progress/' + getUserId());
+    if (resp.ok) return await resp.json();
+  } catch (e) { /* 后端不可用时回退 localStorage */ }
+  return null;
+}
+
+/* 初始化：优先从服务端拉取，合并本地缓存 */
+async function initProgress() {
+  let local = getProgress();
+  const remote = await fetchServerProgress();
+
+  if (remote && Object.keys(remote).length > 0) {
+    // 合并：取两端较高的进度
+    for (const [id, info] of Object.entries(remote)) {
+      const l = local[id] || { progress: 0, completed: false };
+      local[id] = {
+        progress: Math.max(l.progress || 0, info.progress || 0),
+        completed: l.completed || info.completed
+      };
+    }
+    saveProgress(local);
+  } else if (Object.keys(local).length === 0) {
+    // 首次访问，写入示例进度
     const demo = {};
-    // 初级：b1 完成，b2 进行中，其余未开始
     ['b1'].forEach(id => { demo[id] = { progress: 100, completed: true }; });
-    ['b2'].forEach(id => { demo[id] = { progress: 45,  completed: false }; });
+    ['b2'].forEach(id => { demo[id] = { progress: 45, completed: false }; });
     saveProgress(demo);
+    local = demo;
+  } else {
+    // 本地有数据但服务端没有，上传一次
+    syncToServer(local);
   }
-  return getProgress();
+  return local;
 }
 
 /* ── 渲染课程卡片 ── */
@@ -847,13 +893,21 @@ function typewriterStep() {
 }
 
 /* ── 初始化 ── */
-document.addEventListener('DOMContentLoaded', () => {
-  const progress = initProgress();
-  renderCourseGrid('grid-beginner',     courses.beginner,     progress);
-  renderCourseGrid('grid-intermediate', courses.intermediate, progress);
-  renderCourseGrid('grid-advanced',     courses.advanced,     progress);
-  updateProgressRing(progress);
-  updateStageBadges(progress);
+document.addEventListener('DOMContentLoaded', async () => {
+  // 先用本地缓存快速渲染，再异步合并服务端数据
+  const localProgress = getProgress();
+  const renderAll = (p) => {
+    renderCourseGrid('grid-beginner',     courses.beginner,     p);
+    renderCourseGrid('grid-intermediate', courses.intermediate, p);
+    renderCourseGrid('grid-advanced',     courses.advanced,     p);
+    updateProgressRing(p);
+    updateStageBadges(p);
+  };
+  renderAll(localProgress);
+
+  // 异步从服务端同步（完成后刷新 UI）
+  const merged = await initProgress();
+  renderAll(merged);
 
   // 启动打字机
   twEl = document.getElementById('typewriter-output');
